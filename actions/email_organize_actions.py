@@ -4,56 +4,13 @@ Actions for organizing and labeling emails.
 
 from typing import Any, Text, Dict, List
 import os
+import json
+import requests
 
 from rasa_sdk import Action, RasaProTracker, RasaProSlot
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.llm import SingleStepLLMCommandGenerator  
 
 from actions.email_client import EmailClient
-
-class ActionSortMail(Action):
-    """Action to sort emails based on content analysis."""
-    
-    def name(self) -> Text:
-        return "action_sort_mail"
-    
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: RasaProTracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        """
-        Sort emails into categories based on content analysis.
-        
-        Args:
-            dispatcher: Dispatcher to send messages to the user
-            tracker: Tracker to get conversation state
-            domain: Domain with parameters
-            
-        Returns:
-            Empty list as this action doesn't update the conversation state
-        """
-        # Initialize email client
-        credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
-        token_path = os.getenv("GMAIL_TOKEN_PATH")
-        
-        email_client = EmailClient(
-            credentials_path=credentials_path,
-            token_path=token_path
-        )
-        
-        dispatcher.utter_message(
-            text="I'm organizing your emails based on their content. This might take a moment..."
-        )
-        
-        # Sort emails using the content analysis algorithm
-        success = email_client.sort_emails_by_content()
-        
-        # Let utter_sorting_complete handle the success message
-        if not success:
-            dispatcher.utter_message(
-                text="I had trouble organizing your emails. Please check your internet connection and try again."
-            )
-        
-        return []
 
 
 class ActionLabelMail(Action):
@@ -126,7 +83,7 @@ class ActionLabelMail(Action):
     
     def determine_label(self, content: str, subject: str) -> str:
         """
-        Use Rasa Pro's LLM to determine an appropriate label for the email.
+        Use an external LLM service to determine an appropriate label for the email.
         
         Args:
             content: Email content
@@ -135,11 +92,14 @@ class ActionLabelMail(Action):
         Returns:
             Appropriate label for the email
         """
-        # Create LLM command generator
-        llm_generator = SingleStepLLMCommandGenerator()
+        # Use OpenAI API directly - best practice for external API calls in actions
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            print("OpenAI API key not found")
+            return self._fallback_label_determination(content, subject)
         
-        # Prepare the prompt for the LLM
-        llm_prompt = f"""
+        # Prepare the prompt
+        prompt = f"""
         Analyze the following email and determine the most appropriate category label for it.
         Choose from these common categories: Work, Personal, Finance, Travel, Social, Updates, Important, Family, Shopping, or Promotions.
         If none of these fit well, suggest a single concise category name that best describes the email's purpose.
@@ -153,29 +113,62 @@ class ActionLabelMail(Action):
         """
         
         try:
-            # Generate the label using Rasa Pro's LLM integration
-            label = llm_generator.generate(llm_prompt).strip()
+            # Call OpenAI API
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant that labels emails."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 50,
+                    "temperature": 0.3
+                },
+                timeout=10
+            )
+            
+            # Parse response
+            response_data = response.json()
+            label = response_data["choices"][0]["message"]["content"].strip()
             
             # Clean up the response - ensure it's just a single label
             if "\n" in label:
                 label = label.split("\n")[0]
             
             return label
+            
         except Exception as e:
             print(f"Error determining label with LLM: {e}")
+            return self._fallback_label_determination(content, subject)
+    
+    def _fallback_label_determination(self, content: str, subject: str) -> str:
+        """
+        Fallback method for label determination using rule-based approach.
+        
+        Args:
+            content: Email content
+            subject: Email subject
             
-            # Fallback to rule-based approach if LLM fails
-            combined_text = (subject + " " + content).lower()
-            
-            if any(word in combined_text for word in ["meeting", "project", "deadline", "report"]):
-                return "Work"
-            elif any(word in combined_text for word in ["invoice", "payment", "receipt", "transaction"]):
-                return "Finance"
-            elif any(word in combined_text for word in ["urgent", "important", "immediately", "asap"]):
-                return "Important"
-            elif any(word in combined_text for word in ["flight", "hotel", "booking", "reservation"]):
-                return "Travel"
-            elif any(word in combined_text for word in ["newsletter", "update", "news"]):
-                return "Updates"
-            else:
-                return "General"
+        Returns:
+            Determined label
+        """
+        # Combine subject and body for analysis
+        combined_text = (subject + " " + content).lower()
+        
+        if any(word in combined_text for word in ["meeting", "project", "deadline", "report"]):
+            return "Work"
+        elif any(word in combined_text for word in ["invoice", "payment", "receipt", "transaction"]):
+            return "Finance"
+        elif any(word in combined_text for word in ["urgent", "important", "immediately", "asap"]):
+            return "Important"
+        elif any(word in combined_text for word in ["flight", "hotel", "booking", "reservation"]):
+            return "Travel"
+        elif any(word in combined_text for word in ["newsletter", "update", "news"]):
+            return "Updates"
+        else:
+            return "General"

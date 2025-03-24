@@ -4,10 +4,12 @@ Actions for drafting and sending email replies.
 
 from typing import Any, Text, Dict, List
 import os
+import re
+import requests
 
-from rasa_sdk import Action, RasaProTracker, RasaProSlot
+from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.llm import SingleStepLLMCommandGenerator  
+from rasa_sdk.events import SlotSet
 
 from actions.email_client import EmailClient
 
@@ -60,16 +62,12 @@ class ActionDraftReply(Action):
             original_content
         )
         
-        # Show the draft to the user - we don't need to display the draft here
-        # as it will be shown by the utter_confirm_sending response
-        # which uses the {email_response} slot
-        
         # Update the email_response slot with the enhanced response
         return [SlotSet("email_response", enhanced_response)]
     
     def generate_professional_email(self, content: str, sender: str, subject: str, original_content: str) -> str:
         """
-        Generate a professional email response using Rasa Pro's LLM integration.
+        Generate a professional email response using external LLM API.
         
         Args:
             content: User's instructions for the reply
@@ -80,8 +78,11 @@ class ActionDraftReply(Action):
         Returns:
             Formatted email response
         """
-        # Create LLM command generator
-        llm_generator = SingleStepLLMCommandGenerator()
+        # Get API key from environment
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            print("OpenAI API key not found")
+            return self._fallback_email_generation(content, sender)
         
         # Extract recipient name from sender
         recipient_name = "there"
@@ -90,8 +91,8 @@ class ActionDraftReply(Action):
             # Take first name only
             recipient_name = full_name.split()[0] if full_name else "there"
         
-        # Prepare the prompt for the LLM
-        llm_prompt = f"""
+        # Prepare the prompt
+        prompt = f"""
         Draft a professional email reply based on the following information:
         
         Original email subject: {subject}
@@ -108,19 +109,60 @@ class ActionDraftReply(Action):
         """
         
         try:
-            # Generate the response using Rasa Pro's LLM integration
-            llm_response = llm_generator.generate(llm_prompt)
-            return llm_response.strip()
+            # Call OpenAI API
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant that drafts professional emails."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 500,
+                    "temperature": 0.7
+                },
+                timeout=10
+            )
+            
+            # Parse response
+            response_data = response.json()
+            email_text = response_data["choices"][0]["message"]["content"].strip()
+            
+            return email_text
+            
         except Exception as e:
             print(f"Error generating email with LLM: {e}")
+            return self._fallback_email_generation(content, sender)
+    
+    def _fallback_email_generation(self, content: str, sender: str) -> str:
+        """
+        Fallback method for email generation without LLM.
+        
+        Args:
+            content: User's email content
+            sender: Recipient information
             
-            # Fallback to a basic template if LLM fails
-            greeting = f"Hello {recipient_name},"
-            signature = "\n\nBest regards,\n[Your Name]"
-            
-            # Simple formatting as fallback
-            formatted_content = f"{greeting}\n\n{content}\n{signature}"
-            return formatted_content
+        Returns:
+            Formatted email
+        """
+        # Extract recipient name from sender
+        recipient_name = "there"
+        if "(" in sender and ")" in sender:
+            full_name = sender.split("(")[0].strip()
+            # Take first name only
+            recipient_name = full_name.split()[0] if full_name else "there"
+        
+        # Basic template
+        greeting = f"Hello {recipient_name},"
+        signature = "\n\nBest regards,\n[Your Name]"
+        
+        # Simple formatting as fallback
+        formatted_content = f"{greeting}\n\n{content}\n{signature}"
+        return formatted_content
 
 
 class ActionSendReply(Action):
