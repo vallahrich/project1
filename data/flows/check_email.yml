@@ -1,0 +1,21 @@
+flows:
+  check_new_mail:
+    description: "Check for new emails in the inbox"
+    steps:
+      - action: action_check_new_mail
+      - noop: true
+        next:
+          - if: "slots.current_email_id is not null"
+            then: read_mail
+          - else: END
+  
+  read_mail:
+    description: "Read the content of an email"
+    steps:
+      - action: action_read_mail
+      - action: utter_confirm_reply
+      - noop: true
+        next:
+          - if: "slots.confirm_reply = true"
+            then: draft_reply
+          - else: END

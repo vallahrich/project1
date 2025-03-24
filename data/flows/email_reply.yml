@@ -1,0 +1,39 @@
+flows:
+  draft_reply:
+    description: "Draft a reply to the current email"
+    steps:
+      - action: utter_ask_for_response
+      - collect: email_response
+      - action: action_draft_reply
+      - action: utter_confirm_sending
+      - noop: true
+        next:
+          - if: "slots.confirm_sending = true"
+            then: send_reply
+          - else: revise_reply
+  
+  send_reply:
+    description: "Send a drafted email reply"
+    steps:
+      - action: action_send_reply
+      - action: utter_email_sent
+      - action: utter_ask_anything_else
+  
+  revise_reply:
+    description: "Revise a drafted email reply"
+    steps:
+      - action: utter_ask_for_response
+      - collect: email_response
+      - action: action_draft_reply
+      - action: utter_confirm_sending
+      - noop: true
+        next:
+          - if: "slots.confirm_sending = true"
+            then: send_reply
+          - else: cancel_reply
+  
+  cancel_reply:
+    description: "Cancel drafting or sending an email reply"
+    steps:
+      - action: utter_email_not_sent
+      - action: utter_ask_anything_else

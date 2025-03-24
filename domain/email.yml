@@ -1,5 +1,15 @@
 version: "3.1"
 
+intents:
+  - greeting
+  - goodbye
+  - help
+  - check_email
+  - read_email
+  - reply_to_email
+  - sort_emails
+  - label_email
+
 slots:
   # Email-related slots
   current_email_id:
@@ -32,6 +42,26 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  confirm_reply:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      intent: affirm
+      value: true
+    - type: from_intent
+      intent: deny
+      value: false
+  confirm_sending:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      intent: affirm
+      value: true
+    - type: from_intent
+      intent: deny
+      value: false
 
 responses:
   utter_greet:
