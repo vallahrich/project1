@@ -1,0 +1,103 @@
+flows:
+  - name: check_new_mail_flow
+    start_checkpoints:
+      - first_activation
+    steps:
+      - LLM:
+          examples:
+            - "Do I have any new emails?"
+            - "Check my inbox"
+            - "Any new messages?"
+      - action: action_check_new_mail
+      - action: action_read_mail
+      - action: utter_confirm_reply
+      - checkpoint: wait_for_reply_decision
+
+  - name: reply_flow
+    start_checkpoints:
+      - wait_for_reply_decision
+    steps:
+      - LLM:
+          examples:
+            - "Yes, I want to reply"
+            - "Sure, let's respond"
+      - action: utter_ask_for_response
+      - LLM:
+          examples:
+            - "Tell them I'll be available tomorrow"
+            - "Thank them for the information"
+      - slot: email_response
+      - action: action_draft_reply
+      - action: utter_confirm_sending
+      - checkpoint: wait_for_send_decision
+
+  - name: send_reply_flow
+    start_checkpoints:
+      - wait_for_send_decision
+    steps:
+      - LLM:
+          examples:
+            - "Yes, send it"
+            - "Go ahead"
+      - action: action_send_reply
+      - action: utter_email_sent
+
+  - name: cancel_reply_flow
+    start_checkpoints:
+      - wait_for_reply_decision
+      - wait_for_send_decision
+    steps:
+      - LLM:
+          examples:
+            - "No"
+            - "Not now"
+            - "Cancel"
+      - action: utter_email_not_sent
+
+  - name: sort_mail_flow
+    start_checkpoints:
+      - first_activation
+    steps:
+      - LLM:
+          examples:
+            - "Sort my emails"
+            - "Organize my inbox"
+            - "Categorize my emails"
+      - action: action_sort_mail
+      - action: utter_sorting_complete
+
+  - name: label_mail_flow
+    start_checkpoints:
+      - first_activation
+    steps:
+      - LLM:
+          examples:
+            - "Label this email as important"
+            - "Mark as work"
+            - "Tag as personal"
+            - "Add finance label to this email"
+      - slot: email_label
+      - action: action_label_mail
+      - action: utter_labeling_complete
+
+  - name: greeting_flow
+    start_checkpoints:
+      - first_activation
+    steps:
+      - LLM:
+          examples:
+            - "Hello"
+            - "Hi"
+            - "Hey there"
+      - action: utter_greet
+
+  - name: goodbye_flow
+    start_checkpoints:
+      - first_activation
+    steps:
+      - LLM:
+          examples:
+            - "Goodbye"
+            - "Bye"
+            - "That's all for now"
+      - action: utter_goodbye

@@ -1,0 +1,9 @@
+{
+  "embeddings": {
+    "provider": "openai",
+    "model": "text-embedding-ada-002"
+  },
+  "num_flows": 20,
+  "turns_to_embed": 1,
+  "should_embed_slots": true
+}

@@ -1,0 +1,76 @@
+version: "3.1"
+
+slots:
+  current_email_id:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_subject:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_sender:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_content:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  email_response:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  email_label:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+responses:
+  utter_greet:
+  - text: "Hello! How can I help you with your emails today?"
+
+  utter_goodbye:
+  - text: "Goodbye! Let me know if you need help with your emails later."
+
+  utter_no_new_mail:
+  - text: "You don't have any new emails at the moment."
+
+  utter_confirm_reply:
+  - text: "Would you like to reply to this email from {current_email_sender} about '{current_email_subject}'?"
+
+  utter_ask_for_response:
+  - text: "What would you like to say in your reply?"
+
+  utter_confirm_sending:
+  - text: "I've drafted the following reply: {email_response}. Would you like me to send it?"
+
+  utter_email_sent:
+  - text: "Great! Your email has been sent successfully."
+
+  utter_email_not_sent:
+  - text: "I've canceled sending the email."
+
+  utter_sorting_complete:
+  - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
+
+  utter_labeling_complete:
+  - text: "I've labeled your emails as requested."
+
+actions:
+  - action_check_new_mail
+  - action_read_mail
+  - action_draft_reply
+  - action_send_reply
+  - action_sort_mail
+  - action_label_mail
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

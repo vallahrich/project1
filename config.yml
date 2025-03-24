@@ -1,0 +1,55 @@
+recipe: default.v1
+language: en
+pipeline:
+  - name: SingleStepLLMCommandGenerator
+    llm:
+      model_group: openai-gpt-4
+
+policies:
+  - name: FlowPolicy
+  - name: IntentlessPolicy
+
+
+language: en
+
+pipeline:
+  - name: SingleStepLLMIntentAndEntityProcessor
+    model_name: "gpt-4"
+    api_key: ${OPENAI_API_KEY}
+    prompt_template: |
+      You are an AI assistant helping with email management.
+      User query: {query}
+      
+      Analyze the intent of the user's query and extract any entities.
+      The user might want to:
+      - Check for new emails
+      - Read email content
+      - Reply to emails
+      - Sort or label emails
+      
+      Respond with the identified intent and any entities you find.
+
+policies:
+  - name: SingleStepLLMCommandGenerator
+    model_name: "gpt-4"
+    api_key: ${OPENAI_API_KEY}
+    prompt_template: |
+      You are an AI assistant helping with email management. 
+      Current conversation context:
+      {context}
+      
+      Based on this context, determine the next action to take:
+      - action_check_new_mail: Check for new emails
+      - action_read_mail: Read email content
+      - action_draft_reply: Draft a reply to an email
+      - action_send_reply: Send a reply
+      - action_sort_mail: Sort emails
+      - action_label_mail: Label emails
+      - utter_greet: Greet the user
+      - utter_goodbye: Say goodbye
+      - utter_confirm_reply: Ask if the user wants to reply
+      - utter_ask_for_response: Ask what to include in the reply
+      - utter_confirm_sending: Confirm before sending
+      
+      Respond with only the action name and any extracted slots in JSON format.
+  - name: RulePolicy

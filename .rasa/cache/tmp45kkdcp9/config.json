@@ -1,0 +1,25 @@
+{
+  "prompt": null,
+  "prompt_template": null,
+  "user_input": null,
+  "llm": {
+    "id": "openai-gpt-4",
+    "models": [
+      {
+        "provider": "openai",
+        "model": "openai/gpt-4",
+        "request_timeout": 7,
+        "max_tokens": 256
+      }
+    ]
+  },
+  "flow_retrieval": {
+    "embeddings": {
+      "provider": "openai",
+      "model": "text-embedding-ada-002"
+    },
+    "num_flows": 20,
+    "turns_to_embed": 1,
+    "should_embed_slots": true
+  }
+}
