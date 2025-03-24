@@ -1,5 +1,7 @@
 flows:
+  # CHECKING EMAIL FLOW
   - name: check_new_mail_flow
+    description: "Check for new emails in the inbox"
     start_checkpoints:
       - first_activation
     steps:
@@ -8,12 +10,24 @@ flows:
             - "Do I have any new emails?"
             - "Check my inbox"
             - "Any new messages?"
+            - "Show me my new emails"
+            - "What's in my inbox?"
       - action: action_check_new_mail
+      - checkpoint: after_email_check
+      
+  # READING EMAIL FLOW
+  - name: read_mail_flow
+    description: "Read the content of an email"
+    start_checkpoints:
+      - after_email_check
+    steps:
       - action: action_read_mail
       - action: utter_confirm_reply
       - checkpoint: wait_for_reply_decision
 
+  # REPLY FLOW
   - name: reply_flow
+    description: "Draft a reply to the current email"
     start_checkpoints:
       - wait_for_reply_decision
     steps:
@@ -21,17 +35,23 @@ flows:
           examples:
             - "Yes, I want to reply"
             - "Sure, let's respond"
+            - "Write a reply"
+            - "Respond to this email"
       - action: utter_ask_for_response
       - LLM:
           examples:
             - "Tell them I'll be available tomorrow"
             - "Thank them for the information"
+            - "Say that I need more details"
+            - "Let them know I'll review it by Friday"
       - slot: email_response
       - action: action_draft_reply
       - action: utter_confirm_sending
       - checkpoint: wait_for_send_decision
 
+  # SEND REPLY FLOW
   - name: send_reply_flow
+    description: "Send a drafted email reply"
     start_checkpoints:
       - wait_for_send_decision
     steps:
@@ -39,10 +59,38 @@ flows:
           examples:
             - "Yes, send it"
             - "Go ahead"
+            - "Send the email"
+            - "Looks good, send it"
       - action: action_send_reply
       - action: utter_email_sent
+      - action: utter_ask_anything_else
 
+  # REVISE REPLY FLOW
+  - name: revise_reply_flow
+    description: "Revise a drafted email reply"
+    start_checkpoints:
+      - wait_for_send_decision
+    steps:
+      - LLM:
+          examples:
+            - "No, let me revise it"
+            - "I want to change something"
+            - "Modify the reply"
+            - "Can we edit it?"
+      - action: utter_ask_for_response
+      - LLM:
+          examples:
+            - "Make it more formal"
+            - "Add this information"
+            - "Change the wording"
+      - slot: email_response
+      - action: action_draft_reply
+      - action: utter_confirm_sending
+      - checkpoint: wait_for_send_decision
+
+  # CANCEL REPLY FLOW
   - name: cancel_reply_flow
+    description: "Cancel drafting or sending an email reply"
     start_checkpoints:
       - wait_for_reply_decision
       - wait_for_send_decision
@@ -52,9 +100,13 @@ flows:
             - "No"
             - "Not now"
             - "Cancel"
+            - "I don't want to reply"
       - action: utter_email_not_sent
+      - action: utter_ask_anything_else
 
+  # SORT EMAIL FLOW
   - name: sort_mail_flow
+    description: "Sort emails into categories based on content"
     start_checkpoints:
       - first_activation
     steps:
@@ -63,10 +115,14 @@ flows:
             - "Sort my emails"
             - "Organize my inbox"
             - "Categorize my emails"
+            - "Group my messages"
       - action: action_sort_mail
       - action: utter_sorting_complete
+      - action: utter_ask_anything_else
 
+  # LABEL EMAIL FLOW
   - name: label_mail_flow
+    description: "Apply a label to the current email"
     start_checkpoints:
       - first_activation
     steps:
@@ -79,8 +135,11 @@ flows:
       - slot: email_label
       - action: action_label_mail
       - action: utter_labeling_complete
+      - action: utter_ask_anything_else
 
+  # GREETING FLOW
   - name: greeting_flow
+    description: "Handle greetings from the user"
     start_checkpoints:
       - first_activation
     steps:
@@ -89,9 +148,26 @@ flows:
             - "Hello"
             - "Hi"
             - "Hey there"
+            - "Good morning"
       - action: utter_greet
 
+  # HELP FLOW
+  - name: help_flow
+    description: "Provide information about assistant capabilities"
+    start_checkpoints:
+      - first_activation
+    steps:
+      - LLM:
+          examples:
+            - "What can you do?"
+            - "Help me"
+            - "How do you work?"
+            - "What are your features?"
+      - action: utter_capabilities
+
+  # GOODBYE FLOW
   - name: goodbye_flow
+    description: "Handle farewells from the user"
     start_checkpoints:
       - first_activation
     steps:
@@ -100,4 +176,5 @@ flows:
             - "Goodbye"
             - "Bye"
             - "That's all for now"
+            - "See you later"
       - action: utter_goodbye

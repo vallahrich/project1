@@ -1,27 +1,26 @@
 recipe: default.v1
 language: en
 
-# Pipeline for natural language understanding
+# Pipeline for processing user messages
 pipeline:
-  - name: LLMIntentClassifier
-    llm:
-      model_name: "gpt-4"
-      api_key: ${OPENAI_API_KEY}
-    prompt_prefix: |
-      You are an AI assistant helping with email management.
-      Analyze the user's query to identify their intent.
-      The user might want to:
-      - Check for new emails
-      - Read email content
-      - Reply to emails
-      - Sort or label emails
+- name: CompactLLMCommandGenerator
+  llm:
+    model_name: "gpt-4o-2024-11-20"    # Use the latest recommended model
+    api_key: '${OPENAI_API_KEY}'
+      # No need to specify a prompt template as we'll use the default optimized one
 
 # Policies for dialogue management
 policies:
-  - name: FlowPolicy
-  - name: IntentlessPolicy
-  - name: LLMPolicy
-    llm:
-      model_name: "gpt-4"
-      api_key: ${OPENAI_API_KEY}
-    max_tokens: 256
+- name: FlowPolicy    # Handle Rasa Pro flow definitions
+- name: IntentlessPolicy    # Support conversations without explicit intents
+- name: RulePolicy    # Handle simple rules
+
+# Model group for LLM API access in custom actions
+model_groups:
+- id: openai-gpt4o
+  models:
+  - provider: openai
+    model: gpt-4o-2024-11-20
+    request_timeout: 10
+    max_tokens: 500
+assistant_id: 20250324-164058-glum-rack

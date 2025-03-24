@@ -2,7 +2,6 @@
 Actions for checking and reading emails.
 """
 
-
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, RasaProTracker, RasaProSlot
 from rasa_sdk.executor import CollectingDispatcher
@@ -98,29 +97,37 @@ class ActionReadMail(Action):
         Returns:
             Empty list as this action doesn't update the conversation state
         """
-        # Get email details from slots
-        sender = tracker.get_slot("current_email_sender")
-        subject = tracker.get_slot("current_email_subject")
-        content = tracker.get_slot("current_email_content")
-        
-        if not sender or not subject or not content:
-            dispatcher.utter_message(text="I don't have any email details to read.")
+        try:
+            # Get email details from slots
+            sender = tracker.get_slot("current_email_sender")
+            subject = tracker.get_slot("current_email_subject")
+            content = tracker.get_slot("current_email_content")
+            
+            if not sender or not subject or not content:
+                dispatcher.utter_message(text="I don't have any email details to read.")
+                return []
+            
+            # Prepare the email content for reading
+            # Format the email in a readable way
+            email_text = (
+                f"From: {sender}\n"
+                f"Subject: {subject}\n\n"
+                f"{content}"
+            )
+            
+            # Send the formatted email text to the user
+            dispatcher.utter_message(text=email_text)
+            
+            # Offer follow-up actions
+            dispatcher.utter_message(
+                text="Would you like to reply to this email, label it, or check for other emails?"
+            )
+            
             return []
-        
-        # Prepare the email content for reading
-        # Format the email in a readable way
-        email_text = (
-            f"From: {sender}\n"
-            f"Subject: {subject}\n\n"
-            f"{content}"
-        )
-        
-        # Send the formatted email text to the user
-        dispatcher.utter_message(text=email_text)
-        
-        # Offer follow-up actions
-        dispatcher.utter_message(
-            text="Would you like to reply to this email, label it, or check for other emails?"
-        )
-        
-        return []
+            
+        except Exception as e:
+            logger.error(f"Error reading email: {str(e)}")
+            dispatcher.utter_message(
+                text="I encountered an error while reading your email. Please try again later."
+            )
+            return []

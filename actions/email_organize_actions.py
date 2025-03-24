@@ -4,13 +4,69 @@ Actions for organizing and labeling emails.
 
 from typing import Any, Text, Dict, List
 import os
-import json
 import requests
+import json
+import logging
 
 from rasa_sdk import Action, RasaProTracker, RasaProSlot
 from rasa_sdk.executor import CollectingDispatcher
 
 from actions.email_client import EmailClient
+
+# Set up logger
+logger = logging.getLogger(__name__)
+
+class ActionSortMail(Action):
+    """Action to sort emails based on content analysis."""
+    
+    def name(self) -> Text:
+        return "action_sort_mail"
+    
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: RasaProTracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        """
+        Sort emails into categories based on content analysis.
+        
+        Args:
+            dispatcher: Dispatcher to send messages to the user
+            tracker: Tracker to get conversation state
+            domain: Domain with parameters
+            
+        Returns:
+            Empty list as this action doesn't update the conversation state
+        """
+        try:
+            # Initialize email client
+            credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
+            token_path = os.getenv("GMAIL_TOKEN_PATH")
+            
+            email_client = EmailClient(
+                credentials_path=credentials_path,
+                token_path=token_path
+            )
+            
+            dispatcher.utter_message(
+                text="I'm organizing your emails based on their content. This might take a moment..."
+            )
+            
+            # Sort emails using the content analysis algorithm
+            success = email_client.sort_emails_by_content()
+            
+            # Let utter_sorting_complete handle the success message
+            if not success:
+                dispatcher.utter_message(
+                    text="I had trouble organizing your emails. Please check your internet connection and try again."
+                )
+            
+            return []
+            
+        except Exception as e:
+            logger.error(f"Error sorting emails: {str(e)}")
+            dispatcher.utter_message(
+                text="I encountered an error while sorting your emails. Please try again later."
+            )
+            return []
 
 
 class ActionLabelMail(Action):
@@ -33,53 +89,61 @@ class ActionLabelMail(Action):
         Returns:
             Empty list as this action doesn't update the conversation state
         """
-        # Get the label from the slot
-        label = tracker.get_slot("email_label")
-        email_id = tracker.get_slot("current_email_id")
-        
-        if not email_id:
-            dispatcher.utter_message(
-                text="I don't have an email selected to label. Let's check your inbox first."
-            )
-            return []
-        
-        # Get email content for analysis if no label is provided
-        if not label:
-            content = tracker.get_slot("current_email_content")
-            subject = tracker.get_slot("current_email_subject")
+        try:
+            # Get the label from the slot
+            label = tracker.get_slot("email_label")
+            email_id = tracker.get_slot("current_email_id")
             
-            if not content or not subject:
+            if not email_id:
                 dispatcher.utter_message(
-                    text="I need more information about the email to determine an appropriate label."
+                    text="I don't have an email selected to label. Let's check your inbox first."
                 )
                 return []
             
-            # Use LLM to determine the appropriate label
-            determined_label = self.determine_label(content, subject)
-            label = determined_label
+            # Get email content for analysis if no label is provided
+            if not label:
+                content = tracker.get_slot("current_email_content")
+                subject = tracker.get_slot("current_email_subject")
+                
+                if not content or not subject:
+                    dispatcher.utter_message(
+                        text="I need more information about the email to determine an appropriate label."
+                    )
+                    return []
+                
+                # Use LLM to determine the appropriate label
+                determined_label = self.determine_label(content, subject)
+                label = determined_label
+                
+                # Tell the user what label was chosen
+                dispatcher.utter_message(
+                    text=f"Based on the content, I've determined this email should be labeled as '{label}'."
+                )
             
-            # Tell the user what label was chosen
-            dispatcher.utter_message(
-                text=f"Based on the content, I've determined this email should be labeled as '{label}'."
+            # Initialize email client
+            credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
+            token_path = os.getenv("GMAIL_TOKEN_PATH")
+            
+            email_client = EmailClient(
+                credentials_path=credentials_path,
+                token_path=token_path
             )
-        
-        # Initialize email client
-        credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
-        token_path = os.getenv("GMAIL_TOKEN_PATH")
-        
-        email_client = EmailClient(
-            credentials_path=credentials_path,
-            token_path=token_path
-        )
-        
-        # Apply the label
-        success = email_client.apply_label(email_id, label)
-        
-        # Let utter_labeling_complete handle the success message
-        if not success:
-            dispatcher.utter_message(text=f"There was an issue applying the label '{label}'.")
-        
-        return []
+            
+            # Apply the label
+            success = email_client.apply_label(email_id, label)
+            
+            # Let utter_labeling_complete handle the success message
+            if not success:
+                dispatcher.utter_message(text=f"There was an issue applying the label '{label}'.")
+            
+            return []
+            
+        except Exception as e:
+            logger.error(f"Error labeling email: {str(e)}")
+            dispatcher.utter_message(
+                text="I encountered an error while labeling your email. Please try again later."
+            )
+            return []
     
     def determine_label(self, content: str, subject: str) -> str:
         """
@@ -95,7 +159,7 @@ class ActionLabelMail(Action):
         # Use OpenAI API directly - best practice for external API calls in actions
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            print("OpenAI API key not found")
+            logger.warning("OpenAI API key not found")
             return self._fallback_label_determination(content, subject)
         
         # Prepare the prompt
@@ -121,7 +185,7 @@ class ActionLabelMail(Action):
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gpt-4",
+                    "model": "gpt-4o-2024-11-20",
                     "messages": [
                         {"role": "system", "content": "You are a helpful assistant that labels emails."},
                         {"role": "user", "content": prompt}
@@ -143,7 +207,7 @@ class ActionLabelMail(Action):
             return label
             
         except Exception as e:
-            print(f"Error determining label with LLM: {e}")
+            logger.error(f"Error determining label with LLM: {e}")
             return self._fallback_label_determination(content, subject)
     
     def _fallback_label_determination(self, content: str, subject: str) -> str:

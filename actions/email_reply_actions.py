@@ -6,6 +6,8 @@ from typing import Any, Text, Dict, List
 import os
 import re
 import requests
+import json
+import logging
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
@@ -13,6 +15,8 @@ from rasa_sdk.events import SlotSet
 
 from actions.email_client import EmailClient
 
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class ActionDraftReply(Action):
     """Action to draft a reply to the current email."""
@@ -34,36 +38,44 @@ class ActionDraftReply(Action):
         Returns:
             List of events with the updated email_response slot
         """
-        # Get the user's response content
-        response_content = tracker.get_slot("email_response")
-        
-        if not response_content:
+        try:
+            # Get the user's response content
+            response_content = tracker.get_slot("email_response")
+            
+            if not response_content:
+                dispatcher.utter_message(
+                    text="I didn't catch what you want to say in your reply. Could you please tell me what you'd like to say?"
+                )
+                return []
+            
+            # Get email details from slots
+            sender = tracker.get_slot("current_email_sender")
+            subject = tracker.get_slot("current_email_subject")
+            original_content = tracker.get_slot("current_email_content")
+            
+            if not sender or not subject or not original_content:
+                dispatcher.utter_message(
+                    text="I don't have the original email details. Let's check your inbox first."
+                )
+                return []
+            
+            # Use LLM to draft a professional email response
+            enhanced_response = self.generate_professional_email(
+                response_content, 
+                sender, 
+                subject, 
+                original_content
+            )
+            
+            # Update the email_response slot with the enhanced response
+            return [SlotSet("email_response", enhanced_response)]
+            
+        except Exception as e:
+            logger.error(f"Error drafting email reply: {str(e)}")
             dispatcher.utter_message(
-                text="I didn't catch what you want to say in your reply. Could you please tell me what you'd like to say?"
+                text="I encountered an error while drafting your reply. Please try again later."
             )
             return []
-        
-        # Get email details from slots
-        sender = tracker.get_slot("current_email_sender")
-        subject = tracker.get_slot("current_email_subject")
-        original_content = tracker.get_slot("current_email_content")
-        
-        if not sender or not subject or not original_content:
-            dispatcher.utter_message(
-                text="I don't have the original email details. Let's check your inbox first."
-            )
-            return []
-        
-        # Use LLM to draft a professional email response
-        enhanced_response = self.generate_professional_email(
-            response_content, 
-            sender, 
-            subject, 
-            original_content
-        )
-        
-        # Update the email_response slot with the enhanced response
-        return [SlotSet("email_response", enhanced_response)]
     
     def generate_professional_email(self, content: str, sender: str, subject: str, original_content: str) -> str:
         """
@@ -81,7 +93,7 @@ class ActionDraftReply(Action):
         # Get API key from environment
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            print("OpenAI API key not found")
+            logger.warning("OpenAI API key not found")
             return self._fallback_email_generation(content, sender)
         
         # Extract recipient name from sender
@@ -117,7 +129,7 @@ class ActionDraftReply(Action):
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gpt-4",
+                    "model": "gpt-4o-2024-11-20",
                     "messages": [
                         {"role": "system", "content": "You are a helpful assistant that drafts professional emails."},
                         {"role": "user", "content": prompt}
@@ -135,7 +147,7 @@ class ActionDraftReply(Action):
             return email_text
             
         except Exception as e:
-            print(f"Error generating email with LLM: {e}")
+            logger.error(f"Error generating email with LLM: {e}")
             return self._fallback_email_generation(content, sender)
     
     def _fallback_email_generation(self, content: str, sender: str) -> str:
@@ -185,47 +197,55 @@ class ActionSendReply(Action):
         Returns:
             Empty list as this action doesn't update the conversation state
         """
-        # Get email details from slots
-        sender_full = tracker.get_slot("current_email_sender")
-        subject = tracker.get_slot("current_email_subject")
-        response = tracker.get_slot("email_response")
-        email_id = tracker.get_slot("current_email_id")
-        
-        if not sender_full or not subject or not response:
+        try:
+            # Get email details from slots
+            sender_full = tracker.get_slot("current_email_sender")
+            subject = tracker.get_slot("current_email_subject")
+            response = tracker.get_slot("email_response")
+            email_id = tracker.get_slot("current_email_id")
+            
+            if not sender_full or not subject or not response:
+                dispatcher.utter_message(
+                    text="I don't have enough information to send a reply. Let's draft a response first."
+                )
+                return []
+            
+            # Extract email address from sender
+            sender_match = re.search(r'\((.*?)\)', sender_full)
+            sender_email = sender_match.group(1) if sender_match else sender_full
+            
+            # Initialize email client
+            credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
+            token_path = os.getenv("GMAIL_TOKEN_PATH")
+            
+            email_client = EmailClient(
+                credentials_path=credentials_path,
+                token_path=token_path
+            )
+            
+            # Add "Re:" prefix if not already present
+            subject_prefix = "Re: " if not subject.startswith("Re:") else ""
+            full_subject = f"{subject_prefix}{subject}"
+            
+            # Send the email
+            success = email_client.send_email(
+                to=sender_email,
+                subject=full_subject,
+                body=response,
+                reply_to=email_id
+            )
+            
+            # Let utter_email_sent handle the success message
+            if not success:
+                dispatcher.utter_message(
+                    text="There was an issue sending your reply. Please check your internet connection and try again."
+                )
+            
+            return []
+            
+        except Exception as e:
+            logger.error(f"Error sending email reply: {str(e)}")
             dispatcher.utter_message(
-                text="I don't have enough information to send a reply. Let's draft a response first."
+                text="I encountered an error while sending your reply. Please try again later."
             )
             return []
-        
-        # Extract email address from sender
-        sender_match = re.search(r'\((.*?)\)', sender_full)
-        sender_email = sender_match.group(1) if sender_match else sender_full
-        
-        # Initialize email client
-        credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
-        token_path = os.getenv("GMAIL_TOKEN_PATH")
-        
-        email_client = EmailClient(
-            credentials_path=credentials_path,
-            token_path=token_path
-        )
-        
-        # Add "Re:" prefix if not already present
-        subject_prefix = "Re: " if not subject.startswith("Re:") else ""
-        full_subject = f"{subject_prefix}{subject}"
-        
-        # Send the email
-        success = email_client.send_email(
-            to=sender_email,
-            subject=full_subject,
-            body=response,
-            reply_to=email_id
-        )
-        
-        # Let utter_email_sent handle the success message
-        if not success:
-            dispatcher.utter_message(
-                text="There was an issue sending your reply. Please check your internet connection and try again."
-            )
-        
-        return []
