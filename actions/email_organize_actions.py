@@ -7,10 +7,9 @@ import os
 
 from rasa_sdk import Action, RasaProTracker, RasaProSlot
 from rasa_sdk.executor import CollectingDispatcher
-# from rasa_sdk.llm import SingleStepLLMCommandGenerator
+from rasa_sdk.llm import SingleStepLLMCommandGenerator  
 
 from actions.email_client import EmailClient
-
 
 class ActionSortMail(Action):
     """Action to sort emails based on content analysis."""

@@ -117,13 +117,46 @@ class EmailClient:
             print(f"Failed to build Gmail service: {e}")
             return False
     
+    @staticmethod
+    def rate_limit(max_per_second):
+        """
+        Rate limiting decorator to prevent API throttling.
+        
+        Args:
+            max_per_second: Maximum number of calls allowed per second
+            
+        Returns:
+            Decorated function with rate limiting
+        """
+        from functools import wraps
+        import time
+        
+        min_interval = 1.0 / max_per_second
+        last_called = [0.0]
+        
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                elapsed = time.time() - last_called[0]
+                left_to_wait = min_interval - elapsed
+                
+                if left_to_wait > 0:
+                    time.sleep(left_to_wait)
+                    
+                ret = func(*args, **kwargs)
+                last_called[0] = time.time()
+                return ret
+            return wrapper
+        return decorator
+
+    @rate_limit(2)  # 2 calls per second max
     def get_unread_emails(self, max_results: int = 5) -> List[Dict[str, Any]]:
         """
-        Get unread emails from the inbox.
+        Get unread emails from the inbox with rate limiting.
         
         Args:
             max_results: Maximum number of emails to retrieve
-            
+                
         Returns:
             List of email objects with id, sender, subject, snippet, body, and date
         """

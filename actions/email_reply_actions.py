@@ -4,11 +4,10 @@ Actions for drafting and sending email replies.
 
 from typing import Any, Text, Dict, List
 import os
-import re
 
-from rasa_sdk import Action, Tracker
+from rasa_sdk import Action, RasaProTracker, RasaProSlot
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet
+from rasa_sdk.llm import SingleStepLLMCommandGenerator  
 
 from actions.email_client import EmailClient
 
