@@ -1,0 +1,23 @@
+version: "3.1"
+
+intents:
+  - sort_emails
+  - label_email
+
+slots:
+  email_label:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+responses:
+  utter_sorting_complete:
+  - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
+
+  utter_labeling_complete:
+  - text: "I've labeled your emails as requested."
+
+actions:
+  - action_sort_mail
+  - action_label_mail

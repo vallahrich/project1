@@ -1,0 +1,48 @@
+version: "3.1"
+
+intents:
+  - check_email
+  - read_email
+
+slots:
+  current_email_id:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_subject:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_sender:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_content:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  confirm_reply:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      intent: affirm
+      value: true
+    - type: from_intent
+      intent: deny
+      value: false
+
+responses:
+  utter_no_new_mail:
+  - text: "You don't have any new emails at the moment."
+
+  utter_confirm_reply:
+  - text: "Would you like to reply to this email from {current_email_sender} about '{current_email_subject}'?"
+
+actions:
+  - action_check_new_mail
+  - action_read_mail
