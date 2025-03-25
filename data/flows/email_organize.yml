@@ -1,12 +1,12 @@
 flows:
-  sort_mail:
+  sort_mail_flow:
     description: "Sort emails into categories based on content"
     steps:
       - action: action_sort_mail
       - action: utter_sorting_complete
       - action: utter_ask_anything_else
   
-  label_mail:
+  label_mail_flow:
     description: "Apply a label to the current email"
     if: "slots.current_email_id is not null"
     steps:

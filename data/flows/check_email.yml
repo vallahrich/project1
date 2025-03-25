@@ -6,10 +6,10 @@ flows:
       - noop: true
         next:
           - if: "slots.current_email_id is not null"
-            then: read_mail
+            then: read_mail_flow
           - else: END
   
-  read_mail:
+  read_mail_flow:
     description: "Read the content of an email"
     steps:
       - action: action_read_mail
@@ -17,5 +17,5 @@ flows:
       - noop: true
         next:
           - if: "slots.confirm_reply = true"
-            then: draft_reply
+            then: draft_reply_flow
           - else: END

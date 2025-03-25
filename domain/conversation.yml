@@ -25,6 +25,9 @@ responses:
   
   utter_ask_anything_else:
   - text: "Is there anything else you'd like me to help you with?"
+  
+  utter_email_not_sent:
+  - text: "I've canceled sending the email."
 
 session_config:
   session_expiration_time: 60
