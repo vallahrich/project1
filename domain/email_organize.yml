@@ -9,14 +9,17 @@ slots:
     type: text
     influence_conversation: false
     mappings:
-    - type: custom
+    - type: from_text
 
 responses:
   utter_sorting_complete:
   - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
 
   utter_labeling_complete:
-  - text: "I've labeled your emails as requested."
+  - text: "I've labeled your email as requested."
+  
+  utter_ask_email_label:
+  - text: "What label would you like to apply to this email?"
 
 actions:
   - action_sort_mail

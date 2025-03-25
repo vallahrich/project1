@@ -3,6 +3,8 @@ language: en
 
 # Pipeline for processing user messages
 pipeline:
+- name: NLUCommandAdapter
+  # Required for intent-based slot mappings (confirm_reply and confirm_sending)
 - name: CompactLLMCommandGenerator
   llm:
     model_name: "gpt-4o-2024-11-20"    # Use the latest recommended model

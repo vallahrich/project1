@@ -8,7 +8,7 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: from_text
   confirm_sending:
     type: bool
     influence_conversation: true
@@ -32,6 +32,9 @@ responses:
 
   utter_email_not_sent:
   - text: "I've canceled sending the email."
+
+  utter_no_email_selected:
+  - text: "I don't have an email selected. Let's check your inbox first."
 
 actions:
   - action_draft_reply
