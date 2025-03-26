@@ -3,7 +3,8 @@ Actions for checking and reading emails.
 """
 
 from typing import Any, Text, Dict, List
-from rasa_sdk import Action, RasaProTracker, RasaProSlot
+from rasa_sdk import Action, Tracker
+from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 import os
 import logging
@@ -20,7 +21,7 @@ class ActionCheckNewMail(Action):
         return "action_check_new_mail"
     
     def run(self, dispatcher: CollectingDispatcher,
-            tracker: RasaProTracker,
+            tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
         Check for new emails and report the most recent one.
@@ -63,10 +64,10 @@ class ActionCheckNewMail(Action):
             
             # Return events to set slots with email details
             return [
-                RasaProSlot("current_email_id", email["id"]),
-                RasaProSlot("current_email_sender", f"{email['sender_name']} ({email['sender']})"),
-                RasaProSlot("current_email_subject", email["subject"]),
-                RasaProSlot("current_email_content", email["body"])
+                SlotSet("current_email_id", email["id"]),
+                SlotSet("current_email_sender", f"{email['sender_name']} ({email['sender']})"),
+                SlotSet("current_email_subject", email["subject"]),
+                SlotSet("current_email_content", email["body"])
             ]
             
         except Exception as e:
@@ -84,7 +85,7 @@ class ActionReadMail(Action):
         return "action_read_mail"
     
     def run(self, dispatcher: CollectingDispatcher,
-            tracker: RasaProTracker,
+            tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
         Read the content of the current email.

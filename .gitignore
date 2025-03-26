@@ -1,2 +1,17 @@
 /models
 /venv
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Rasa cache
+.rasa/cache/
+.rasa/cache/tmp*/
+
+# Credentials and tokens
+credentials/
+*.json
+
+# Environment variables
+.env

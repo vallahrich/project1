@@ -10,8 +10,8 @@ import json
 import logging
 
 from rasa_sdk import Action, Tracker
-from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet
+from rasa_sdk.executor import CollectingDispatcher
 
 from actions.email_client import EmailClient
 

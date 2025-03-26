@@ -8,7 +8,8 @@ import requests
 import json
 import logging
 
-from rasa_sdk import Action, RasaProTracker, RasaProSlot
+from rasa_sdk import Action, Tracker
+from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
 from actions.email_client import EmailClient
@@ -23,7 +24,7 @@ class ActionSortMail(Action):
         return "action_sort_mail"
     
     def run(self, dispatcher: CollectingDispatcher,
-            tracker: RasaProTracker,
+            tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
         Sort emails into categories based on content analysis.
@@ -76,7 +77,7 @@ class ActionLabelMail(Action):
         return "action_label_mail"
     
     def run(self, dispatcher: CollectingDispatcher,
-            tracker: RasaProTracker,
+            tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
         Label the current email, using AI to determine the label if none is provided.
