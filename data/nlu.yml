@@ -1,107 +1,48 @@
-version: "3.1"
+# Add these intents to your existing nlu.yml
 
-nlu:
-- intent: greeting
+- intent: select_email
   examples: |
-    - hello
-    - hi
-    - hey there
-    - good morning
-    - good afternoon
-    - howdy
+    - read email [1](selected_email)
+    - read email [2](selected_email)
+    - read email [3](selected_email)
+    - show me email [1](selected_email)
+    - open email [2](selected_email)
+    - read the email from [Google](selected_email)
+    - read the [Amazon](selected_email) email
+    - show me the email about [Security](selected_email)
+    - read email number [1](selected_email)
+    - open the [first](selected_email) email
+    - show the [second](selected_email) email
+    - read the [third](selected_email) message
 
-- intent: goodbye
+- intent: navigate_email
   examples: |
-    - bye
-    - goodbye
-    - see you later
-    - see you soon
-    - that's all for now
-    - take care
+    - show [next](navigation_direction) email
+    - go to [next](navigation_direction) email
+    - show [previous](navigation_direction) email
+    - go to [previous](navigation_direction) email
+    - [next](navigation_direction) message
+    - [previous](navigation_direction) message
+    - show me the [next](navigation_direction) one
+    - go back to the [previous](navigation_direction) one
+    - [next](navigation_direction)
+    - [previous](navigation_direction)
+    - go [next](navigation_direction)
+    - go [back](navigation_direction)
 
-- intent: affirm
+- intent: apply_label
   examples: |
-    - yes
-    - yep
-    - yeah
-    - correct
-    - that's right
-    - sure
-    - ok
-    - okay
-    - go ahead
-    - sounds good
-
-- intent: deny
-  examples: |
-    - no
-    - nope
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
-    - not now
-    - cancel
-    - stop
-
-- intent: help
-  examples: |
-    - help
-    - what can you do
-    - how does this work
-    - what are your features
-    - how can you help me
-    - show me what you can do
-    - help me understand
-
-- intent: check_email
-  examples: |
-    - check my emails
-    - any new emails
-    - do I have new messages
-    - check my inbox
-    - show my new emails
-    - look for new emails
-    - any new mail
-
-- intent: read_email
-  examples: |
-    - read my email
-    - read the email
-    - show me the email content
-    - what does the email say
-    - open the email
-    - read the message
-    - tell me what's in the email
-
-- intent: reply_to_email
-  examples: |
-    - reply to this email
-    - answer this email
-    - write a response
-    - send a reply
-    - respond to this
-    - draft a reply
-    - reply to the message
-
-- intent: sort_emails
-  examples: |
-    - sort my emails
-    - organize my inbox
-    - categorize my emails
-    - group my messages
-    - sort mail
-    - organize emails by topic
-    - put emails in categories
-
-- intent: label_email
-  examples: |
-    - label this email
-    - add a label
-    - mark as important
-    - tag this email
-    - categorize this email
-    - add a tag
-    - mark as work
-    - label as personal
+    - apply the label [Work](label_choice)
+    - label as [Important](label_choice)
+    - use [Personal](label_choice) label
+    - apply [Family](label_choice) label
+    - create new label [To-do](label_choice)
+    - make a new label called [Follow up](label_choice)
+    - use label [Finance](label_choice)
+    - mark as [Urgent](label_choice)
+    - use [recommendation](label_choice)
+    - apply your [recommendation](label_choice)
+    - use suggested label
+    - apply label number [1](label_choice)
+    - use the [first](label_choice) label
+    - select label [2](label_choice)

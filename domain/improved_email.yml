@@ -1,0 +1,94 @@
+version: "3.1"
+
+intents:
+  - select_email
+  - navigate_email
+  - apply_label
+  - draft_reply
+
+slots:
+  # New slots for email management
+  emails:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  email_count:
+    type: float
+    influence_conversation: true
+    mappings:
+    - type: custom
+  current_email_index:
+    type: float
+    influence_conversation: true
+    mappings:
+    - type: custom
+  selected_email:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text
+  navigation_direction:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  
+  # New slots for label management
+  suggested_labels:
+    type: list
+    influence_conversation: true
+    mappings:
+    - type: custom
+  existing_labels:
+    type: text # JSON list
+    influence_conversation: true
+    mappings:
+    - type: custom
+  label_choice:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text
+  
+  # New slots for reply management
+  reply_stage:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  reply_type:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+  user_input:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text
+
+responses:
+  utter_ask_selected_email:
+  - text: "Which email would you like to read? You can select by number or specify by sender/subject."
+
+  utter_ask_navigation_direction:
+  - text: "Would you like to see the next email or the previous one?"
+
+  utter_ask_label_choice:
+  - text: "Which label would you like to apply? You can select one of the existing labels, create a new one, or use my recommendation."
+
+  utter_ask_reply_type:
+  - text: "How would you like me to draft your reply? I can use your exact words, create a professional reply, or create a casual reply."
+
+  utter_ask_user_input:
+  - text: "What would you like to say in your reply?"
+
+actions:
+  - action_list_emails
+  - action_read_selected_email
+  - action_navigate_emails
+  - action_get_label_suggestions
+  - action_apply_selected_label
+  - action_initiate_reply
+  - action_generate_reply_draft

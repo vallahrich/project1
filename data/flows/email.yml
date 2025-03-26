@@ -2,8 +2,7 @@ flows:
   # Email checking flows
   check_new_mail:
     description: "Check for new emails in the inbox"
-    nlu_trigger:
-      - intent: check_email
+    # Remove the nlu_trigger section
     steps:
       - action: action_check_new_mail
       - noop: true
@@ -30,8 +29,7 @@ flows:
   # Email reply flows
   draft_reply:
     description: "Draft a reply to the current email"
-    nlu_trigger:
-      - intent: reply_to_email
+    # Remove the nlu_trigger section here
     steps:
       - noop: true
         next:

@@ -1,0 +1,90 @@
+flows:
+  # Email listing and reading flows
+  list_emails:
+    description: "List all unread emails in the inbox in a numbered format"
+    nlu_trigger:
+      - intent: check_email
+    steps:
+      - action: action_list_emails
+      - collect: selected_email
+        description: "The email to read, specified by number or description"
+        utter: utter_ask_selected_email
+      - action: action_read_selected_email
+        next: END
+  
+  navigate_emails:
+    description: "Navigate to the next or previous email"
+    nlu_trigger:
+      - intent: navigate_email
+    steps:
+      - collect: navigation_direction
+        description: "Direction to navigate (next or previous)"
+        utter: utter_ask_navigation_direction
+      - action: action_navigate_emails
+        next: END
+  
+  # Enhanced email labeling flow
+  enhanced_label_email:
+    description: "Get label suggestions and apply a label to the current email"
+    nlu_trigger:
+      - intent: label_email
+    steps:
+      - noop: true
+        next:
+          - if: "slots.current_email_id is null"
+            then:
+              - action: utter_no_email_selected
+                next: END
+          - else: suggest_labels
+      - id: suggest_labels
+        action: action_get_label_suggestions
+      - collect: label_choice
+        description: "The label to apply or an action like 'use recommendation'"
+        utter: utter_ask_label_choice
+      - action: action_apply_selected_label
+        next: END
+  
+  # Enhanced email reply flow
+  enhanced_reply:
+    description: "Enhanced flow for drafting and sending an email reply"
+    nlu_trigger:
+      - intent: reply_to_email
+    steps:
+      - noop: true
+        next:
+          - if: "slots.current_email_id is null"
+            then:
+              - action: utter_no_email_selected
+                next: END
+          - else: initiate_reply
+      - id: initiate_reply
+        action: action_initiate_reply
+      - collect: reply_type
+        description: "Type of reply (user_content, professional, casual, custom)"
+        utter: utter_ask_reply_type
+      - noop: true
+        next:
+          - if: "slots.reply_type = 'user_content' or slots.reply_type = 'custom'"
+            then: get_user_input
+          - else: generate_draft
+      - id: get_user_input
+        collect: user_input
+        description: "User's content for the email reply or custom style"
+        utter: utter_ask_user_input
+        next: generate_draft
+      - id: generate_draft
+        action: action_generate_reply_draft
+      - action: utter_confirm_sending
+      - noop: true
+        next:
+          - if: "slots.confirm_sending = true"
+            then:
+              - action: action_send_reply
+              - action: utter_email_sent
+              - action: utter_ask_anything_else
+                next: END
+          - else:
+              - action: utter_email_not_sent
+              - action: utter_ask_anything_else
+                next: END
+        
