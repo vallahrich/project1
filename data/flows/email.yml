@@ -9,7 +9,8 @@ flows:
       - noop: true
         next:
           - if: "slots.current_email_id is not null"
-            then: read_mail
+            then:
+              - link: read_mail
           - else: END
   
   read_mail:
@@ -22,7 +23,8 @@ flows:
       - noop: true
         next:
           - if: "slots.confirm_reply = true"
-            then: draft_reply
+            then:
+              - link: draft_reply
           - else: END
 
   # Email reply flows
@@ -36,18 +38,20 @@ flows:
           - if: "slots.current_email_id is null"
             then:
               - action: utter_no_email_selected
-              next: END
+                next: END
           - else: ask_for_response
       - id: ask_for_response
-        action: utter_ask_for_response
-      - collect: email_response
+        collect: email_response
+        utter: utter_ask_for_response
       - action: action_draft_reply
       - action: utter_confirm_sending
       - noop: true
         next:
           - if: "slots.confirm_sending = true"
-            then: send_reply
-          - else: revise_reply
+            then:
+              - link: send_reply
+          - else:
+              - link: revise_reply
   
   send_reply:
     description: "Send a drafted email reply"
@@ -59,15 +63,17 @@ flows:
   revise_reply:
     description: "Revise a drafted email reply"
     steps:
-      - action: utter_ask_for_response
       - collect: email_response
+        utter: utter_ask_for_response
       - action: action_draft_reply
       - action: utter_confirm_sending
       - noop: true
         next:
           - if: "slots.confirm_sending = true"
-            then: send_reply
-          - else: cancel_reply
+            then:
+              - link: send_reply
+          - else:
+              - link: cancel_reply
   
   cancel_reply:
     description: "Cancel drafting or sending an email reply"
@@ -75,24 +81,25 @@ flows:
       - action: utter_email_not_sent
       - action: utter_ask_anything_else
 
-  # Email organization flows
-  sort_mail:
-    description: "Sort emails into categories based on content"
-    nlu_trigger:
-      - intent: sort_emails
-    steps:
-      - action: action_sort_mail
-      - action: utter_sorting_complete
-      - action: utter_ask_anything_else
+  # # Email organization flows
+  # sort_mail:
+  #   description: "Sort emails into categories based on content"
+  #   nlu_trigger:
+  #     - intent: sort_emails
+  #   steps:
+  #     - action: action_sort_mail
+  #     - action: utter_sorting_complete
+  #     - action: utter_ask_anything_else
   
-  label_mail:
-    description: "Apply a label to the current email"
-    if: "slots.current_email_id is not null"
-    nlu_trigger:
-      - intent: label_email
-    steps:
-      - collect: email_label
-        description: "The label to apply to the email"
-      - action: action_label_mail
-      - action: utter_labeling_complete
-      - action: utter_ask_anything_else
+  # label_mail:
+  #   description: "Apply a label to the current email"
+  #   if: "slots.current_email_id is not null"
+  #   nlu_trigger:
+  #     - intent: label_email
+  #   steps:
+  #     - action: utter_ask_email_label
+  #     - collect: email_label
+  #       description: "The label to apply to the email"
+  #     - action: action_label_mail
+  #     - action: utter_labeling_complete
+  #     - action: utter_ask_anything_else
