@@ -7,9 +7,9 @@ pipeline:
   # Required for intent-based slot mappings (confirm_reply and confirm_sending)
 - name: CompactLLMCommandGenerator
   llm:
-    model_name: "gpt-4o-2024-11-20"    # Use the latest recommended model
-    api_key: '${OPENAI_API_KEY}'
-      # No need to specify a prompt template as we'll use the default optimized one
+    model_group_id: openai-gpt4o
+  minimize_num_calls: true
+  prompt_template: prompts/custom_prompt_template.jinja2
 
 # Policies for dialogue management
 policies:
@@ -17,7 +17,7 @@ policies:
 - name: IntentlessPolicy    # Support conversations without explicit intents
 - name: RulePolicy    # Handle simple rules
 
-# Model group for LLM API access in custom actions
+# Model group for LLM API access
 model_groups:
 - id: openai-gpt4o
   models:
@@ -25,4 +25,5 @@ model_groups:
     model: gpt-4o-2024-11-20
     request_timeout: 10
     max_tokens: 500
+    temperature: 0.7
 assistant_id: 20250324-164058-glum-rack

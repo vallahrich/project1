@@ -1,0 +1,17 @@
+{
+  "prompt_template": "prompts/custom_prompt_template.jinja2",
+  "user_input": null,
+  "llm": {
+    "model_group_id": "openai-gpt4o"
+  },
+  "flow_retrieval": {
+    "embeddings": {
+      "provider": "openai",
+      "model": "text-embedding-ada-002"
+    },
+    "num_flows": 20,
+    "turns_to_embed": 1,
+    "should_embed_slots": true
+  },
+  "minimize_num_calls": true
+}
