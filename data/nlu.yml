@@ -14,6 +14,17 @@
     - open the [first](selected_email) email
     - show the [second](selected_email) email
     - read the [third](selected_email) message
+    - I want to read [Vincent](selected_email)'s mail 
+    - read the [1](selected_email) mail
+    - show me the email from [Vincent](selected_email)
+    - I'd like to see email [1](selected_email)
+    - let me read the [first](selected_email) one
+    - I want to read email number [1](selected_email)
+    - open [Vincent](selected_email)'s email
+    - read [1](selected_email)
+    - email [1](selected_email)
+    - [first](selected_email) email
+    - [1](selected_email)
 
 - intent: navigate_email
   examples: |

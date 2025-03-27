@@ -70,7 +70,7 @@ slots:
 
 responses:
   utter_ask_selected_email:
-  - text: "Which email would you like to read? You can select by number or specify by sender/subject."
+  - text: "Which email would you like to read? You can select by number (e.g., '1'), mention the sender (e.g., 'Vincent's email'), or refer to the subject."
 
   utter_ask_navigation_direction:
   - text: "Would you like to see the next email or the previous one?"

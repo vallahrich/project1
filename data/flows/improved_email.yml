@@ -7,7 +7,7 @@ flows:
     steps:
       - action: action_list_emails
       - collect: selected_email
-        description: "The email to read, specified by number or description"
+        description: "The email to read, can be specified by number, sender name, or keyword from subject"
         utter: utter_ask_selected_email
       - action: action_read_selected_email
         next: END

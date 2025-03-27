@@ -56,7 +56,13 @@ We are currently asking the user for a value for the slot '{{ collection_slot.na
 5. If the user message is unrelated to any existing flow and is just casual conversation, use `offtopic reply`.
 6. Email-specific guidelines:
    - For checking emails, use the `list_emails` flow instead of the old `check_new_mail` flow.
-   - When a user specifies an email number, set `selected_email` slot (e.g., `set slot selected_email 1`).
+   - When a user wants to read a specific email, extract the number or reference and set the selected_email slot.
+     Examples:
+     * "read email 1" → `set slot selected_email 1`
+     * "read Vincent's email" → `set slot selected_email Vincent`
+     * "I want to read the first email" → `set slot selected_email 1`
+     * "open the one from Google" → `set slot selected_email Google`
+     * "read the email about Security" → `set slot selected_email Security`
    - When user wants to navigate to next/previous email, set `navigation_direction` slot to "next" or "previous".
    - For applying labels, use the `enhanced_label_email` flow.
    - For replying to emails, use the `enhanced_reply` flow.

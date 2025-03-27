@@ -22,8 +22,8 @@ class ActionListEmails(Action):
         return "action_list_emails"
     
     def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        tracker: Tracker,
+        domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
         List all unread emails in a numbered format.
         """
@@ -47,14 +47,14 @@ class ActionListEmails(Action):
             # Store all emails in a slot as JSON
             emails_json = json.dumps(unread_emails)
             
-            # Create a numbered list of emails
+            # Create a numbered list of emails - REMOVE THE QUESTION AT THE END
             email_list = "Here are your unread emails:\n\n"
             for i, email in enumerate(unread_emails, 1):
                 email_list += f"{i}. From: {email['sender_name']} ({email['sender']})\n"
                 email_list += f"   Subject: {email['subject']}\n"
                 email_list += f"   Received: {email['date']}\n\n"
             
-            email_list += "Which email would you like to read? You can select by number or specify by sender/subject."
+            # Remove the question line from here as it will be handled by utter_ask_selected_email
             
             dispatcher.utter_message(text=email_list)
             

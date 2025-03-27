@@ -107,7 +107,127 @@ class ImprovedEmailClient:
         except Exception as e:
             print(f"Failed to build Gmail service: {e}")
             return False
+    
+    @staticmethod
+    def rate_limit(max_per_second):
+        """
+        Rate limiting decorator to prevent API throttling.
+        
+        Args:
+            max_per_second: Maximum number of calls allowed per second
+            
+        Returns:
+            Decorated function with rate limiting
+        """
+        from functools import wraps
+        import time
+        
+        min_interval = 1.0 / max_per_second
+        last_called = [0.0]
+        
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                elapsed = time.time() - last_called[0]
+                left_to_wait = min_interval - elapsed
+                
+                if left_to_wait > 0:
+                    time.sleep(left_to_wait)
+                    
+                ret = func(*args, **kwargs)
+                last_called[0] = time.time()
+                return ret
+            return wrapper
+        return decorator
 
+    @rate_limit(2)  # 2 calls per second max
+    def get_unread_emails(self, max_results: int = 10) -> List[Dict[str, Any]]:
+        """
+        Enhanced version that retrieves more emails and formats them better for display
+        """
+        if not self.authorized or not self.service:
+            print("Not authorized to access Gmail")
+            return []
+        
+        try:
+            # Query for unread messages in inbox
+            results = self.service.users().messages().list(
+                userId=self.user_id,
+                labelIds=['INBOX', 'UNREAD'],
+                maxResults=max_results
+            ).execute()
+            
+            messages = results.get('messages', [])
+            
+            if not messages:
+                return []
+            
+            emails = []
+            
+            for message in messages:
+                msg_id = message['id']
+                
+                # Get the full message details
+                msg = self.service.users().messages().get(
+                    userId=self.user_id, 
+                    id=msg_id,
+                    format='full'
+                ).execute()
+                
+                headers = msg['payload']['headers']
+                
+                # Extract email details from headers
+                subject = ""
+                sender = ""
+                sender_name = ""
+                date_str = ""
+                
+                for header in headers:
+                    if header['name'] == 'Subject':
+                        subject = header['value']
+                    elif header['name'] == 'From':
+                        sender_full = header['value']
+                        # Extract name and email address
+                        if '<' in sender_full and '>' in sender_full:
+                            sender_name = sender_full.split('<')[0].strip()
+                            sender = sender_full.split('<')[1].split('>')[0].strip()
+                        else:
+                            sender = sender_full
+                            sender_name = sender_full
+                    elif header['name'] == 'Date':
+                        date_str = header['value']
+                
+                # Get the message body
+                body = self._get_message_body(msg)
+                
+                # Parse date into friendly format
+                try:
+                    date_obj = datetime.strptime(date_str.split('(')[0].strip(), "%a, %d %b %Y %H:%M:%S %z")
+                    friendly_date = date_obj.strftime("%b %d, %Y at %I:%M %p")
+                except Exception:
+                    friendly_date = "Recently"
+                
+                # Create email object with additional fields
+                email = {
+                    "id": msg_id,
+                    "sender": sender,
+                    "sender_name": sender_name,
+                    "subject": subject,
+                    "snippet": msg.get('snippet', ''),
+                    "body": body,
+                    "date": friendly_date,
+                    "labels": msg.get('labelIds', []),
+                    "read": 'UNREAD' not in msg.get('labelIds', [])
+                }
+                
+                emails.append(email)
+            
+            return emails
+        
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return []
+    
     def _get_message_body(self, message: Dict[str, Any]) -> str:
         """
         Extract the message body from the Gmail API response.
@@ -134,7 +254,39 @@ class ImprovedEmailClient:
             body = base64.urlsafe_b64decode(message['payload']['body']['data']).decode('utf-8')
         
         return body
-
+    
+    def get_all_labels(self) -> List[Dict[str, Any]]:
+        """
+        Get all available labels in the user's Gmail account.
+        
+        Returns:
+            List of label objects with id and name
+        """
+        if not self.authorized or not self.service:
+            print("Not authorized to access labels")
+            return []
+        
+        try:
+            # Get all labels
+            results = self.service.users().labels().list(userId=self.user_id).execute()
+            labels = results.get('labels', [])
+            
+            # Format the labels
+            formatted_labels = []
+            for label in labels:
+                # Skip system labels like INBOX, SENT, etc.
+                if not label['id'].startswith('CATEGORY_') and not label['id'] in ['INBOX', 'SENT', 'SPAM', 'TRASH', 'DRAFT', 'UNREAD']:
+                    formatted_labels.append({
+                        'id': label['id'],
+                        'name': label['name']
+                    })
+            
+            return formatted_labels
+        
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return []
+    
     def send_email(self, to: str, subject: str, body: str, reply_to: Optional[str] = None) -> bool:
         """
         Send an email.
@@ -181,7 +333,7 @@ class ImprovedEmailClient:
         except HttpError as error:
             print(f"An error occurred: {error}")
             return False
-
+    
     def apply_label(self, email_id: str, label: str) -> bool:
         """
         Apply a label to an email.
@@ -216,7 +368,7 @@ class ImprovedEmailClient:
         except HttpError as error:
             print(f"An error occurred: {error}")
             return False
-
+    
     def _get_or_create_label(self, label_name: str) -> Optional[str]:
         """
         Get the ID of a label, creating it if it doesn't exist.
