@@ -52,136 +52,199 @@ class ImprovedEmailClient:
         # Connect to Gmail API
         self.connect()
     
-    # Keep the same connect() method as the original
-    def connect(self):
-        """Same connect method as original EmailClient"""
-        # Implementation remains the same as the original EmailClient
-        # [Omitted for brevity]
-        pass
-
-    def get_unread_emails(self, max_results: int = 10) -> List[Dict[str, Any]]:
+    def connect(self) -> bool:
         """
-        Enhanced version that retrieves more emails and formats them better for display
+        Connect to Gmail API using OAuth 2.0.
+        
+        Returns:
+            bool: True if connection successful, False otherwise
         """
-        if not self.authorized or not self.service:
-            print("Not authorized to access Gmail")
-            return []
+        creds = None
+        
+        # Check if token file exists
+        if os.path.exists(self.token_path):
+            try:
+                creds = Credentials.from_authorized_user_info(
+                    json.loads(open(self.token_path).read()),
+                    self.SCOPES
+                )
+            except Exception as e:
+                print(f"Error loading token: {e}")
+        
+        # If credentials don't exist or are invalid, go through the OAuth flow
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                try:
+                    creds.refresh(Request())
+                except Exception as e:
+                    print(f"Error refreshing token: {e}")
+                    creds = None
+            
+            # If still no valid credentials, go through OAuth flow
+            if not creds:
+                if not self.credentials_path or not os.path.exists(self.credentials_path):
+                    print("Credentials file not found")
+                    return False
+                
+                try:
+                    flow = InstalledAppFlow.from_client_secrets_file(
+                        self.credentials_path, self.SCOPES)
+                    creds = flow.run_local_server(port=0)
+                except Exception as e:
+                    print(f"Error during OAuth flow: {e}")
+                    return False
+                
+                # Save the credentials for future use
+                with open(self.token_path, 'w') as token:
+                    token.write(creds.to_json())
         
         try:
-            # Query for unread messages in inbox
-            results = self.service.users().messages().list(
+            # Build the Gmail service
+            self.service = build('gmail', 'v1', credentials=creds)
+            self.authorized = True
+            print("Successfully connected to Gmail API")
+            return True
+        except Exception as e:
+            print(f"Failed to build Gmail service: {e}")
+            return False
+
+    def _get_message_body(self, message: Dict[str, Any]) -> str:
+        """
+        Extract the message body from the Gmail API response.
+        
+        Args:
+            message: The message object from Gmail API
+            
+        Returns:
+            The message body as text
+        """
+        body = ""
+        
+        if 'parts' in message['payload']:
+            for part in message['payload']['parts']:
+                if part['mimeType'] == 'text/plain':
+                    body = base64.urlsafe_b64decode(part['body']['data']).decode('utf-8')
+                    break
+                elif 'parts' in part:
+                    for subpart in part['parts']:
+                        if subpart['mimeType'] == 'text/plain':
+                            body = base64.urlsafe_b64decode(subpart['body']['data']).decode('utf-8')
+                            break
+        elif 'body' in message['payload'] and 'data' in message['payload']['body']:
+            body = base64.urlsafe_b64decode(message['payload']['body']['data']).decode('utf-8')
+        
+        return body
+
+    def send_email(self, to: str, subject: str, body: str, reply_to: Optional[str] = None) -> bool:
+        """
+        Send an email.
+        
+        Args:
+            to: Recipient email address
+            subject: Email subject
+            body: Email body content
+            reply_to: Message ID to reply to (if applicable)
+            
+        Returns:
+            True if email was sent successfully, False otherwise
+        """
+        if not self.authorized or not self.service:
+            print("Not authorized to send email")
+            return False
+        
+        try:
+            # Create email message
+            message = MIMEMultipart()
+            message['to'] = to
+            message['subject'] = subject
+            
+            # Add In-Reply-To header if replying to an email
+            if reply_to:
+                message['In-Reply-To'] = reply_to
+                message['References'] = reply_to
+            
+            # Add the message body
+            msg = MIMEText(body)
+            message.attach(msg)
+            
+            # Encode the message
+            raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+            
+            # Send the message
+            self.service.users().messages().send(
                 userId=self.user_id,
-                labelIds=['INBOX', 'UNREAD'],
-                maxResults=max_results
+                body={'raw': raw_message}
             ).execute()
             
-            messages = results.get('messages', [])
-            
-            if not messages:
-                return []
-            
-            emails = []
-            
-            for message in messages:
-                msg_id = message['id']
-                
-                # Get the full message details
-                msg = self.service.users().messages().get(
-                    userId=self.user_id, 
-                    id=msg_id,
-                    format='full'
-                ).execute()
-                
-                headers = msg['payload']['headers']
-                
-                # Extract email details from headers
-                subject = ""
-                sender = ""
-                sender_name = ""
-                date_str = ""
-                
-                for header in headers:
-                    if header['name'] == 'Subject':
-                        subject = header['value']
-                    elif header['name'] == 'From':
-                        sender_full = header['value']
-                        # Extract name and email address
-                        if '<' in sender_full and '>' in sender_full:
-                            sender_name = sender_full.split('<')[0].strip()
-                            sender = sender_full.split('<')[1].split('>')[0].strip()
-                        else:
-                            sender = sender_full
-                            sender_name = sender_full
-                    elif header['name'] == 'Date':
-                        date_str = header['value']
-                
-                # Get the message body
-                body = self._get_message_body(msg)
-                
-                # Parse date into friendly format
-                try:
-                    date_obj = datetime.strptime(date_str.split('(')[0].strip(), "%a, %d %b %Y %H:%M:%S %z")
-                    friendly_date = date_obj.strftime("%b %d, %Y at %I:%M %p")
-                except:
-                    friendly_date = "Recently"
-                
-                # Create email object with additional fields
-                email = {
-                    "id": msg_id,
-                    "sender": sender,
-                    "sender_name": sender_name,
-                    "subject": subject,
-                    "snippet": msg.get('snippet', ''),
-                    "body": body,
-                    "date": friendly_date,
-                    "labels": msg.get('labelIds', []),
-                    "read": 'UNREAD' not in msg.get('labelIds', [])
-                }
-                
-                emails.append(email)
-            
-            return emails
+            return True
         
         except HttpError as error:
             print(f"An error occurred: {error}")
-            return []
+            return False
 
-    def _get_message_body(self, message):
-        """Same implementation as the original"""
-        # [Implementation remains the same as the original EmailClient]
-        pass
-    
-    def get_all_labels(self) -> List[Dict[str, Any]]:
+    def apply_label(self, email_id: str, label: str) -> bool:
         """
-        Get all available labels in the user's Gmail account.
+        Apply a label to an email.
         
+        Args:
+            email_id: The ID of the email
+            label: The label to apply
+            
         Returns:
-            List of label objects with id and name
+            True if label applied successfully, False otherwise
         """
         if not self.authorized or not self.service:
-            print("Not authorized to access labels")
-            return []
+            print("Not authorized to apply labels")
+            return False
         
+        try:
+            # First, check if the label exists
+            label_id = self._get_or_create_label(label)
+            
+            if not label_id:
+                return False
+            
+            # Apply the label to the email
+            self.service.users().messages().modify(
+                userId=self.user_id,
+                id=email_id,
+                body={'addLabelIds': [label_id]}
+            ).execute()
+            
+            return True
+        
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return False
+
+    def _get_or_create_label(self, label_name: str) -> Optional[str]:
+        """
+        Get the ID of a label, creating it if it doesn't exist.
+        
+        Args:
+            label_name: The name of the label
+            
+        Returns:
+            The label ID if successful, None otherwise
+        """
         try:
             # Get all labels
             results = self.service.users().labels().list(userId=self.user_id).execute()
             labels = results.get('labels', [])
             
-            # Format the labels
-            formatted_labels = []
+            # Check if the label already exists
             for label in labels:
-                # Skip system labels like INBOX, SENT, etc.
-                if not label['id'].startswith('CATEGORY_') and not label['id'] in ['INBOX', 'SENT', 'SPAM', 'TRASH', 'DRAFT', 'UNREAD']:
-                    formatted_labels.append({
-                        'id': label['id'],
-                        'name': label['name']
-                    })
+                if label['name'].lower() == label_name.lower():
+                    return label['id']
             
-            return formatted_labels
+            # Create the label if it doesn't exist
+            new_label = self.service.users().labels().create(
+                userId=self.user_id,
+                body={'name': label_name}
+            ).execute()
+            
+            return new_label['id']
         
         except HttpError as error:
             print(f"An error occurred: {error}")
-            return []
-    
-    # Include the send_email, apply_label, and other required methods from the original
-    # [Implementation of other methods from the original EmailClient]
+            return None

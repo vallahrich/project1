@@ -46,3 +46,23 @@
     - apply label number [1](label_choice)
     - use the [first](label_choice) label
     - select label [2](label_choice)
+
+- intent: reply_type
+  examples: |
+    - [use my own words](reply_type:user_content)
+    - [professional](reply_type:professional)
+    - [casual](reply_type:casual)
+    - [formal](reply_type:professional)
+    - [friendly](reply_type:casual)
+    - [draft a professional reply](reply_type:professional)
+    - [draft a casual reply](reply_type:casual)
+    - [use my words](reply_type:user_content)
+    - I want to [write it myself](reply_type:user_content)
+    - [custom](reply_type:custom)
+    - [create a custom reply](reply_type:custom)
+    - [option 1](reply_type:user_content)
+    - [option 2](reply_type:professional)
+    - [option 3](reply_type:casual)
+    - [option 4](reply_type:custom)
+    - [concerned](reply_type:custom)
+    - [polite but firm](reply_type:custom)

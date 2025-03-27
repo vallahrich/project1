@@ -211,21 +211,177 @@ class ActionGenerateReplyDraft(Action):
     
     def generate_professional_reply(self, sender: str, subject: str, original_content: str) -> str:
         """Generate a professional reply based on the original email content."""
-        # Implementation similar to generate_reply_from_user_content but with different prompt
-        # [Implementation omitted for brevity]
-        pass
-    
+        # Get API key from environment
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.warning("OpenAI API key not found")
+            return self._fallback_email_generation("", sender)
+        
+        # Extract recipient name from sender
+        recipient_name = "there"
+        if "(" in sender and ")" in sender:
+            full_name = sender.split("(")[0].strip()
+            recipient_name = full_name.split()[0] if full_name else "there"
+        
+        # Prepare the prompt
+        prompt = f"""
+        Generate a professional email reply to the following email:
+        
+        Original email subject: {subject}
+        Original email sender: {sender}
+        Original email content: 
+        {original_content}
+        
+        Create a well-formatted, professional email that is concise, clear, and maintains appropriate tone.
+        Focus on addressing the key points from the original email.
+        Start with an appropriate greeting using the recipient's name if available.
+        End with a professional sign-off.
+        """
+        
+        try:
+            # Call OpenAI API
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4o-2024-11-20",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant that drafts professional emails."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 500,
+                    "temperature": 0.7
+                },
+                timeout=10
+            )
+            
+            # Parse response
+            response_data = response.json()
+            email_text = response_data["choices"][0]["message"]["content"].strip()
+            
+            return email_text
+            
+        except Exception as e:
+            logger.error(f"Error generating email with LLM: {e}")
+            return self._fallback_email_generation("", sender)
+
     def generate_casual_reply(self, sender: str, subject: str, original_content: str) -> str:
         """Generate a casual, friendly reply based on the original email content."""
-        # Implementation similar to generate_reply_from_user_content but with different prompt
-        # [Implementation omitted for brevity]
-        pass
-    
+        # Get API key from environment
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.warning("OpenAI API key not found")
+            return self._fallback_email_generation("", sender)
+        
+        # Extract recipient name from sender
+        recipient_name = "there"
+        if "(" in sender and ")" in sender:
+            full_name = sender.split("(")[0].strip()
+            recipient_name = full_name.split()[0] if full_name else "there"
+        
+        # Prepare the prompt
+        prompt = f"""
+        Generate a casual, friendly email reply to the following email:
+        
+        Original email subject: {subject}
+        Original email sender: {sender}
+        Original email content: 
+        {original_content}
+        
+        Create a warm, conversational email that feels personal and informal while still being respectful.
+        Use a friendly greeting with the recipient's first name if available.
+        End with a casual sign-off.
+        """
+        
+        try:
+            # Call OpenAI API
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4o-2024-11-20",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant that drafts friendly emails."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 500,
+                    "temperature": 0.8
+                },
+                timeout=10
+            )
+            
+            # Parse response
+            response_data = response.json()
+            email_text = response_data["choices"][0]["message"]["content"].strip()
+            
+            return email_text
+            
+        except Exception as e:
+            logger.error(f"Error generating email with LLM: {e}")
+            return self._fallback_email_generation("", sender)
+
     def generate_custom_reply(self, style: str, sender: str, subject: str, original_content: str) -> str:
         """Generate a reply in a custom style specified by the user."""
-        # Implementation similar to generate_reply_from_user_content but with different prompt
-        # [Implementation omitted for brevity]
-        pass
+        # Get API key from environment
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.warning("OpenAI API key not found")
+            return self._fallback_email_generation("", sender)
+        
+        # Extract recipient name from sender
+        recipient_name = "there"
+        if "(" in sender and ")" in sender:
+            full_name = sender.split("(")[0].strip()
+            recipient_name = full_name.split()[0] if full_name else "there"
+        
+        # Prepare the prompt
+        prompt = f"""
+        Generate an email reply in a {style} style to the following email:
+        
+        Original email subject: {subject}
+        Original email sender: {sender}
+        Original email content: 
+        {original_content}
+        
+        Create a well-formatted email that embodies the {style} style requested by the user.
+        Use an appropriate greeting and sign-off that fits the requested style.
+        """
+        
+        try:
+            # Call OpenAI API
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4o-2024-11-20", 
+                    "messages": [
+                        {"role": "system", "content": f"You are a helpful assistant that drafts emails in a {style} style."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 500,
+                    "temperature": 0.7
+                },
+                timeout=10
+            )
+            
+            # Parse response
+            response_data = response.json()
+            email_text = response_data["choices"][0]["message"]["content"].strip()
+            
+            return email_text
+            
+        except Exception as e:
+            logger.error(f"Error generating email with LLM: {e}")
+            return self._fallback_email_generation("", sender)
     
     def _fallback_email_generation(self, content: str, sender: str) -> str:
         """Fallback method for email generation without LLM."""
