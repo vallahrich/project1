@@ -7,12 +7,7 @@ intents:
   - draft_reply
 
 slots:
-  selected_email:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text  # This needs to be compatible with text input
-    - type: from_llm   # Add this line to allow direct LLM extraction
+  # Improved email slots
   emails:
     type: text
     influence_conversation: true
@@ -33,18 +28,19 @@ slots:
     influence_conversation: true
     mappings:
     - type: from_text
+    - type: from_llm
   navigation_direction:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: from_text
   suggested_labels:
     type: list
     influence_conversation: true
     mappings:
     - type: custom
   existing_labels:
-    type: text # JSON list
+    type: text
     influence_conversation: true
     mappings:
     - type: custom
@@ -62,7 +58,7 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: from_text
   user_input:
     type: text
     influence_conversation: true
@@ -70,6 +66,7 @@ slots:
     - type: from_text
 
 responses:
+  # Improved email responses
   utter_ask_selected_email:
   - text: "Which email would you like to read? You can select by number (e.g., '1'), mention the sender (e.g., 'Vincent's email'), or refer to the subject."
 
@@ -86,6 +83,7 @@ responses:
   - text: "What would you like to say in your reply?"
 
 actions:
+  # Improved email actions
   - action_list_emails
   - action_read_selected_email
   - action_navigate_emails
@@ -93,3 +91,4 @@ actions:
   - action_apply_selected_label
   - action_initiate_reply
   - action_generate_reply_draft
+  - validate_selected_email
