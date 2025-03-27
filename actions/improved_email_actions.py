@@ -72,6 +72,28 @@ class ActionListEmails(Action):
             )
             return []
 
+class ValidateSelectedEmail(Action):
+    def name(self) -> str:
+        return "validate_selected_email"
+        
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: dict) -> List[dict]:
+        value = tracker.get_slot("selected_email")
+        
+        if value is None:
+            return []
+        
+        # Accept both numeric and text values
+        if isinstance(value, str):
+            # If it's a digit, ensure it's valid
+            if value.isdigit():
+                return [SlotSet("selected_email", value)]
+            # Otherwise, just return the text value
+            return [SlotSet("selected_email", value)]
+            
+        return []
+
 class ActionReadSelectedEmail(Action):
     """Action to read a specific email by number or description."""
     

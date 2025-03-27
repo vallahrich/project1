@@ -7,7 +7,12 @@ intents:
   - draft_reply
 
 slots:
-  # New slots for email management
+  selected_email:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text  # This needs to be compatible with text input
+    - type: from_llm   # Add this line to allow direct LLM extraction
   emails:
     type: text
     influence_conversation: true
@@ -33,8 +38,6 @@ slots:
     influence_conversation: true
     mappings:
     - type: custom
-  
-  # New slots for label management
   suggested_labels:
     type: list
     influence_conversation: true
@@ -50,8 +53,6 @@ slots:
     influence_conversation: true
     mappings:
     - type: from_text
-  
-  # New slots for reply management
   reply_stage:
     type: text
     influence_conversation: true

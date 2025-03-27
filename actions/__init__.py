@@ -8,7 +8,7 @@ from actions.email_reply_actions import ActionDraftReply, ActionSendReply
 from actions.email_organize_actions import ActionSortMail, ActionLabelMail
 
 # Import new enhanced actions
-from actions.improved_email_actions import ActionListEmails, ActionReadSelectedEmail, ActionNavigateEmails
+from actions.improved_email_actions import ActionListEmails, ActionReadSelectedEmail, ActionNavigateEmails, ValidateSelectedEmail
 from actions.improved_email_organize_actions import ActionGetLabelSuggestions, ActionApplySelectedLabel
 from actions.improved_email_reply_actions import ActionInitiateReply, ActionGenerateReplyDraft
 
@@ -29,5 +29,6 @@ all_actions = [
     ActionGetLabelSuggestions(),
     ActionApplySelectedLabel(),
     ActionInitiateReply(),
-    ActionGenerateReplyDraft()
+    ActionGenerateReplyDraft(),
+    ValidateSelectedEmail(),
 ]

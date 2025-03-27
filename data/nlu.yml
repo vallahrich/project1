@@ -2,6 +2,17 @@
 
 - intent: select_email
   examples: |
+    - 1
+    - 2
+    - 3
+    - first
+    - second
+    - one
+    - two
+    - [1](selected_email)
+    - [one](selected_email)
+    - [first](selected_email)
+    - the [first](selected_email) one
     - read email [1](selected_email)
     - read email [2](selected_email)
     - read email [3](selected_email)
