@@ -1,41 +1,30 @@
 """
-Custom actions for the enhanced email assistant Rasa Pro chatbot.
+Custom actions for the enhanced email assistant.
 """
-
-# Import original actions
-from actions.email_check_actions import ActionCheckNewMail, ActionReadMail
-from actions.email_reply_actions import ActionDraftReply, ActionSendReply
-from actions.email_organize_actions import ActionSortMail, ActionLabelMail
-
-# Import validation actions
-from actions.validate_reply_type import ValidateReplyType, ValidateReviewOption
-
-# Import new enhanced actions
+# Import required actions
+from actions.basic_email_actions import ActionDeleteEmail, ActionMarkAsRead
 from actions.improved_email_actions import ActionListEmails, ActionReadSelectedEmail, ActionNavigateEmails, ValidateSelectedEmail
 from actions.improved_email_organize_actions import ActionGetLabelSuggestions, ActionApplySelectedLabel
-from actions.improved_email_reply_actions import ActionInitiateReply, ActionGenerateReplyDraft
+from actions.improved_email_reply_actions import ActionInitiateReply, ActionGenerateReplyDraft, ActionSendReply
 
 # For Rasa to discover the actions
 all_actions = [
-    # Original actions
-    ActionCheckNewMail(),
-    ActionReadMail(),
-    ActionDraftReply(),
-    ActionSendReply(),
-    ActionSortMail(),
-    ActionLabelMail(),
-    
-    # Validation actions
-    ValidateReplyType(),
-    ValidateSelectedEmail(),
-    ValidateReviewOption(),
-    
-    # New enhanced actions
+    # Email actions
     ActionListEmails(),
     ActionReadSelectedEmail(),
     ActionNavigateEmails(),
-    ActionGetLabelSuggestions(),
-    ActionApplySelectedLabel(),
+    ValidateSelectedEmail(),
+    
+    # Email operations
+    ActionDeleteEmail(),
+    ActionMarkAsRead(),
+    
+    # Reply actions
     ActionInitiateReply(),
     ActionGenerateReplyDraft(),
+    ActionSendReply(),
+    
+    # Organization actions
+    ActionGetLabelSuggestions(),
+    ActionApplySelectedLabel(),
 ]

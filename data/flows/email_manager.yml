@@ -1,0 +1,167 @@
+flows:
+  email_manager:
+    description: "Main flow that coordinates all email operations, maintaining context"
+    nlu_trigger:
+      - intent: check_email
+    steps:
+      - action: action_list_emails
+      - noop: true
+        next:
+          - if: "slots.email_count = 0"
+            then:
+              - action: utter_no_new_mail
+                next: END
+          - else: select_email
+      
+      - id: select_email
+        collect: selected_email
+        description: "The email to read, by number, sender, or subject"
+        utter: utter_ask_selected_email
+      
+      - id: show_selected_email
+        action: action_read_selected_email
+        next: ask_email_action
+      
+      - id: ask_email_action
+        collect: email_action
+        description: "What to do with the email (reply, label, delete, etc.)"
+        utter: utter_ask_email_action
+        next:
+          - if: "slots.email_action = 'reply'"
+            then: initiate_reply
+          - if: "slots.email_action = 'label'"
+            then: get_label_suggestions
+          - if: "slots.email_action = 'next'"
+            then: show_next_email
+          - if: "slots.email_action = 'previous'"
+            then: show_previous_email
+          - if: "slots.email_action = 'return'"
+            then: 
+              - action: action_list_emails
+                next: select_email
+          - if: "slots.email_action = 'delete'"
+            then: delete_email
+          - if: "slots.email_action = 'mark_read'"
+            then: mark_as_read
+          - else: ask_email_action  # If we didn't understand, ask again
+      
+      # Reply flow
+      - id: initiate_reply
+        action: action_initiate_reply
+        next: get_reply_type
+      
+      - id: get_reply_type
+        collect: reply_type
+        description: "Type of reply (user_content, professional, casual, or custom)"
+        utter: utter_ask_reply_type
+        next:
+          - if: "slots.reply_type = 'user_content' or slots.reply_type = 'custom'"
+            then: get_user_reply_content
+          - else: generate_reply_draft
+      
+      - id: get_user_reply_content
+        collect: user_input
+        description: "User's content for the email reply or custom style"
+        utter: utter_ask_user_input
+        next: generate_reply_draft
+      
+      - id: generate_reply_draft
+        action: action_generate_reply_draft
+        next: review_draft
+      
+      - id: review_draft
+        collect: review_option
+        description: "What to do with the draft (send, edit, start over)"
+        utter: utter_ask_draft_options
+        next:
+          - if: "slots.review_option = 'send'"
+            then: confirm_send
+          - if: "slots.review_option = 'edit'"
+            then: edit_draft
+          - if: "slots.review_option = 'start_over'"
+            then: initiate_reply
+          - else: cancel_draft
+      
+      - id: edit_draft
+        collect: email_response
+        description: "Edited email content"
+        utter: utter_ask_for_edits
+        next: show_edited_draft
+      
+      - id: show_edited_draft
+        action: utter_confirm_edited_draft
+        next: confirm_edited
+      
+      - id: confirm_edited
+        collect: confirm_edited_draft
+        description: "Confirmation to send edited draft"
+        utter: utter_ask_send_edited
+        next:
+          - if: "slots.confirm_edited_draft = true"
+            then: confirm_send
+          - else: cancel_draft
+      
+      - id: confirm_send
+        collect: confirm_sending
+        description: "Final confirmation before sending"
+        utter: utter_ask_final_confirmation
+        next:
+          - if: "slots.confirm_sending = true"
+            then: send_email
+          - else: cancel_draft
+      
+      - id: send_email
+        action: action_send_reply
+        next: show_success_message
+      
+      - id: show_success_message
+        action: utter_email_sent
+        next: ask_next_action
+      
+      - id: cancel_draft
+        action: utter_email_not_sent
+        next: ask_next_action
+      
+      # Labeling flow
+      - id: get_label_suggestions
+        action: action_get_label_suggestions
+        next: choose_label
+      
+      - id: choose_label
+        collect: label_choice
+        description: "The label to apply"
+        utter: utter_ask_label_choice
+        next: apply_label
+      
+      - id: apply_label
+        action: action_apply_selected_label
+        next: ask_next_action
+      
+      # Navigation flow
+      - id: show_next_email
+        set_slots:
+          - navigation_direction: "next"
+        next: navigate_email
+      
+      - id: show_previous_email
+        set_slots:
+          - navigation_direction: "previous"
+        next: navigate_email
+      
+      - id: navigate_email
+        action: action_navigate_emails
+        next: ask_email_action
+      
+      # Email actions
+      - id: delete_email
+        action: action_delete_email
+        next: ask_next_action
+      
+      - id: mark_as_read
+        action: action_mark_as_read
+        next: ask_next_action
+      
+      # Final step asking what to do next
+      - id: ask_next_action
+        action: utter_ask_next_action
+        next: END
