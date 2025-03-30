@@ -122,26 +122,17 @@ class ActionGenerateReplyDraft(Action):
                 )
                 return []
             
-            # Display the draft
-            message = "Here's the draft I've created:\n\n"
-            message += "-----\n"
-            message += f"To: {sender}\n"
-            message += f"Subject: Re: {subject}\n\n"
-            message += draft
-            message += "\n-----\n\n"
-            
-            message += "Would you like to:\n"
-            message += "1. Send as is\n"
-            message += "2. Edit this draft\n"
-            message += "3. Start over\n"
-            message += "4. Save as draft"
-            
-            dispatcher.utter_message(text=message)
+            # No need to display the draft here since we're now using utter_ask_draft_options
+            # which will be rendered with the draft content
             
             # Update the email_response slot with the draft
             return [
                 SlotSet("email_response", draft),
-                SlotSet("reply_stage", "review")
+                SlotSet("reply_stage", "review"),
+                # Reset these slots to ensure clean state
+                SlotSet("review_option", None),
+                SlotSet("confirm_sending", None),
+                SlotSet("confirm_edited_draft", None)
             ]
             
         except Exception as e:

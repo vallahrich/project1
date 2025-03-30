@@ -8,7 +8,7 @@ from actions.email_reply_actions import ActionDraftReply, ActionSendReply
 from actions.email_organize_actions import ActionSortMail, ActionLabelMail
 
 # Import validation actions
-from actions.validate_reply_type import ValidateReplyType
+from actions.validate_reply_type import ValidateReplyType, ValidateReviewOption
 
 # Import new enhanced actions
 from actions.improved_email_actions import ActionListEmails, ActionReadSelectedEmail, ActionNavigateEmails, ValidateSelectedEmail
@@ -28,6 +28,7 @@ all_actions = [
     # Validation actions
     ValidateReplyType(),
     ValidateSelectedEmail(),
+    ValidateReviewOption(),
     
     # New enhanced actions
     ActionListEmails(),

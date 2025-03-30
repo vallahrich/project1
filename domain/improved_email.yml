@@ -73,7 +73,7 @@ slots:
     - type: from_text
 
 responses:
-  # Improved email responses
+   # Improved email responses
   utter_ask_selected_email:
   - text: "Which email would you like to read? You can select by number (e.g., '1'), mention the sender (e.g., 'Vincent's email'), or refer to the subject."
 
@@ -88,6 +88,15 @@ responses:
 
   utter_ask_user_input:
   - text: "What would you like to say in your reply?"
+  
+  utter_ask_draft_options:
+  - text: "Here's the draft I've created:\n\n{email_response}\n\nWhat would you like to do?\n1. Send as is\n2. Edit this draft\n3. Start over\n4. Cancel"
+  
+  utter_ask_for_edits:
+  - text: "Please provide your edited version of the email:"
+  
+  utter_confirm_edited_draft:
+  - text: "I've updated the draft with your edits:\n\n{email_response}\n\nWould you like to send this now?"
 
 actions:
   # Improved email actions

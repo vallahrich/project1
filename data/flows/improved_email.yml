@@ -78,16 +78,45 @@ flows:
         next: generate_draft
       - id: generate_draft
         action: action_generate_reply_draft
-      - action: utter_confirm_sending
-      - noop: true
+      - collect: confirm_sending
+        description: "Whether to send the email as is, edit, or cancel"
+        utter: utter_ask_draft_options
         next:
           - if: "slots.confirm_sending = true"
+            then: send_email
+          - if: "slots.review_option = 'edit'"
             then:
-              - action: action_send_reply
-              - action: utter_email_sent
-              - action: utter_ask_anything_else
-                next: END
-          - else:
-              - action: utter_email_not_sent
-              - action: utter_ask_anything_else
-                next: END
+              - collect: email_response
+                description: "Edited email content"
+                utter: utter_ask_for_edits
+                next: ask_to_send_edited
+          - if: "slots.review_option = 'start_over'"
+            then: initiate_reply
+          - else: cancel_draft
+      
+      - id: ask_to_send_edited
+        action: utter_confirm_edited_draft
+        
+      - id: confirm_edited_email
+        collect: confirm_edited_draft
+        description: "Confirmation to send edited draft"
+        next:
+          - if: "slots.confirm_edited_draft = true"
+            then: send_email
+          - else: cancel_draft
+      
+      - id: send_email
+        action: action_send_reply
+        next: show_success_message
+      
+      - id: show_success_message
+        action: utter_email_sent
+        next: ask_anything_else
+      
+      - id: cancel_draft
+        action: utter_email_not_sent
+        next: ask_anything_else
+      
+      - id: ask_anything_else
+        action: utter_ask_anything_else
+        next: END
