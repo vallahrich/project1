@@ -9,7 +9,6 @@ flows:
       - collect: selected_email
         description: "The email to read, can be specified by number (1, 2, 3), sender name, or keyword from subject"
         utter: utter_ask_selected_email
-        # Optional: You can add validation to make debugging easier
       - action: action_read_selected_email
         next: END
   
@@ -45,7 +44,7 @@ flows:
       - action: action_apply_selected_label
         next: END
   
-  # Enhanced email reply flow
+  # Enhanced email reply flow - FIXED
   enhanced_reply:
     description: "Enhanced flow for drafting and sending an email reply"
     nlu_trigger:
@@ -61,12 +60,16 @@ flows:
       - id: initiate_reply
         action: action_initiate_reply
       - collect: reply_type
-        description: "Type of reply (user_content, professional, casual, custom)"
+        description: "Type of reply (user_content, professional, casual, or custom)"
         utter: utter_ask_reply_type
       - noop: true
         next:
           - if: "slots.reply_type = 'user_content' or slots.reply_type = 'custom'"
             then: get_user_input
+          - if: "slots.reply_type = 'professional'"
+            then: generate_draft
+          - if: "slots.reply_type = 'casual'"
+            then: generate_draft
           - else: generate_draft
       - id: get_user_input
         collect: user_input
@@ -88,4 +91,3 @@ flows:
               - action: utter_email_not_sent
               - action: utter_ask_anything_else
                 next: END
-        

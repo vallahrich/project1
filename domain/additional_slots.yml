@@ -1,0 +1,13 @@
+version: "3.1"
+
+slots:
+  # Additional slots to handle custom reply styles
+  custom_style:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text
+    - type: from_llm
+
+entities:
+  - reply_type

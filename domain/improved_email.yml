@@ -5,6 +5,7 @@ intents:
   - navigate_email
   - apply_label
   - draft_reply
+  - reply_type
 
 slots:
   # Improved email slots
@@ -34,6 +35,7 @@ slots:
     influence_conversation: true
     mappings:
     - type: from_text
+    - type: from_llm
   suggested_labels:
     type: list
     influence_conversation: true
@@ -49,6 +51,7 @@ slots:
     influence_conversation: true
     mappings:
     - type: from_text
+    - type: from_llm
   reply_stage:
     type: text
     influence_conversation: true
@@ -59,6 +62,10 @@ slots:
     influence_conversation: true
     mappings:
     - type: from_text
+    - type: from_entity
+      entity: reply_type
+    - type: from_llm
+    # Important: allow LLM extraction
   user_input:
     type: text
     influence_conversation: true
@@ -77,7 +84,7 @@ responses:
   - text: "Which label would you like to apply? You can select one of the existing labels, create a new one, or use my recommendation."
 
   utter_ask_reply_type:
-  - text: "How would you like me to draft your reply? I can use your exact words, create a professional reply, or create a casual reply."
+  - text: "How would you like me to draft your reply? You can say:\n1. Use my own words\n2. Draft a professional reply\n3. Create a casual reply\n4. Custom style (e.g., 'formal', 'concerned')"
 
   utter_ask_user_input:
   - text: "What would you like to say in your reply?"
@@ -92,3 +99,4 @@ actions:
   - action_initiate_reply
   - action_generate_reply_draft
   - validate_selected_email
+  - validate_reply_type

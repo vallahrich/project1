@@ -7,6 +7,9 @@ from actions.email_check_actions import ActionCheckNewMail, ActionReadMail
 from actions.email_reply_actions import ActionDraftReply, ActionSendReply
 from actions.email_organize_actions import ActionSortMail, ActionLabelMail
 
+# Import validation actions
+from actions.validate_reply_type import ValidateReplyType
+
 # Import new enhanced actions
 from actions.improved_email_actions import ActionListEmails, ActionReadSelectedEmail, ActionNavigateEmails, ValidateSelectedEmail
 from actions.improved_email_organize_actions import ActionGetLabelSuggestions, ActionApplySelectedLabel
@@ -22,6 +25,10 @@ all_actions = [
     ActionSortMail(),
     ActionLabelMail(),
     
+    # Validation actions
+    ValidateReplyType(),
+    ValidateSelectedEmail(),
+    
     # New enhanced actions
     ActionListEmails(),
     ActionReadSelectedEmail(),
@@ -30,5 +37,4 @@ all_actions = [
     ActionApplySelectedLabel(),
     ActionInitiateReply(),
     ActionGenerateReplyDraft(),
-    ValidateSelectedEmail(),
 ]
