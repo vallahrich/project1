@@ -89,8 +89,8 @@ responses:
   utter_confirm_edited_draft:
   - text: "I've updated the draft with your edits:\n\n{email_response}"
   
-  utter_ask_send_edited:
-  - text: "Would you like to send this edited draft?"
+  utter_ask_edited_draft_options:
+  - text: "Would you like to:\n1. Send this draft\n2. Edit it further\n3. Start over\n4. Cancel"
   
   utter_ask_final_confirmation:
   - text: "Before I send this email, please confirm:\n\nThis reply will be sent to {current_email_sender} with the subject \"Re: {current_email_subject}\".\n\nWould you like to proceed with sending?"
@@ -100,19 +100,6 @@ responses:
   
   utter_email_not_sent:
   - text: "I've canceled sending the email."
-  
-  # Draft editing-related responses
-  utter_ask_edited_draft_options:
-  - text: "Would you like to:\n1. Send this draft\n2. Edit it further\n3. Start over\n4. Cancel"
-  
-  utter_ask_specific_edits:
-  - text: "What specific changes would you like to make to the draft? Please be as clear as possible (e.g., 'change Monday to Wednesday', 'add my phone number', etc.)"
-  
-  utter_edit_applied:
-  - text: "I've updated the draft based on your instructions:\n\n{email_response}\n\nDoes this look good now?"
-  
-  utter_editing_error:
-  - text: "I'm having trouble understanding your editing instructions. Could you please be more specific about what you want to change?"
 
 actions:
   # Reply actions
