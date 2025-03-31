@@ -36,9 +36,7 @@ flows:
           - if: "slots.email_action = 'previous'"
             then: show_previous_email
           - if: "slots.email_action = 'return'"
-            then: 
-              - action: action_list_emails
-                next: select_email
+            then: clear_slots_for_return
           - if: "slots.email_action = 'delete'"
             then: delete_email
           - if: "slots.email_action = 'mark_read'"
@@ -48,6 +46,14 @@ flows:
       - id: mark_as_read
         action: action_mark_as_read
         next: ask_next_action
+      
+      - id: clear_slots_for_return
+        action: reset_email_slots  # Use the existing action
+        next: show_inbox_after_clear
+
+      - id: show_inbox_after_clear
+        action: action_list_emails
+        next: select_email
       
       # Reply flow
       - id: initiate_reply
@@ -158,9 +164,12 @@ flows:
         action: action_delete_email
         next: ask_next_action
       
-      # Final step asking what to do next
+      # End of email flow
       - id: ask_next_action
         action: utter_ask_next_action
-        next: 
-          - action: reset_email_slots  # Add a new action to reset slots
-            next: END
+        next: reset_slots_step  # Point to new step instead of END
+
+      # Then add a new step to reset slots
+      - id: reset_slots_step
+        action: reset_email_slots  # Add this new action in your actions folder
+        next: END

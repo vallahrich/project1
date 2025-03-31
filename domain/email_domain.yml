@@ -308,6 +308,7 @@ actions:
   - validate_selected_email
   - validate_email_response
   - validate_review_option
+  - reset_email_slots
 
 session_config:
   session_expiration_time: 60
