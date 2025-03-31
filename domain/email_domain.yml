@@ -79,12 +79,14 @@ slots:
     mappings:
     - type: from_text
     - type: from_llm
+
   user_input:
     type: text
     influence_conversation: true
     mappings:
     - type: from_text
-    # Remove from_llm mapping to avoid conflict
+    - type: from_llm  
+
   email_response:
     type: text
     influence_conversation: true
@@ -147,6 +149,7 @@ slots:
     mappings:
     - type: from_text
     - type: from_llm
+
   navigation_direction:
     type: text
     influence_conversation: true
@@ -283,6 +286,7 @@ actions:
   - action_initiate_reply
   - action_generate_reply_draft
   - action_send_reply
+  - action_select_input_prompt  # Add the new action here
   
   # Organization actions
   - action_get_label_suggestions

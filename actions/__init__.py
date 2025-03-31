@@ -17,7 +17,10 @@ from actions.improved_email_organize_actions import ActionGetLabelSuggestions, A
 from actions.special_email_handling import ActionCheckForNoReply
 
 # Import validation actions
-from actions.validate_email_response import ValidateEmailResponse, ActionSelectInputPrompt
+from actions.validate_email_response import ValidateEmailResponse
+
+# Import new input prompt action
+from actions.email_reply_prompts import ActionSelectInputPrompt, ActionSetUserInput
 
 
 # For Rasa to discover the actions
@@ -25,7 +28,7 @@ all_actions = [
     # Email actions
     ActionListEmails(),
     ActionReadSelectedEmail(), 
-    ActionNavigateEmails(),  # This is the fixed version
+    ActionNavigateEmails(), 
     ValidateSelectedEmail(),
     
     # Email operations
@@ -35,8 +38,10 @@ all_actions = [
     # Reply actions
     ActionInitiateReply(),
     ActionGenerateReplyDraft(),
-    ActionEditReplyDraft(),  # New edit action
+    ActionEditReplyDraft(),  
     ActionSendReply(),
+    ActionSelectInputPrompt(),
+    ActionSetUserInput(), 
     
     # Organization actions
     ActionGetLabelSuggestions(),
@@ -47,5 +52,4 @@ all_actions = [
 
     # Validation actions
     ValidateEmailResponse(),
-    ActionSelectInputPrompt(),
 ]

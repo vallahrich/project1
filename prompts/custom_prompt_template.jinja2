@@ -57,37 +57,42 @@ We are currently asking the user for a value for the slot '{{ collection_slot.na
    - "previous", "back" → `set slot email_action previous`
    - "inbox", "return" → `set slot email_action return`
 
-3. **Reply Types**: When collecting reply_type, normalize to:
-   - "my own words", "in my words" → `set slot reply_type user_content`
-   - "professional", "formal" → `set slot reply_type professional`
-   - "casual", "friendly", "informal" → `set slot reply_type casual`
-   - Any other style description → `set slot reply_type custom`
+3. **Reply Types**: When the user is selecting a reply type, interpret as:
+   - "my own words", "in my words", "option 1", "1", "one", "first option" → `set slot reply_type user_content`
+   - "professional", "formal", "option 2", "2", "two", "second option" → `set slot reply_type professional`
+   - "casual", "friendly", "informal", "option 3", "3", "three", "third option" → `set slot reply_type casual`
+   - "custom", "specific", "option 4", "4", "four", "fourth option", or any style description → `set slot reply_type custom`
+   - Examples:
+     - "draft a professional reply" → `set slot reply_type professional`
+     - "make it casual" → `set slot reply_type casual`
+     - "let me write it myself" → `set slot reply_type user_content`
+     - "write it in a concerned tone" → `set slot reply_type custom` AND `set slot custom_style concerned`
 
-4. **Draft Review Options**: When reviewing a draft, normalize to:
-   - "send", "send it", "looks good" → `set slot review_option send`
-   - "edit", "change", "modify" → `set slot review_option edit`
-   - "start over", "redo" → `set slot review_option start_over`
-   - "cancel", "discard" → `set slot review_option cancel`
+4. **Draft Review Options**: When reviewing a draft, interpret as:
+   - "send", "send it", "send as is", "looks good", "good", "ok", "yes", "that's fine", "option 1", "1", "one", "first option" → `set slot review_option send`
+   - "edit", "change", "modify", "revise", "option 2", "2", "two", "second option" → `set slot review_option edit`
+   - "start over", "redo", "rewrite", "option 3", "3", "three", "third option" → `set slot review_option start_over`
+   - "cancel", "discard", "nevermind", "option 4", "4", "four", "fourth option" → `set slot review_option cancel`
+   - Examples:
+     - "send it" → `set slot review_option send`
+     - "looks fine, send it" → `set slot review_option send`
+     - "I need to edit it" → `set slot review_option edit`
+     - "start again" → `set slot review_option start_over`
 
-5. **Email Editing**: When the user is editing an email draft, capture their message as input for the `user_input` slot:
-   - The user's entire message should be passed as the value for `user_input`.
-   - Do NOT set the `review_option` slot again during editing.
-   - Example: "I want to meet Wednesday instead" → `set slot user_input I want to meet Wednesday instead`
+5. **Handling Typos and Variations**: Be very forgiving with variations and typos, focusing on intent:
+   - "send as it", "send as is it", "send is", "just send", "send", "sendit" → `set slot review_option send`
+   - "professionl", "profesional", "formal email" → `set slot reply_type professional`
+   - "cassual", "casul", "informal email" → `set slot reply_type casual`
+   
+6. **Handling Context**: Pay special attention to the current conversation context:
+   - If the flow is at the "review_draft" stage and the user says anything that seems like approval, interpret as `set slot review_option send`
+   - If the flow is at the "get_user_reply_type_input" stage, any mention of styles should set the reply_type slot
+   - During the "get_user_reply_content" phase, capture the entire message as user_input without trying to extract commands
 
-5. **Email Editing**: When the user is editing an email draft, capture their message as input for the `user_input` slot:
-   - The user's entire message should be passed as the value for `user_input`.
-   - Do NOT set the `review_option` slot again during editing.
-   - Example: "I want to meet Wednesday instead" → `set slot user_input I want to meet Wednesday instead`
-
-6. **Confirmations**: When confirming actions, interpret as boolean values:
-   - "yes", "yeah", "sure", "confirm" → `set slot confirm_sending true`
-   - "no", "nope", "cancel", "stop" → `set slot confirm_sending false`
-   - Same pattern applies to `confirm_edited_draft` slot
-
-7. **Multiple Intents**: If the user combines multiple intents, extract all relevant ones:
-   - "draft a professional reply" → `start flow email_manager` AND `set slot email_action reply` AND `set slot reply_type professional`
-   - "delete the first email" → `set slot selected_email 1` AND `set slot email_action delete`
-   - "reply to Vincent's email" → `set slot selected_email Vincent` AND `set slot email_action reply`
+7. **Special Case for User Input**: When collecting user input for an email:
+   - Always capture the full text message as `user_input`
+   - Do not try to extract any commands from it at this stage
+   - Example: If user says "I want to meet on Wednesday" during input collection, simply: `set slot user_input I want to meet on Wednesday`
 
 8. **Handling typos**: Be forgiving of typos and recognize user intent:
    - "replz" should be interpreted as "reply"
