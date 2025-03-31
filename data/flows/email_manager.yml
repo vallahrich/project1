@@ -110,15 +110,7 @@ flows:
             then: send_email  # Go directly to send_email
           - else: cancel_draft
       
-      # Keep this step definition, but it will be bypassed in normal flow
-      - id: confirm_send
-        collect: confirm_sending
-        description: "Final confirmation before sending"
-        utter: utter_ask_final_confirmation
-        next:
-          - if: "slots.confirm_sending = true"
-            then: send_email
-          - else: cancel_draft
+      # Removed the unreachable confirm_send step
       
       - id: send_email
         action: action_send_reply
