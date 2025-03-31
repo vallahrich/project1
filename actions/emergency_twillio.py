@@ -69,5 +69,7 @@ class ActionEmergencyTwilio(Action):
         
         # Return value to be used in the flow control
         result = "success" if success else "failed"
+        logger.info(f"Setting return_value slot to: {result}")
         
+        # Explicitly set the return_value slot
         return [SlotSet("return_value", result)]

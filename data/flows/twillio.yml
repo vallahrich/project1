@@ -7,7 +7,7 @@ flows:
     steps:
       - action: emergency_twillio
         next:
-          - if: "slots.return_value = 'success'"
+          - if: "slots.return_value == 'success'"
             then:
               - action: utter_emergency_help_initiated
                 next: END

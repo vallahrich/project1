@@ -150,3 +150,34 @@
       - [Doctor appointment](event_title) on [2024-03-26](event_date) at [09:15](event_time)
       - [Meeting](event_title) for [45](event_duration) minutes
       - [Client meeting](event_title) tomorrow at [10:00](event_time)
+
+- intent: emergency_help
+  examples: |
+    - Hilfe
+    - Notfall
+    - Notruf
+    - Ich brauche Hilfe
+    - Bitte rufe Hilfe
+    - Emergency
+    - Emergenz
+    - Hilfe holen
+    - Ruf Hilfe
+    - SOS
+    - Send emergency alert
+    - This is an emergency
+    - I need urgent help
+    - Call for help
+    - Hilfe anrufen
+    - Notdienst benachrichtigen
+    - Notarzt rufen
+    - Ich bin in Gefahr
+    - Danger
+    - Gefahr
+    - Bitte Notdienst verständigen
+    - Alarmieren Sie Hilfe
+    - Bitte Notfallkontakte kontaktieren
+    - Contact emergency services
+    - Help me please urgent
+    - Dringend Hilfe nötig
+    - Medizinischer Notfall
+    - Medical emergency

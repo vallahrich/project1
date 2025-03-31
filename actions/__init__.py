@@ -23,8 +23,14 @@ from actions.validate_review_option import ValidateReviewOption
 # Import new input prompt actions
 from actions.email_reply_prompts import ActionSelectInputPrompt, ActionSetUserInput
 
+# Import reset email slots action
 from actions.reset_email_slots import ActionResetEmailSlots
 
+# Import calendar actions
+from actions.add_calendar import ActionAddCalendarEvent
+
+# Import emergency Twilio action
+from actions.emergency_twillio import ActionEmergencyTwilio
 
 
 # For Rasa to discover the actions
@@ -58,4 +64,10 @@ all_actions = [
     ValidateEmailResponse(),
     ValidateReviewOption(), 
     ActionResetEmailSlots(),
+    
+    # Calendar actions
+    ActionAddCalendarEvent(),
+    
+    # Emergency actions
+    ActionEmergencyTwilio(),
 ]
