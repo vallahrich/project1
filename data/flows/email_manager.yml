@@ -87,22 +87,26 @@ flows:
           - else: cancel_draft
       
       - id: edit_draft
-        collect: email_response
-        description: "Edited email content"
+        collect: user_input
+        description: "User's edit instructions for the draft"
         utter: utter_ask_for_edits
-        next: show_edited_draft
+        next: apply_edits_to_draft
       
-      - id: show_edited_draft
-        action: utter_confirm_edited_draft
+      - id: apply_edits_to_draft
+        action: action_edit_reply_draft
         next: confirm_edited
       
       - id: confirm_edited
-        collect: confirm_edited_draft
-        description: "Confirmation to send edited draft"
-        utter: utter_ask_send_edited
+        collect: review_option
+        description: "What to do with the edited draft"
+        utter: utter_ask_edited_draft_options
         next:
-          - if: "slots.confirm_edited_draft = true"
+          - if: "slots.review_option = 'send'"
             then: confirm_send
+          - if: "slots.review_option = 'edit'"
+            then: edit_draft
+          - if: "slots.review_option = 'start_over'"
+            then: initiate_reply
           - else: cancel_draft
       
       - id: confirm_send
@@ -165,3 +169,33 @@ flows:
       - id: ask_next_action
         action: utter_ask_next_action
         next: END
+
+  special_email_handling:
+    description: "Handle special email cases like no-reply addresses"
+    steps:
+      - noop: true
+        next:
+          - if: "slots.is_noreply_address = true"
+            then: handle_noreply
+          - else: standard_reply
+      
+      - id: handle_noreply
+        action: utter_noreply_warning
+        next: get_noreply_choice
+      
+      - id: get_noreply_choice
+        collect: noreply_choice
+        description: "What to do with a no-reply email"
+        utter: utter_ask_noreply_choice
+        next:
+          - if: "slots.noreply_choice = 'reply_anyway'"
+            then: 
+              - link: email_manager
+          - else: return_to_inbox
+            
+      - id: return_to_inbox
+        action: action_list_emails
+        next: END
+      
+      - id: standard_reply
+        link: email_manager

@@ -462,3 +462,181 @@ class ActionSendReply(Action):
                 text="I encountered an error while sending your reply. Please try again later."
             )
             return []
+        
+class ActionEditReplyDraft(Action):
+    """Action to handle email draft editing with improved understanding of edit requests."""
+    
+    def name(self) -> Text:
+        return "action_edit_reply_draft"
+    
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        """
+        Process user's edit request and update the draft accordingly.
+        """
+        try:
+            # Get the current draft and the user's editing instructions
+            current_draft = tracker.get_slot("email_response")
+            edit_instruction = tracker.get_slot("user_input")
+            
+            if not current_draft:
+                dispatcher.utter_message(
+                    text="I don't have a draft to edit. Let's create one first."
+                )
+                return []
+            
+            if not edit_instruction:
+                dispatcher.utter_message(
+                    text="Please tell me what changes you'd like to make to the draft."
+                )
+                return [SlotSet("reply_stage", "editing")]
+            
+            # Apply the user's edits to the draft
+            updated_draft = self.apply_edits_to_draft(current_draft, edit_instruction)
+            
+            # Display the updated draft
+            draft_message = f"I've updated the draft with your edits:\n\n{updated_draft}\n\n"
+            draft_message += "Would you like to:\n"
+            draft_message += "1. Send this draft\n"
+            draft_message += "2. Make more edits\n"
+            draft_message += "3. Start over\n"
+            draft_message += "4. Cancel"
+            
+            dispatcher.utter_message(text=draft_message)
+            
+            # Update the email_response slot with the edited draft
+            return [
+                SlotSet("email_response", updated_draft),
+                SlotSet("reply_stage", "review_edited"),
+                # Reset the user_input slot to capture the next instruction
+                SlotSet("user_input", None),
+                SlotSet("confirm_edited_draft", None)
+            ]
+            
+        except Exception as e:
+            logger.error(f"Error editing reply draft: {str(e)}")
+            dispatcher.utter_message(
+                text="I encountered an error while editing your draft. Please try again with clearer instructions."
+            )
+            return []
+    
+    def apply_edits_to_draft(self, current_draft: str, edit_instruction: str) -> str:
+        """
+        Apply user's editing instructions to the current draft.
+        Uses LLM to understand complex edit requests.
+        
+        Args:
+            current_draft: The current email draft text
+            edit_instruction: The user's editing instructions
+            
+        Returns:
+            Updated draft text with the requested changes
+        """
+        # Get API key from environment
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.warning("OpenAI API key not found")
+            # Instead of using a fallback method, simply inform the user through UI
+            dispatcher.utter_message(text="I'm having trouble applying your edits right now. Please try describing the changes differently or try again later.")
+            return current_draft
+        
+        # Extract key information from the edit instruction
+        edit_type = self._categorize_edit_instruction(edit_instruction)
+        
+        # Prepare the prompt based on the edit type
+        prompt = f"""
+        Original email draft:
+        ```
+        {current_draft}
+        ```
+        
+        Edit instruction from user:
+        ```
+        {edit_instruction}
+        ```
+        
+        Please edit the email draft according to the user's instructions. Preserve the general structure 
+        (greeting, body, closing) and professional tone. Only make changes that align with the user's request.
+        
+        Return the complete edited email.
+        """
+        
+        try:
+            # Call OpenAI API
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4o-2024-11-20",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant that edits email drafts."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 1000,
+                    "temperature": 0.3
+                },
+                timeout=10
+            )
+            
+            # Parse response
+            response_data = response.json()
+            edited_draft = response_data["choices"][0]["message"]["content"].strip()
+            
+            # Remove any markdown formatting that might be included
+            edited_draft = re.sub(r'```email\n|```\n|```email|```', '', edited_draft)
+            
+            return edited_draft
+            
+        except Exception as e:
+            logger.error(f"Error editing draft with LLM: {e}")
+            
+            # Instead of using a fallback method, we'll add a note to the draft
+            error_note = "[NOTE: I couldn't fully apply your edit. Please provide clearer instructions or try again.]\n\n"
+            return error_note + current_draft
+    
+    def _categorize_edit_instruction(self, edit_instruction: str) -> str:
+        """
+        Categorize the type of edit requested.
+        
+        Args:
+            edit_instruction: The user's editing instructions
+            
+        Returns:
+            Category of edit: 'add', 'remove', 'change', 'format'
+        """
+        edit_instruction = edit_instruction.lower()
+        
+        if any(word in edit_instruction for word in ["add", "include", "insert", "mention"]):
+            return "add"
+        elif any(word in edit_instruction for word in ["remove", "delete", "take out"]):
+            return "remove"
+        elif any(word in edit_instruction for word in ["change", "replace", "modify", "instead", "prefer"]):
+            return "change"
+        elif any(word in edit_instruction for word in ["format", "style", "tone", "make it"]):
+            return "format"
+        else:
+            return "general"
+    
+    def _fallback_edit_draft(self, current_draft: str, edit_instruction: str) -> str:
+        """
+        Enhanced fallback method that provides transparency when unable to apply edits.
+        
+        Args:
+            current_draft: Current email draft text
+            edit_instruction: User's editing instructions
+            
+        Returns:
+            Draft with the user's instructions appended as an editing note
+        """
+        # Add the editing instruction as a note at the top of the draft
+        editing_note = f"[EDITING NOTE: {edit_instruction}]\n\n"
+        
+        # Log that we're using the fallback method
+        logger.info(f"Using fallback edit method for instruction: {edit_instruction}")
+        
+        # Return the original draft with the editing note
+        return editing_note + current_draft

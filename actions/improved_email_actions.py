@@ -181,7 +181,7 @@ class ActionReadSelectedEmail(Action):
             return []
 
 class ActionNavigateEmails(Action):
-    """Action to navigate to next or previous email."""
+    """Action to navigate to next or previous email with improved error handling."""
     
     def name(self) -> Text:
         return "action_navigate_emails"
@@ -190,7 +190,7 @@ class ActionNavigateEmails(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
-        Navigate to the next or previous email.
+        Navigate to the next or previous email with proper error handling.
         """
         try:
             # Get navigation direction
@@ -212,7 +212,15 @@ class ActionNavigateEmails(Action):
             elif direction == "previous" and current_index > 0:
                 new_index = current_index - 1
             else:
-                dispatcher.utter_message(text=f"There are no {direction} emails to display.")
+                # Handle case when there are no more emails to navigate to
+                if direction == "next":
+                    dispatcher.utter_message(text="You've reached the end of your emails. There are no more emails to display.")
+                elif direction == "previous":
+                    dispatcher.utter_message(text="You're already at the first email. There are no previous emails to display.")
+                else:
+                    dispatcher.utter_message(text=f"I couldn't understand the navigation direction: {direction}.")
+                
+                # Return without attempting to navigate, but don't reset the current index
                 return []
             
             # Get the email
@@ -228,7 +236,7 @@ class ActionNavigateEmails(Action):
             # Display email
             dispatcher.utter_message(text=email_text)
             
-            # Display action options
+            # Display action options (only show relevant navigation options)
             options = "What would you like to do with this email?\n"
             options += "1. Reply\n"
             options += "2. Mark as read\n"
@@ -257,6 +265,6 @@ class ActionNavigateEmails(Action):
         except Exception as e:
             logger.error(f"Error navigating emails: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while navigating your emails. Please try again."
+                text="I encountered an error while navigating your emails. Please try again or check your inbox."
             )
             return []
