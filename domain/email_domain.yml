@@ -93,13 +93,16 @@ slots:
     mappings:
     - type: from_text
     - type: custom
+
   review_option:
     type: text
     influence_conversation: true
     mappings:
     - type: from_text
     - type: from_llm
-  
+    - type: custom
+      action: validate_review_option
+
   # Label-related slots
   suggested_labels:
     type: list
@@ -111,6 +114,7 @@ slots:
     influence_conversation: true
     mappings:
     - type: custom
+
   label_choice:
     type: text
     influence_conversation: true
@@ -130,6 +134,7 @@ slots:
       intent: deny
       value: false
     - type: from_llm
+
   confirm_edited_draft:
     type: bool
     influence_conversation: true
@@ -302,6 +307,7 @@ actions:
   # Validation actions
   - validate_selected_email
   - validate_email_response
+  - validate_review_option
 
 session_config:
   session_expiration_time: 60

@@ -18,8 +18,9 @@ from actions.special_email_handling import ActionCheckForNoReply
 
 # Import validation actions
 from actions.validate_email_response import ValidateEmailResponse
+from actions.validate_review_option import ValidateReviewOption
 
-# Import new input prompt action
+# Import new input prompt actions
 from actions.email_reply_prompts import ActionSelectInputPrompt, ActionSetUserInput
 
 
@@ -52,4 +53,5 @@ all_actions = [
 
     # Validation actions
     ValidateEmailResponse(),
+    ValidateReviewOption(),  
 ]

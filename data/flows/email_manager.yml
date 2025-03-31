@@ -80,7 +80,7 @@ flows:
         utter: utter_ask_draft_options
         next:
           - if: "slots.review_option = 'send'"
-            then: confirm_send
+            then: send_email  # Go directly to send_email, skip confirm_send
           - if: "slots.review_option = 'edit'"
             then: edit_draft
           - if: "slots.review_option = 'start_over'"
@@ -88,13 +88,13 @@ flows:
           - else: cancel_draft
       
       - id: edit_draft
-        collect: user_input  # We're now using user_input for getting the edits
+        collect: user_input
         description: "Content for editing the email draft"
         utter: utter_ask_for_edits
         next: process_edit
       
       - id: process_edit
-        action: validate_email_response  # Use our new validator to process the edit
+        action: validate_email_response
         next: show_edited_draft
       
       - id: show_edited_draft
@@ -107,9 +107,10 @@ flows:
         utter: utter_ask_send_edited
         next:
           - if: "slots.confirm_edited_draft = true"
-            then: confirm_send
+            then: send_email  # Go directly to send_email
           - else: cancel_draft
       
+      # Keep this step definition, but it will be bypassed in normal flow
       - id: confirm_send
         collect: confirm_sending
         description: "Final confirmation before sending"
