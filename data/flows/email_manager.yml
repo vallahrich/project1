@@ -63,7 +63,6 @@ flows:
       - id: get_reply_type
         collect: reply_type
         description: "Type of reply (user_content, professional, casual, or custom)"
-        utter: utter_ask_reply_type
         next: select_input_prompt
         
       - id: select_input_prompt
@@ -95,7 +94,6 @@ flows:
       - id: edit_draft
         collect: user_input
         description: "Content for editing the email draft"
-        utter: utter_ask_for_edits
         next: process_edit
       
       - id: process_edit

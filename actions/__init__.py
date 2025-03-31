@@ -23,7 +23,7 @@ from actions.validate_review_option import ValidateReviewOption
 # Import new input prompt actions
 from actions.email_reply_prompts import ActionSelectInputPrompt, ActionSetUserInput
 
-from actions.reset_slots import ActionResetEmailSlots
+from actions.reset_email_slots import ActionResetEmailSlots
 
 
 

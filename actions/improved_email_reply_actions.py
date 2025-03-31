@@ -425,7 +425,13 @@ class ActionSendReply(Action):
                 dispatcher.utter_message(
                     text="I don't have enough information to send a reply. Let's draft a response first."
                 )
-                return []
+                return [
+                    SlotSet("reply_stage", None),
+                    SlotSet("review_option", None),
+                    SlotSet("email_response", None),
+                    SlotSet("confirm_edited_draft", None),
+                    SlotSet("user_input", None)  # Add this to prevent previous inputs from reappearing
+                ]
             
             # Extract email address from sender
             sender_match = re.search(r'\((.*?)\)', sender_full)
@@ -469,7 +475,13 @@ class ActionSendReply(Action):
             dispatcher.utter_message(
                 text="I encountered an error while sending your reply. Please try again later."
             )
-            return []
+            return [
+                SlotSet("reply_stage", None),
+                SlotSet("review_option", None),
+                SlotSet("email_response", None),
+                SlotSet("confirm_edited_draft", None),
+                SlotSet("user_input", None)  # Add this to prevent previous inputs from reappearing
+            ]
         
 class ActionEditReplyDraft(Action):
     """Action to handle email draft editing with improved understanding of edit requests."""
