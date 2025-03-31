@@ -45,6 +45,10 @@ flows:
             then: mark_as_read
           - else: ask_email_action  # If we didn't understand, ask again
       
+      - id: mark_as_read
+        action: action_mark_as_read
+        next: ask_next_action
+      
       # Reply flow
       - id: initiate_reply
         action: action_initiate_reply
@@ -155,10 +159,6 @@ flows:
       # Email actions
       - id: delete_email
         action: action_delete_email
-        next: ask_next_action
-      
-      - id: mark_as_read
-        action: action_mark_as_read
         next: ask_next_action
       
       # Final step asking what to do next

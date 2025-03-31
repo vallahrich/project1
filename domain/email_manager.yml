@@ -204,6 +204,9 @@ responses:
   
   utter_can_do_something_else:
   - text: "What else can I help you with?"
+
+  utter_email_marked_read:
+  - text: "I've marked the email as read."
   
   # Special cases
   utter_noreply_warning:
@@ -234,4 +237,3 @@ actions:
   
   # Validation actions (if needed)
   - validate_selected_email
-  - validate_reply_type
