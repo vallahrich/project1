@@ -3,7 +3,6 @@ version: "3.1"
 intents:
   - greeting
   - goodbye
-  - help
   - affirm
   - deny
   - check_email
