@@ -67,7 +67,6 @@ flows:
       - id: get_user_reply_content
         collect: user_input
         description: "User's content or instructions for the email reply"
-        # No utter needed here as it's handled by the action_select_input_prompt
         next: generate_reply_draft
             
       - id: generate_reply_draft
@@ -162,4 +161,6 @@ flows:
       # Final step asking what to do next
       - id: ask_next_action
         action: utter_ask_next_action
-        next: END
+        next: 
+          - action: reset_email_slots  # Add a new action to reset slots
+            next: END

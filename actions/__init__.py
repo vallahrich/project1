@@ -23,6 +23,9 @@ from actions.validate_review_option import ValidateReviewOption
 # Import new input prompt actions
 from actions.email_reply_prompts import ActionSelectInputPrompt, ActionSetUserInput
 
+from actions.reset_slots import ActionResetEmailSlots
+
+
 
 # For Rasa to discover the actions
 all_actions = [
@@ -53,5 +56,6 @@ all_actions = [
 
     # Validation actions
     ValidateEmailResponse(),
-    ValidateReviewOption(),  
+    ValidateReviewOption(), 
+    ActionResetEmailSlots(),
 ]

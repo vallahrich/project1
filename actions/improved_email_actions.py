@@ -146,24 +146,7 @@ class ActionReadSelectedEmail(Action):
             
             # Display email
             dispatcher.utter_message(text=email_text)
-            
-            # Display action options
-            options = "What would you like to do with this email?\n"
-            options += "1. Reply\n"
-            options += "2. Mark as read\n"
-            options += "3. Delete\n"
-            options += "4. Apply label\n"
-            
-            if index < len(emails) - 1:
-                options += "5. Next email\n"
-                
-            if index > 0:
-                options += "6. Previous email\n"
-                
-            options += "7. Return to inbox"
-            
-            dispatcher.utter_message(text=options)
-            
+                        
             # Set current email slots
             return [
                 SlotSet("current_email_id", email["id"]),

@@ -458,7 +458,11 @@ class ActionSendReply(Action):
                     text="There was an issue sending your reply. Please check your internet connection and try again."
                 )
             
-            return []
+                return [
+                    SlotSet("reply_stage", None),
+                    SlotSet("review_option", None),
+                    SlotSet("email_response", None),
+                    SlotSet("confirm_edited_draft", None)]
             
         except Exception as e:
             logger.error(f"Error sending email reply: {str(e)}")
