@@ -1,3 +1,5 @@
+version: "3.1"
+
 flows:
   email_manager:
     description: "Main flow that coordinates all email operations, maintaining context"
@@ -49,9 +51,37 @@ flows:
         action: action_mark_as_read
         next: ask_next_action
       
-      # Reply flow
-      - id: initiate_reply
-        action: action_initiate_reply
+      # Email navigation
+      - id: show_next_email
+        set_slots:
+          - navigation_direction: "next"
+        next: navigate_email
+      
+      - id: show_previous_email
+        set_slots:
+          - navigation_direction: "previous"
+        next: navigate_email
+      
+      - id: navigate_email
+        action: action_navigate_emails
+        next: ask_email_action
+      
+      # Email actions
+      - id: delete_email
+        action: action_delete_email
+        next: ask_next_action
+      
+      # Final step asking what to do next
+      - id: ask_next_action
+        action: utter_ask_next_action
+        next: END
+
+  
+  email_reply:
+    description: "Handle email reply creation and sending"
+    steps:
+      # Starting point for the flow when linked from email_manager
+      - action: action_initiate_reply
         next: get_reply_type
       
       - id: get_reply_type
@@ -129,10 +159,16 @@ flows:
       - id: cancel_draft
         action: utter_email_not_sent
         next: ask_next_action
-      
-      # Labeling flow
-      - id: get_label_suggestions
-        action: action_get_label_suggestions
+        
+      - id: ask_next_action
+        action: utter_ask_next_action
+        next: END
+
+  email_labeling:
+    description: "Handle email labeling and organization"
+    steps:
+      # Starting point for the flow when linked from email_manager
+      - action: action_get_label_suggestions
         next: choose_label
       
       - id: choose_label
@@ -144,36 +180,38 @@ flows:
       - id: apply_label
         action: action_apply_selected_label
         next: ask_next_action
-      
-      # Navigation flow
-      - id: show_next_email
-        set_slots:
-          - navigation_direction: "next"
-        next: navigate_email
-      
-      - id: show_previous_email
-        set_slots:
-          - navigation_direction: "previous"
-        next: navigate_email
-      
-      - id: navigate_email
-        action: action_navigate_emails
-        next: ask_email_action
-      
-      # Email actions
-      - id: delete_email
-        action: action_delete_email
-        next: ask_next_action
-      
-      # Final step asking what to do next
-      - id: ask_next_action
-        action: utter_ask_next_action
-        next: END
+        
+      - id: ask_email_action
+        collect: email_action
+        description: "What to do with the email (reply, label, delete, etc.)"
+        utter: utter_ask_email_action
+        next:
+          - if: "slots.email_action = 'reply'"
+            then:
+              # Link to the email_reply flow instead of referencing initiate_reply directly
+              - link: email_reply
+          - if: "slots.email_action = 'label'"
+            then:
+              # Link to the email_labeling flow instead of referencing get_label_suggestions directly
+              - link: email_labeling
+          - if: "slots.email_action = 'next'"
+            then: show_next_email
+          - if: "slots.email_action = 'previous'"
+            then: show_previous_email
+          - if: "slots.email_action = 'return'"
+            then: 
+              - action: action_list_emails
+                next: select_email
+          - if: "slots.email_action = 'delete'"
+            then: delete_email
+          - if: "slots.email_action = 'mark_read'"
+            then: mark_as_read
+          - else: ask_email_action  # If we didn't understand, ask again
 
   special_email_handling:
     description: "Handle special email cases like no-reply addresses"
     steps:
-      - noop: true
+      - action: action_check_for_noreply
         next:
           - if: "slots.is_noreply_address = true"
             then: handle_noreply
@@ -190,7 +228,7 @@ flows:
         next:
           - if: "slots.noreply_choice = 'reply_anyway'"
             then: 
-              - link: email_manager
+              - link: email_reply
           - else: return_to_inbox
             
       - id: return_to_inbox
@@ -198,4 +236,4 @@ flows:
         next: END
       
       - id: standard_reply
-        link: email_manager
+        link: email_reply

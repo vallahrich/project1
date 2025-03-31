@@ -1,9 +1,0 @@
-version: "3.1"
-
-responses:
-  utter_confirm_reply:
-  - text: "Would you like to reply to this email from {current_email_sender} about '{current_email_subject}'?"
-
-actions:
-  - action_check_new_mail
-  - action_read_mail

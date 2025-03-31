@@ -1,0 +1,28 @@
+version: "3.1"
+
+slots:
+  # Special email handling slots
+  is_noreply_address:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: custom
+  
+  noreply_choice:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text
+    - type: from_llm
+
+responses:
+  # No-reply handling
+  utter_noreply_warning:
+  - text: "⚠️ This appears to be a no-reply email address which typically doesn't accept responses."
+  
+  utter_ask_noreply_choice:
+  - text: "Would you like to:\n1. Draft a reply anyway\n2. Return to your inbox"
+
+actions:
+  # Special handling actions
+  - action_check_for_noreply

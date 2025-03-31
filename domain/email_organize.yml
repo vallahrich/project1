@@ -1,22 +1,39 @@
 version: "3.1"
 
 intents:
-  - sort_emails
+  - apply_label
+  - label_email
 
 slots:
-  email_label:
+  # Label-related slots
+  suggested_labels:
+    type: list
+    influence_conversation: true
+    mappings:
+    - type: custom
+  
+  existing_labels:
     type: text
-    influence_conversation: false
+    influence_conversation: true
+    mappings:
+    - type: custom
+  
+  label_choice:
+    type: text
+    influence_conversation: true
     mappings:
     - type: from_text
+    - type: from_llm
 
 responses:
-  utter_sorting_complete:
-  - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
+  # Label-related responses
+  utter_ask_label_choice:
+  - text: "Which label would you like to apply? You can select one of the existing labels, create a new one, or use my recommendation."
   
-  utter_ask_email_label:
-  - text: "What label would you like to apply to this email?"
+  utter_labeling_complete:
+  - text: "I've labeled your email as requested."
 
 actions:
-  - action_sort_mail
-  - action_label_mail
+  # Organization actions
+  - action_get_label_suggestions
+  - action_apply_selected_label

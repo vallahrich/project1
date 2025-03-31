@@ -23,7 +23,7 @@ responses:
   utter_error_occurred:
   - text: "I'm sorry, but I encountered an error. Please try again later."
   
-  utter_ask_anything_else:
+  utter_can_do_something_else:
   - text: "Is there anything else you'd like me to help you with?"
 
 session_config:
