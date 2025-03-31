@@ -11,7 +11,7 @@ class ActionResetEmailSlots(Action):
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        return [
+        return [    
             SlotSet("current_email_id", None),
             SlotSet("current_email_sender", None), 
             SlotSet("current_email_subject", None),
@@ -19,8 +19,9 @@ class ActionResetEmailSlots(Action):
             SlotSet("current_email_index", None),
             SlotSet("reply_stage", None),
             SlotSet("email_action", None),
-            SlotSet("email_response", None),  # Add this to clear draft content
-            SlotSet("review_option", None),   # Add this to clear review options
-            SlotSet("user_input", None),      # Add this to clear user input
-            SlotSet("confirm_edited_draft", None)  # Add this to clear confirmation
+            SlotSet("email_response", None),
+            SlotSet("review_option", None),
+            SlotSet("user_input", None),
+            SlotSet("confirm_edited_draft", None),
+            SlotSet("next_action", None)  
         ]

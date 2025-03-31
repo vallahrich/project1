@@ -162,6 +162,13 @@ slots:
     - type: from_text
     - type: from_llm
 
+  next_action:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_text
+    - type: from_llm
+
 responses:
   # Greeting and basic responses
   utter_greet:

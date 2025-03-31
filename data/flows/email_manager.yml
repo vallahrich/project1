@@ -162,11 +162,21 @@ flows:
         action: action_delete_email
         next: ask_next_action
       
-      # End of email flow
       - id: ask_next_action
-        action: utter_ask_next_action
-        next: reset_slots_step  # Point to new step instead of END
-
+        collect: next_action
+        description: "What to do next after email operation"
+        utter: utter_ask_next_action
+        next:
+          - if: "slots.next_action = 'return_to_inbox'"
+            then: clear_slots_for_return
+          - if: "slots.next_action = 'check_new_emails'"
+            then: reset_slots_step  # Reset slots before checking
+          - if: "slots.next_action = 'next_email'"
+            then: show_next_email
+          - if: "slots.next_action = 'mark_read'"
+            then: mark_as_read
+          - else: reset_slots_step # Default to reset slots
+          
       # Then add a new step to reset slots
       - id: reset_slots_step
         action: reset_email_slots  # Add this new action in your actions folder

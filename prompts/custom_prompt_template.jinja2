@@ -99,6 +99,12 @@ We are currently asking the user for a value for the slot '{{ collection_slot.na
    - "profesional" should be interpreted as "professional"
    - "cansual" should be interpreted as "casual"
 
+9. **Next Actions**: When the user selects what to do after an email operation:
+   - "return to inbox", "go back", "inbox" → `set slot next_action return_to_inbox`
+   - "check new emails", "check inbox", "new mail" → `set slot next_action check_new_emails`
+   - "next email", "show next" → `set slot next_action next_email`
+   - "mark as read", "mark read" → `set slot next_action mark_read`
+
 IMPORTANT: When in the email editing phase (after the user has selected "edit" from the review options),
 extract only `user_input` and not any other slots, even if the user's intent seems to match other patterns.
 
