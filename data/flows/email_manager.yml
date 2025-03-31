@@ -48,12 +48,12 @@ flows:
         next: ask_next_action
       
       - id: clear_slots_for_return
-        action: reset_email_slots  # Use the existing action
+        action: reset_email_slots
         next: show_inbox_after_clear
 
       - id: show_inbox_after_clear
         action: action_list_emails
-        next: select_email
+        next: select_email 
       
       # Reply flow
       - id: initiate_reply
@@ -176,8 +176,9 @@ flows:
           - if: "slots.next_action = 'mark_read'"
             then: mark_as_read
           - else: reset_slots_step # Default to reset slots
-          
+
       # Then add a new step to reset slots
       - id: reset_slots_step
         action: reset_email_slots  # Add this new action in your actions folder
         next: END
+      

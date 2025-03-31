@@ -103,3 +103,50 @@
     - [casual email](reply_type:casual)
     - [concerned](reply_type:custom)
     - [polite but firm](reply_type:custom)
+  
+- intent: add_calendar_event
+    examples: |
+      - I want to add an event to my calendar
+      - Schedule a new event
+      - Create a calendar event
+      - Add something to my calendar
+      - New calendar entry
+      - Add a new event
+      - Create a calendar event
+      - Schedule an event
+      - Add event to calendar
+      - Create new calendar entry
+      - Schedule a meeting
+      - Add [Team Meeting](event_title) on [2024-03-28](event_date) at [14:00](event_time) for [60](event_duration) minutes
+      - Schedule [Doctor appointment](event_title) for [2024-04-15](event_date) at [10:30](event_time)
+      - Create event [Lunch](event_title) on [2024-03-29](event_date) at [12:00](event_time) for [45](event_duration) minutes
+      - Add [Project Review](event_title) at [15:00](event_time) on [2024-04-01](event_date)
+      - Create a new event
+      - I want to add an event
+      - Schedule something
+      - New calendar entry
+      - Add appointment
+      - Create meeting
+
+- intent: inform_event_details
+    examples: |
+      - [Meeting with John](event_title)
+      - [2025-04-01](event_date)
+      - [14:30](event_time)
+      - [30](event_duration) minutes
+      - The title is [Team Sync](event_title)
+      - Schedule it for [2025-05-15](event_date)
+      - Start at [09:00](event_time)
+      - It will take [60](event_duration) minutes
+      - The title is [Team Meeting](event_title)
+      - It's about [Project Review](event_title)
+      - [Lunch with Peter](event_title)
+      - On [2024-03-25](event_date)
+      - Date is [2024-04-01](event_date)
+      - At [14:30](event_time)
+      - [15:00](event_time)
+      - It will take [60](event_duration) minutes
+      - [90](event_duration) minutes
+      - [Doctor appointment](event_title) on [2024-03-26](event_date) at [09:15](event_time)
+      - [Meeting](event_title) for [45](event_duration) minutes
+      - [Client meeting](event_title) tomorrow at [10:00](event_time)

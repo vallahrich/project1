@@ -1,0 +1,104 @@
+slots:
+  event_title:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: event_title
+  
+  event_date:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: event_date
+  
+  event_time:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: event_time
+  
+  event_duration:
+    type: float
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: event_duration
+    - type: from_text
+      conditions:
+        - active_loop: add_calendar_event
+          requested_slot: event_duration
+
+  correction_attempts:
+    type: float
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+  confirmation:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      intent: affirm
+      value: true
+    - type: from_intent
+      intent: deny
+      value: false
+
+forms:
+  add_calendar_event:
+    required_slots:
+      - event_title
+      - event_date
+      - event_time
+      - event_duration
+
+entities:
+  - event_title
+  - event_date
+  - event_time
+  - event_duration
+
+intents:
+  - add_calendar_event
+  - inform_event_details
+
+actions:
+  - action_add_calendar_event
+
+responses:
+  utter_ask_event_title:
+    - text: "What should I name the event?"
+  
+  utter_ask_event_date:
+    - text: "What date should I schedule it for? (Format: YYYY-MM-DD)"
+  
+  utter_ask_event_time:
+    - text: "What time? (Format: HH:MM)"
+  
+  utter_ask_event_duration:
+    - text: "How long should the event last? (in minutes)"
+
+  utter_confirm_appointment:
+    - text: "I'll create an event: '{event_title}' on {event_date} at {event_time} for {event_duration} minutes. Is that correct?"
+
+  utter_appointment_cancelled:
+    - text: "Ok, I've cancelled the process. Would you like to create a new event?"
+
+  utter_appointment_saved:
+    - text: "Perfect! The event has been added to your calendar."
+
+  utter_ask_correction:
+    - text: "What would you like to change? You can modify the title, date, time, or duration."
+
+  utter_ask_correction_with_cancel:
+    - text: "What would you like to change? You can modify the title, date, time, or duration. Or say 'cancel' to start over."
+
+  utter_max_correction_attempts:
+    - text: "I'm having trouble understanding what you want to change. Let's start over. Would you like to create a new event?"
+
+  utter_ask_confirmation:
+    - text: "Is this information correct? Please respond with yes or no."

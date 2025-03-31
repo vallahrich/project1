@@ -1,0 +1,16 @@
+flows:
+  send_emergency_message:
+    name: Emergency Alert
+    description: "Send an urgent alert to emergency contacts when the user needs immediate help. This flow should be triggered when the user says 'Hilfe', 'Notfall', or indicates they are in an emergency situation and need immediate assistance."
+    nlu_trigger:
+      - intent: emergency_help
+    steps:
+      - action: emergency_twillio
+        next:
+          - if: "slots.return_value = 'success'"
+            then:
+              - action: utter_emergency_help_initiated
+                next: END
+          - else:
+              - action: utter_emergency_help_failed
+                next: END

@@ -1,0 +1,12 @@
+intents:
+  - emergency_help
+
+responses:
+  utter_emergency_help_initiated:
+    - text: "Ich habe einen Hilferuf an deine Notfallkontakte gesendet. Bitte bleib ruhig, Hilfe ist unterwegs."
+  
+  utter_emergency_help_failed:
+    - text: "Ich konnte keine Nachricht an deine Notfallkontakte senden. Bitte rufe direkt den Notdienst unter 112 an."
+
+actions:
+  - emergency_twillio 
