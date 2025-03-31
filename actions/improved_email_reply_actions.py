@@ -431,7 +431,7 @@ class ActionSendReply(Action):
             credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
             token_path = os.getenv("GMAIL_TOKEN_PATH")
             
-            email_client = EmailClient(
+            email_client = ImprovedEmailClient(
                 credentials_path=credentials_path,
                 token_path=token_path
             )

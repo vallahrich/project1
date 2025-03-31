@@ -1,41 +1,8 @@
 version: "3.1"
 
-intents:
-  - reply_to_email
-
-slots:
-  email_response:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-  confirm_sending:
-    type: bool
-    influence_conversation: true
-    mappings:
-    - type: from_intent
-      intent: affirm
-      value: true
-    - type: from_intent
-      intent: deny
-      value: false
-
 responses:
   utter_ask_for_response:
   - text: "What would you like to say in your reply?"
 
-  utter_confirm_sending:
-  - text: "I've drafted the following reply: {email_response}. Would you like me to send it?"
-
-  utter_email_sent:
-  - text: "Great! Your email has been sent successfully."
-
-  utter_email_not_sent:
-  - text: "I've canceled sending the email."
-
-  utter_no_email_selected:
-  - text: "I don't have an email selected. Let's check your inbox first."
-
 actions:
   - action_draft_reply
-  - action_send_reply

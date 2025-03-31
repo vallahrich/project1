@@ -2,7 +2,6 @@ version: "3.1"
 
 intents:
   - sort_emails
-  - label_email
 
 slots:
   email_label:
@@ -14,9 +13,6 @@ slots:
 responses:
   utter_sorting_complete:
   - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
-
-  utter_labeling_complete:
-  - text: "I've labeled your email as requested."
   
   utter_ask_email_label:
   - text: "What label would you like to apply to this email?"

@@ -400,3 +400,64 @@ class ImprovedEmailClient:
         except HttpError as error:
             print(f"An error occurred: {error}")
             return None
+    
+    def trash_email(self, email_id: str) -> bool:
+        """
+        Move an email to trash.
+        
+        Args:
+            email_id: The ID of the email to trash
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if not self.authorized or not self.service:
+            print("Not authorized to trash emails")
+            return False
+            
+        try:
+            # Move to trash by adding TRASH label and removing INBOX label
+            self.service.users().messages().modify(
+                userId=self.user_id,
+                id=email_id,
+                body={
+                    'addLabelIds': ['TRASH'],
+                    'removeLabelIds': ['INBOX']
+                }
+            ).execute()
+            
+            return True
+            
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return False
+        
+    def mark_as_read(self, email_id: str) -> bool:
+        """
+        Mark an email as read by removing the UNREAD label.
+        
+        Args:
+            email_id: The ID of the email to mark as read
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if not self.authorized or not self.service:
+            print("Not authorized to modify emails")
+            return False
+            
+        try:
+            # Remove UNREAD label
+            self.service.users().messages().modify(
+                userId=self.user_id,
+                id=email_id,
+                body={
+                    'removeLabelIds': ['UNREAD']
+                }
+            ).execute()
+            
+            return True
+            
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return False
