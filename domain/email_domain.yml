@@ -258,6 +258,21 @@ responses:
   utter_ask_email_label:
   - text: "What label would you like to apply to this email?"
 
+  utter_ask_user_content_input:
+  - text: "What would you like to say in your reply?"
+
+  utter_ask_professional_input:
+  - text: "What key points or specific information would you like to include in your professional reply?"
+
+  utter_ask_casual_input:
+  - text: "What main points would you like to mention in your casual reply?"
+
+  utter_ask_custom_input:
+  - text: "What would you like to convey in your {custom_style} reply?"
+
+  utter_ask_default_input:
+  - text: "What would you like to include in your reply?"
+
 actions:
   # Basic email actions
   - action_list_emails

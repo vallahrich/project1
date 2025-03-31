@@ -80,7 +80,7 @@ class ActionGenerateReplyDraft(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
-        Generate a reply draft based on user's choice.
+        Generate a reply draft based on user's choice and input.
         """
         try:
             # Get the user's choice and input
@@ -99,18 +99,18 @@ class ActionGenerateReplyDraft(Action):
                 )
                 return []
             
-            # Generate the appropriate reply based on the type
+            # Generate the appropriate reply based on the type, now always including user_input
             if reply_type == "user_content" and user_input:
                 draft = self.generate_reply_from_user_content(
                     user_input, sender, subject, original_content
                 )
             elif reply_type == "professional":
                 draft = self.generate_professional_reply(
-                    sender, subject, original_content
+                    sender, subject, original_content, user_input
                 )
             elif reply_type == "casual":
                 draft = self.generate_casual_reply(
-                    sender, subject, original_content
+                    sender, subject, original_content, user_input
                 )
             elif reply_type == "custom" and user_input:
                 draft = self.generate_custom_reply(
@@ -121,9 +121,6 @@ class ActionGenerateReplyDraft(Action):
                     text="I need more information about what kind of reply you'd like to create. Could you please specify?"
                 )
                 return []
-            
-            # No need to display the draft here since we're now using utter_ask_draft_options
-            # which will be rendered with the draft content
             
             # Update the email_response slot with the draft
             return [
@@ -200,13 +197,13 @@ class ActionGenerateReplyDraft(Action):
             logger.error(f"Error generating email with LLM: {e}")
             return self._fallback_email_generation(content, sender)
     
-    def generate_professional_reply(self, sender: str, subject: str, original_content: str) -> str:
-        """Generate a professional reply based on the original email content."""
+    def generate_professional_reply(self, sender: str, subject: str, original_content: str, user_input: str = None) -> str:
+        """Generate a professional reply based on the original email content and user's input."""
         # Get API key from environment
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             logger.warning("OpenAI API key not found")
-            return self._fallback_email_generation("", sender)
+            return self._fallback_email_generation(user_input or "", sender)
         
         # Extract recipient name from sender
         recipient_name = "there"
@@ -214,7 +211,7 @@ class ActionGenerateReplyDraft(Action):
             full_name = sender.split("(")[0].strip()
             recipient_name = full_name.split()[0] if full_name else "there"
         
-        # Prepare the prompt
+        # Prepare the prompt - now including user input
         prompt = f"""
         Generate a professional email reply to the following email:
         
@@ -223,8 +220,11 @@ class ActionGenerateReplyDraft(Action):
         Original email content: 
         {original_content}
         
+        User's specific instructions or points to include:
+        {user_input or "No specific instructions provided."}
+        
         Create a well-formatted, professional email that is concise, clear, and maintains appropriate tone.
-        Focus on addressing the key points from the original email.
+        Focus on addressing the key points from the original email AND any specific points mentioned by the user.
         Start with an appropriate greeting using the recipient's name if available.
         End with a professional sign-off.
         """
@@ -257,15 +257,15 @@ class ActionGenerateReplyDraft(Action):
             
         except Exception as e:
             logger.error(f"Error generating email with LLM: {e}")
-            return self._fallback_email_generation("", sender)
+            return self._fallback_email_generation(user_input or "", sender)
 
-    def generate_casual_reply(self, sender: str, subject: str, original_content: str) -> str:
-        """Generate a casual, friendly reply based on the original email content."""
+    def generate_casual_reply(self, sender: str, subject: str, original_content: str, user_input: str = None) -> str:
+        """Generate a casual, friendly reply based on the original email content and user's input."""
         # Get API key from environment
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             logger.warning("OpenAI API key not found")
-            return self._fallback_email_generation("", sender)
+            return self._fallback_email_generation(user_input or "", sender)
         
         # Extract recipient name from sender
         recipient_name = "there"
@@ -273,7 +273,7 @@ class ActionGenerateReplyDraft(Action):
             full_name = sender.split("(")[0].strip()
             recipient_name = full_name.split()[0] if full_name else "there"
         
-        # Prepare the prompt
+        # Prepare the prompt - now including user input
         prompt = f"""
         Generate a casual, friendly email reply to the following email:
         
@@ -282,7 +282,11 @@ class ActionGenerateReplyDraft(Action):
         Original email content: 
         {original_content}
         
+        User's specific instructions or points to include:
+        {user_input or "No specific instructions provided."}
+        
         Create a warm, conversational email that feels personal and informal while still being respectful.
+        Address the main points from the original email AND any specific points mentioned by the user.
         Use a friendly greeting with the recipient's first name if available.
         End with a casual sign-off.
         """
@@ -315,7 +319,7 @@ class ActionGenerateReplyDraft(Action):
             
         except Exception as e:
             logger.error(f"Error generating email with LLM: {e}")
-            return self._fallback_email_generation("", sender)
+            return self._fallback_email_generation(user_input or "", sender)
 
     def generate_custom_reply(self, style: str, sender: str, subject: str, original_content: str) -> str:
         """Generate a reply in a custom style specified by the user."""
@@ -522,44 +526,38 @@ class ActionEditReplyDraft(Action):
     
     def apply_edits_to_draft(self, current_draft: str, edit_instruction: str, dispatcher: CollectingDispatcher) -> str:
         """
-        Apply user's editing instructions to the current draft.
-        
-        In this implementation, we'll treat the user's input as the full edited email
-        rather than trying to modify specific parts of the email.
-        
-        Args:
-            current_draft: The current email draft text
-            edit_instruction: The user's provided text (the full edited email)
-            dispatcher: The dispatcher to send messages
-            
-        Returns:
-            Updated draft text with the requested changes
+        Apply user's editing instructions to the current draft with more sophisticated parsing.
         """
-        # For simplicity, we'll assume the user provides the full edited text
-        # This avoids the complexity of trying to interpret edit instructions
+        # Extract parts of the email for easier editing
+        parts = self._parse_email_parts(current_draft)
         
-        # Check if the edited text appears to be a complete email
-        if len(edit_instruction.strip().split()) > 5:  # Basic check that it's not just a command
-            return edit_instruction
+        # Check if this is a full replacement (longer text that seems like a complete email)
+        if len(edit_instruction.strip().split()) > 20:
+            if any(word in edit_instruction.lower() for word in ["dear", "hello", "hi", "greetings"]):
+                return edit_instruction
         
-        # If it seems like the user provided an instruction rather than the full text
-        # Try to use LLM-based editing if available, otherwise use the current draft
+        # Use the LLM for interpreting edit instructions
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
-                # Prepare the prompt for the LLM
+                # Prepare a more detailed prompt for the LLM
                 prompt = f"""
+                You are helping edit an email draft according to specific user instructions.
+                
                 Original email draft:
                 ```
                 {current_draft}
                 ```
                 
-                Edit instruction from user:
+                User's edit instruction:
                 ```
                 {edit_instruction}
                 ```
                 
-                Please edit the email draft according to the user's instructions. Return the complete edited email.
+                Please make ONLY the changes specified in the edit instruction.
+                Preserve the email format with greeting, body paragraphs, and signature.
+                Maintain the original tone and style unless explicitly asked to change it.
+                Return the complete edited email without explanations or markdown formatting.
                 """
                 
                 response = requests.post(
@@ -588,10 +586,79 @@ class ActionEditReplyDraft(Action):
                 edited_draft = re.sub(r'```email\n|```\n|```email|```', '', edited_draft)
                 
                 return edited_draft
+                
             except Exception as e:
                 logger.error(f"Error using LLM for editing: {e}")
-                # Fall back to using the user's text as-is
-                return edit_instruction
+                # If the LLM approach fails, try some simple pattern matching
+                return self._apply_simple_edits(current_draft, edit_instruction, parts)
         
-        # If no API key or the request failed, just use the user's text
-        return edit_instruction
+        # If no API key, use simple pattern matching
+        return self._apply_simple_edits(current_draft, edit_instruction, parts)
+
+    def _apply_simple_edits(self, current_draft: str, edit_instruction: str, parts: Dict[str, str]) -> str:
+        """Apply edits using simple pattern matching if LLM is unavailable."""
+        instruction_lower = edit_instruction.lower()
+        
+        # Check for common edit patterns
+        if "change greeting" in instruction_lower or "update greeting" in instruction_lower:
+            # Try to extract the new greeting
+            match = re.search(r'to\s+"([^"]+)"', edit_instruction)
+            if match:
+                parts["greeting"] = match.group(1)
+                return self._reconstruct_email(parts)
+        
+        elif "add paragraph" in instruction_lower:
+            # Extract what comes after "add paragraph"
+            content_to_add = edit_instruction.split("add paragraph", 1)[1].strip()
+            parts["body"] += f"\n\n{content_to_add}"
+            return self._reconstruct_email(parts)
+        
+        # If no pattern matches, just return the original with the edit instruction appended
+        # This ensures the user's edit gets included somehow
+        return f"{current_draft}\n\n[Edit: {edit_instruction}]"
+
+    def _parse_email_parts(self, email: str) -> Dict[str, str]:
+        """Parse an email into its component parts for easier editing."""
+        lines = email.strip().split('\n')
+        parts = {"greeting": "", "body": "", "signature": ""}
+        
+        # Find greeting line
+        greeting_idx = -1
+        for i, line in enumerate(lines):
+            if any(word in line.lower() for word in ["dear", "hello", "hi", "greetings"]):
+                greeting_idx = i
+                break
+        
+        if greeting_idx >= 0:
+            parts["greeting"] = lines[greeting_idx]
+            lines = lines[greeting_idx+1:]
+        
+        # Find signature section
+        sig_idx = -1
+        sig_markers = ["regards", "sincerely", "best", "thanks", "thank you", "cheers"]
+        for i, line in enumerate(lines):
+            if any(marker in line.lower() for marker in sig_markers):
+                sig_idx = i
+                break
+        
+        if sig_idx >= 0:
+            parts["signature"] = "\n".join(lines[sig_idx:])
+            parts["body"] = "\n".join(lines[:sig_idx]).strip()
+        else:
+            parts["body"] = "\n".join(lines).strip()
+        
+        return parts
+
+    def _reconstruct_email(self, parts: Dict[str, str]) -> str:
+        """Reconstruct an email from its component parts."""
+        email = ""
+        if parts["greeting"]:
+            email += parts["greeting"] + "\n\n"
+        
+        if parts["body"]:
+            email += parts["body"] + "\n\n"
+        
+        if parts["signature"]:
+            email += parts["signature"]
+        
+        return email

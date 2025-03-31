@@ -76,3 +76,32 @@ class ValidateSelectedEmail(Action):
         
         # If no emails or couldn't process, just return the value as is
         return [SlotSet("selected_email", value)]
+
+class ActionSelectInputPrompt(Action):
+    """Selects the appropriate input prompt based on reply type."""
+    
+    def name(self) -> Text:
+        return "action_select_input_prompt"
+    
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        """
+        Select and dispatch the appropriate utterance based on reply_type.
+        """
+        reply_type = tracker.get_slot("reply_type")
+        custom_style = tracker.get_slot("custom_style")
+        
+        if reply_type == "user_content":
+            return [FollowupAction("utter_ask_user_content_input")]
+        elif reply_type == "professional":
+            return [FollowupAction("utter_ask_professional_input")]
+        elif reply_type == "casual":
+            return [FollowupAction("utter_ask_casual_input")]
+        elif reply_type == "custom" and custom_style:
+            # If custom style is set, we need to fill the template variable
+            dispatcher.utter_message(template="utter_ask_custom_input", 
+                                    custom_style=custom_style)
+            return []
+        else:
+            return [FollowupAction("utter_ask_default_input")]

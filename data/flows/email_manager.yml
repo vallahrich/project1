@@ -58,17 +58,18 @@ flows:
         collect: reply_type
         description: "Type of reply (user_content, professional, casual, or custom)"
         utter: utter_ask_reply_type
-        next:
-          - if: "slots.reply_type = 'user_content' or slots.reply_type = 'custom'"
-            then: get_user_reply_content
-          - else: generate_reply_draft
-      
+        next: select_input_prompt
+        
+      - id: select_input_prompt
+        action: action_select_input_prompt
+        next: get_user_reply_content
+        
       - id: get_user_reply_content
         collect: user_input
-        description: "User's content for the email reply or custom style"
-        utter: utter_ask_user_input
+        description: "User's content or instructions for the email reply"
+        # No utter needed here as it's handled by the action_select_input_prompt
         next: generate_reply_draft
-      
+            
       - id: generate_reply_draft
         action: action_generate_reply_draft
         next: review_draft

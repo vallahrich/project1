@@ -17,7 +17,7 @@ from actions.improved_email_organize_actions import ActionGetLabelSuggestions, A
 from actions.special_email_handling import ActionCheckForNoReply
 
 # Import validation actions
-from actions.validate_email_response import ValidateEmailResponse
+from actions.validate_email_response import ValidateEmailResponse, ActionSelectInputPrompt
 
 
 # For Rasa to discover the actions
@@ -47,4 +47,5 @@ all_actions = [
 
     # Validation actions
     ValidateEmailResponse(),
+    ActionSelectInputPrompt(),
 ]
