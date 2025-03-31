@@ -1,5 +1,3 @@
-version: "3.1"
-
 flows:
   email_manager:
     description: "Main flow that coordinates all email operations, maintaining context"
@@ -30,11 +28,9 @@ flows:
         utter: utter_ask_email_action
         next:
           - if: "slots.email_action = 'reply'"
-            then:
-              - link: email_reply
+            then: initiate_reply
           - if: "slots.email_action = 'label'"
-            then:
-              - link: email_labeling
+            then: get_label_suggestions
           - if: "slots.email_action = 'next'"
             then: show_next_email
           - if: "slots.email_action = 'previous'"
@@ -53,36 +49,9 @@ flows:
         action: action_mark_as_read
         next: ask_next_action
       
-      # Email navigation
-      - id: show_next_email
-        set_slots:
-          - navigation_direction: "next"
-        next: navigate_email
-      
-      - id: show_previous_email
-        set_slots:
-          - navigation_direction: "previous"
-        next: navigate_email
-      
-      - id: navigate_email
-        action: action_navigate_emails
-        next: ask_email_action
-      
-      # Email actions
-      - id: delete_email
-        action: action_delete_email
-        next: ask_next_action
-      
-      # Final step asking what to do next
-      - id: ask_next_action
-        action: utter_ask_next_action
-        next: END
-
-  email_reply:
-    description: "Handle email reply creation and sending"
-    steps:
-      # Starting point for the flow when linked from email_manager
-      - action: action_initiate_reply
+      # Reply flow
+      - id: initiate_reply
+        action: action_initiate_reply
         next: get_reply_type
       
       - id: get_reply_type
@@ -114,34 +83,30 @@ flows:
           - if: "slots.review_option = 'edit'"
             then: edit_draft
           - if: "slots.review_option = 'start_over'"
-            then:
-              - action: action_initiate_reply
-                next: get_reply_type
+            then: initiate_reply
           - else: cancel_draft
       
       - id: edit_draft
-        collect: user_input
-        description: "User's full edited version of the email"
+        collect: user_input  # We're now using user_input for getting the edits
+        description: "Content for editing the email draft"
         utter: utter_ask_for_edits
-        next: process_edits
+        next: process_edit
       
-      - id: process_edits
-        action: action_edit_reply_draft
+      - id: process_edit
+        action: validate_email_response  # Use our new validator to process the edit
+        next: show_edited_draft
+      
+      - id: show_edited_draft
+        action: utter_confirm_edited_draft
         next: confirm_edited
       
       - id: confirm_edited
-        collect: review_option
-        description: "What to do with the edited draft"
-        utter: utter_ask_edited_draft_options
+        collect: confirm_edited_draft
+        description: "Confirmation to send edited draft"
+        utter: utter_ask_send_edited
         next:
-          - if: "slots.review_option = 'send'"
+          - if: "slots.confirm_edited_draft = true"
             then: confirm_send
-          - if: "slots.review_option = 'edit'"
-            then: edit_draft
-          - if: "slots.review_option = 'start_over'"
-            then:
-              - action: action_initiate_reply
-                next: get_reply_type
           - else: cancel_draft
       
       - id: confirm_send
@@ -164,16 +129,10 @@ flows:
       - id: cancel_draft
         action: utter_email_not_sent
         next: ask_next_action
-        
-      - id: ask_next_action
-        action: utter_ask_next_action
-        next: END
-
-  email_labeling:
-    description: "Handle email labeling and organization"
-    steps:
-      # Starting point for the flow when linked from email_manager
-      - action: action_get_label_suggestions
+      
+      # Labeling flow
+      - id: get_label_suggestions
+        action: action_get_label_suggestions
         next: choose_label
       
       - id: choose_label
@@ -185,37 +144,28 @@ flows:
       - id: apply_label
         action: action_apply_selected_label
         next: ask_next_action
-        
+      
+      # Navigation flow
+      - id: show_next_email
+        set_slots:
+          - navigation_direction: "next"
+        next: navigate_email
+      
+      - id: show_previous_email
+        set_slots:
+          - navigation_direction: "previous"
+        next: navigate_email
+      
+      - id: navigate_email
+        action: action_navigate_emails
+        next: ask_email_action
+      
+      # Email actions
+      - id: delete_email
+        action: action_delete_email
+        next: ask_next_action
+      
+      # Final step asking what to do next
       - id: ask_next_action
         action: utter_ask_next_action
         next: END
-
-  special_email_handling:
-    description: "Handle special email cases like no-reply addresses"
-    steps:
-      - action: action_check_for_noreply
-        next:
-          - if: "slots.is_noreply_address = true"
-            then: handle_noreply
-          - else: standard_reply
-      
-      - id: handle_noreply
-        action: utter_noreply_warning
-        next: get_noreply_choice
-      
-      - id: get_noreply_choice
-        collect: noreply_choice
-        description: "What to do with a no-reply email"
-        utter: utter_ask_noreply_choice
-        next:
-          - if: "slots.noreply_choice = 'reply_anyway'"
-            then: 
-              - link: email_reply
-          - else: return_to_inbox
-            
-      - id: return_to_inbox
-        action: action_list_emails
-        next: END
-      
-      - id: standard_reply
-        link: email_reply

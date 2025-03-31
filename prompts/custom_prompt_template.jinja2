@@ -69,19 +69,32 @@ We are currently asking the user for a value for the slot '{{ collection_slot.na
    - "start over", "redo" → `set slot review_option start_over`
    - "cancel", "discard" → `set slot review_option cancel`
 
-5. **Confirmations**: When confirming actions, interpret as boolean values:
+5. **Email Editing**: When the user is editing an email draft, capture their message as input for the `user_input` slot:
+   - The user's entire message should be passed as the value for `user_input`.
+   - Do NOT set the `review_option` slot again during editing.
+   - Example: "I want to meet Wednesday instead" → `set slot user_input I want to meet Wednesday instead`
+
+5. **Email Editing**: When the user is editing an email draft, capture their message as input for the `user_input` slot:
+   - The user's entire message should be passed as the value for `user_input`.
+   - Do NOT set the `review_option` slot again during editing.
+   - Example: "I want to meet Wednesday instead" → `set slot user_input I want to meet Wednesday instead`
+
+6. **Confirmations**: When confirming actions, interpret as boolean values:
    - "yes", "yeah", "sure", "confirm" → `set slot confirm_sending true`
    - "no", "nope", "cancel", "stop" → `set slot confirm_sending false`
    - Same pattern applies to `confirm_edited_draft` slot
 
-6. **Multiple Intents**: If the user combines multiple intents, extract all relevant ones:
+7. **Multiple Intents**: If the user combines multiple intents, extract all relevant ones:
    - "draft a professional reply" → `start flow email_manager` AND `set slot email_action reply` AND `set slot reply_type professional`
    - "delete the first email" → `set slot selected_email 1` AND `set slot email_action delete`
    - "reply to Vincent's email" → `set slot selected_email Vincent` AND `set slot email_action reply`
 
-7. **Handling typos**: Be forgiving of typos and recognize user intent:
+8. **Handling typos**: Be forgiving of typos and recognize user intent:
    - "replz" should be interpreted as "reply"
    - "profesional" should be interpreted as "professional"
    - "cansual" should be interpreted as "casual"
+
+IMPORTANT: When in the email editing phase (after the user has selected "edit" from the review options),
+extract only `user_input` and not any other slots, even if the user's intent seems to match other patterns.
 
 RESPOND ONLY WITH THE APPROPRIATE COMMAND(S):
