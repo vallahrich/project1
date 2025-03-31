@@ -50,17 +50,7 @@ class ActionInitiateReply(Action):
             if is_no_reply:
                 warning = "⚠️ This appears to be a no-reply email address which typically doesn't accept responses.\n\n"
                 dispatcher.utter_message(text=warning)
-            
-            # Offer different reply options
-            message = f"I'll help you draft a reply to {sender_name} about \"{subject}\".\n\n"
-            message += "How would you like to respond? You can:\n"
-            message += "1. Tell me what to say in your own words\n"
-            message += "2. Ask me to draft a professional reply\n"
-            message += "3. Ask me to draft a casual reply\n"
-            message += "4. Create a specific type of response (e.g., \"Draft a concerned reply\")"
-            
-            dispatcher.utter_message(text=message)
-            
+                        
             return [SlotSet("reply_stage", "initiate")]
             
         except Exception as e:
