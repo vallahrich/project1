@@ -1,0 +1,7 @@
+google-cloud-speech==2.21.0
+google-cloud-texttospeech==2.14.1
+PyAudio==0.2.13
+pygame==2.5.2
+rasa==3.6.6
+asyncio==3.4.3
+wave==0.0.2 
