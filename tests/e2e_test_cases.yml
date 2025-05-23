@@ -1,0 +1,44 @@
+test_cases:
+  - test_case: email_manager_no_new_email
+    steps:
+      - user: "check my email"
+      - bot: "You don't have any new emails at the moment."
+
+  - test_case: email_manager_reply_flow
+    steps:
+      - user: "check my email"
+      - bot: "Which email would you like to select?"
+      - user: "1"
+      - bot: "Here’s the email:\nSubject: …\nWhat would you like to do?"
+      - user: "reply"
+      - bot: "What style of reply would you like?"
+      - user: "professional"
+      - bot: "Please type out your professional reply."
+      - user: "Please draft a brief professional reply."
+      - bot: "Here’s a draft of your reply. Would you like to send it?"
+      - user: "send"
+      - bot: "Great! Your email has been sent successfully."
+
+  - test_case: set_medication_reminder_success
+    steps:
+      - user: "I need to set a medication reminder"
+      - bot: "Sure—what’s the medication name?"
+      - user: "Aspirin"
+      - bot: "When would you like me to remind you?"
+      - user: "8 PM tomorrow"
+      - bot: "Got it—reminder set for Aspirin at 8 PM daily starting tomorrow."
+
+  - test_case: set_medication_reminder_failure
+    steps:
+      - user: "Remind me to take Ibuprofen at 9 AM every day"
+      - bot: "Oops, I wasn’t able to schedule that reminder. Can you try again later?"
+
+  - test_case: emergency_alert_success
+    steps:
+      - user: "Notruf"
+      - bot: "Ich habe einen Hilferuf an deine Notfallkontakte gesendet."
+
+  - test_case: emergency_alert_failure
+    steps:
+      - user: "Notfall"
+      - bot: "Ich konnte keine Nachricht an deine Notfallkontakte senden. Bitte versuche es später erneut."

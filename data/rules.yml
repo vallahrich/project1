@@ -26,3 +26,18 @@ rules:
     steps:
     - intent: general_question
     - action: action_openai_fallback
+
+  - rule: Activate medication reminder form
+    steps:
+      - intent: inform_medication_details
+      - action: medication_reminder_form
+      - active_loop: medication_reminder_form
+
+  - rule: Submit medication reminder form
+    condition:
+      - active_loop: medication_reminder_form
+    steps:
+      - action: medication_reminder_form
+      - active_loop: null
+      - action: action_create_medication_reminder
+      - action: utter_medication_reminder_confirm

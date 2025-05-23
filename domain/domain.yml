@@ -229,6 +229,13 @@ entities:
   - date
   - frequency
 
+forms:
+  medication_reminder_form:
+    required_slots:
+      - medication_name
+      - reminder_date
+      - reminder_time
+
 responses:
   # Updated greeting - ALWAYS starts conversations with this
   utter_greet:

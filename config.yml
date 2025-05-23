@@ -3,34 +3,49 @@ language: en
 
 # Pipeline for processing user messages
 pipeline:
+- name: WhitespaceTokenizer
+- name: RegexFeaturizer
+- name: LexicalSyntacticFeaturizer
+- name: CountVectorsFeaturizer
+- name: CountVectorsFeaturizer
+  analyzer: char_wb
+  min_ngram: 1
+  max_ngram: 4
+- name: DIETClassifier
+  epochs: 100
+- name: EntitySynonymMapper
+- name: ResponseSelector
+  epochs: 100
 - name: NLUCommandAdapter
-  # Required for intent-based slot mappings
 - name: CompactLLMCommandGenerator
   llm:
     provider: openai
-    model: gpt-4o-2024-11-20
+    model: gpt-4-1106-preview
     request_timeout: 10
     max_tokens: 500
     temperature: 0.7
   minimize_num_calls: true
   prompt_template: prompts/custom_prompt_template.jinja2
-# REMOVED FallbackClassifier - it's incompatible with IntentlessPolicy
 
 # Policies for dialogue management
 policies:
-- name: FlowPolicy    # Handle Rasa Pro flow definitions
-- name: IntentlessPolicy    # Support conversations without explicit intents
-  nlu_abstention_threshold: 0.0  # Always let IntentlessPolicy handle
-  prompt: prompts/intentless_prompt.jinja2  # Optional custom prompt
-- name: RulePolicy    # Handle simple rules
+- name: MemoizationPolicy
+- name: RulePolicy
+- name: FlowPolicy
+- name: TEDPolicy
+  max_history: 5
+  epochs: 100
+- name: IntentlessPolicy
+  nlu_abstention_threshold: 0.0
+  prompt: prompts/intentless_prompt.jinja2
 
 # Model group for other LLM API access (in custom actions)
 model_groups:
-- id: openai-gpt4o
+- id: openai-gpt4
   models:
   - provider: openai
-    model: gpt-4o-2024-11-20
+    model: gpt-4-1106-preview
     request_timeout: 10
     max_tokens: 500
     temperature: 0.7
-assistant_id: 20250330-171212-feldspar-bit
+assistant_id: 20250523-121411-bounded-hook
