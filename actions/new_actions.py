@@ -1,5 +1,6 @@
 """
 New actions for OpenAI fallback, medication reminders, and help tracking.
+Replace your existing actions/new_actions.py with this file.
 """
 import os
 import logging
@@ -129,7 +130,7 @@ class ActionCheckHelpThreshold(Action):
             return []
 
 class ActionCreateMedicationReminder(Action):
-    """Create a medication reminder in Google Calendar."""
+    """Create a medication reminder in Google Calendar with improved error handling."""
     
     def name(self) -> Text:
         return "action_create_medication_reminder"
@@ -147,28 +148,53 @@ class ActionCreateMedicationReminder(Action):
             date_str = tracker.get_slot("reminder_date")
             frequency = tracker.get_slot("reminder_frequency")
             
+            logger.info(f"Creating reminder for: {medication}, time: {time_str}, date: {date_str}, frequency: {frequency}")
+            
+            # Validate required slots
+            if not medication:
+                logger.error("Missing medication name")
+                dispatcher.utter_message(text="I need to know which medication to remind you about.")
+                return [SlotSet("return_value", "failed")]
+            
+            if not time_str:
+                logger.error("Missing reminder time")
+                dispatcher.utter_message(text="I need to know what time to remind you.")
+                return [SlotSet("return_value", "failed")]
+            
+            # Set defaults for missing optional fields
+            if not date_str:
+                date_str = "today"
+            if not frequency:
+                frequency = "daily"
+            
             # Initialize Google Calendar API
             service = self._get_calendar_service()
             if not service:
                 logger.error("Failed to initialize Google Calendar service")
+                dispatcher.utter_message(text="I couldn't connect to Google Calendar. Please check your credentials.")
                 return [SlotSet("return_value", "failed")]
             
             # Parse date and time
-            reminder_datetime = self._parse_datetime(date_str, time_str)
+            try:
+                reminder_datetime = self._parse_datetime(date_str, time_str)
+                logger.info(f"Parsed datetime: {reminder_datetime}")
+            except Exception as e:
+                logger.error(f"Error parsing datetime: {e}")
+                dispatcher.utter_message(text="I couldn't understand the date or time format. Please try again with a clearer format.")
+                return [SlotSet("return_value", "failed")]
             
-            # Create the event
+            # Create the event with proper structure
             event = {
-                'summary': f'Medication Reminder: {medication}',
-                'description': f'Time to take your {medication}',
+                'summary': f'💊 Take {medication}',
+                'description': f'Reminder to take your {medication}',
                 'start': {
                     'dateTime': reminder_datetime.isoformat(),
-                    'timeZone': 'Europe/Copenhagen',  # Based on user location
+                    'timeZone': 'Europe/Copenhagen',
                 },
                 'end': {
                     'dateTime': (reminder_datetime + timedelta(minutes=15)).isoformat(),
                     'timeZone': 'Europe/Copenhagen',
                 },
-                'recurrence': self._get_recurrence_rule(frequency),
                 'reminders': {
                     'useDefault': False,
                     'overrides': [
@@ -178,146 +204,213 @@ class ActionCreateMedicationReminder(Action):
                 },
             }
             
+            # Add recurrence if specified
+            recurrence_rule = self._get_recurrence_rule(frequency)
+            if recurrence_rule:
+                event['recurrence'] = [recurrence_rule]
+                logger.info(f"Added recurrence rule: {recurrence_rule}")
+            
             # Insert the event
-            event = service.events().insert(calendarId='primary', body=event).execute()
-            logger.info(f'Event created: {event.get("htmlLink")}')
+            created_event = service.events().insert(calendarId='primary', body=event).execute()
+            logger.info(f'Event created successfully: {created_event.get("id")}')
             
             return [SlotSet("return_value", "success")]
             
+        except HttpError as e:
+            logger.error(f"Google Calendar API error: {e}")
+            error_details = e.error_details if hasattr(e, 'error_details') else str(e)
+            dispatcher.utter_message(text=f"Google Calendar error: {error_details}. Please check your event details.")
+            return [SlotSet("return_value", "failed")]
+            
         except Exception as e:
-            logger.error(f"Error creating medication reminder: {e}")
+            logger.error(f"Unexpected error creating medication reminder: {e}")
+            dispatcher.utter_message(text="An unexpected error occurred while setting up your reminder. Please try again.")
             return [SlotSet("return_value", "failed")]
     
     def _get_calendar_service(self):
-        """Initialize Google Calendar service."""
+        """Initialize Google Calendar service with improved error handling."""
         SCOPES = ['https://www.googleapis.com/auth/calendar']
         
-        creds = None
-        token_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "credentials",
-            "gcal_token.json"
-        )
-        credentials_path = os.getenv("GOOGLE_CALENDAR_CREDENTIALS_PATH") or os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "credentials",
-            "gcal_credentials.json"
-        )
-        
-        # Token loading and refresh logic similar to email client
-        if os.path.exists(token_path):
-            try:
-                with open(token_path, 'r') as token:
-                    creds = Credentials.from_authorized_user_info(
-                        json.load(token),
-                        SCOPES
-                    )
-            except Exception as e:
-                logger.error(f"Error loading token: {e}")
-        
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                try:
-                    creds.refresh(Request())
-                except Exception as e:
-                    logger.error(f"Error refreshing token: {e}")
-                    creds = None
-            
-            if not creds:
-                try:
-                    flow = InstalledAppFlow.from_client_secrets_file(
-                        credentials_path, SCOPES)
-                    creds = flow.run_local_server(port=0)
-                    
-                    # Save the credentials
-                    with open(token_path, 'w') as token:
-                        json.dump(json.loads(creds.to_json()), token)
-                except Exception as e:
-                    logger.error(f"Error during OAuth flow: {e}")
-                    return None
-        
         try:
-            return build('calendar', 'v3', credentials=creds)
+            creds = None
+            token_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "credentials",
+                "gcal_token.json"
+            )
+            credentials_path = os.getenv("GOOGLE_CALENDAR_CREDENTIALS_PATH") or os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "credentials",
+                "gcal_credentials.json"
+            )
+            
+            # Ensure credentials directory exists
+            os.makedirs(os.path.dirname(token_path), exist_ok=True)
+            
+            # Load existing token
+            if os.path.exists(token_path):
+                try:
+                    with open(token_path, 'r') as token:
+                        creds = Credentials.from_authorized_user_info(
+                            json.load(token), SCOPES
+                        )
+                        logger.info("Loaded existing Google Calendar credentials")
+                except Exception as e:
+                    logger.error(f"Error loading existing token: {e}")
+            
+            # Refresh or get new credentials
+            if not creds or not creds.valid:
+                if creds and creds.expired and creds.refresh_token:
+                    try:
+                        creds.refresh(Request())
+                        logger.info("Refreshed Google Calendar credentials")
+                    except Exception as e:
+                        logger.error(f"Error refreshing token: {e}")
+                        creds = None
+                
+                if not creds:
+                    if not os.path.exists(credentials_path):
+                        logger.error(f"Google Calendar credentials file not found at {credentials_path}")
+                        return None
+                    
+                    try:
+                        flow = InstalledAppFlow.from_client_secrets_file(
+                            credentials_path, SCOPES)
+                        creds = flow.run_local_server(port=0)
+                        
+                        # Save the credentials
+                        with open(token_path, 'w') as token:
+                            json.dump(json.loads(creds.to_json()), token)
+                        logger.info("Created new Google Calendar credentials")
+                    except Exception as e:
+                        logger.error(f"Error during OAuth flow: {e}")
+                        return None
+            
+            # Build and return the service
+            service = build('calendar', 'v3', credentials=creds)
+            logger.info("Successfully built Google Calendar service")
+            return service
+            
         except Exception as e:
             logger.error(f"Failed to build Calendar service: {e}")
             return None
     
     def _parse_datetime(self, date_str: str, time_str: str) -> datetime:
-        """Parse date and time strings into datetime object."""
+        """Parse date and time strings into datetime object with better error handling."""
         try:
+            # Clean up input strings
+            date_str = date_str.strip().lower()
+            time_str = time_str.strip().lower()
+            
+            logger.info(f"Parsing date: '{date_str}', time: '{time_str}'")
+            
             # Handle common date strings
-            date_str_lower = date_str.lower()
-            if date_str_lower == "today":
-                date = datetime.now().date()
-            elif date_str_lower == "tomorrow":
-                date = (datetime.now() + timedelta(days=1)).date()
-            elif "next" in date_str_lower:
-                # Simple handling for "next Monday", etc.
-                days_ahead = 7  # Default to next week
-                date = (datetime.now() + timedelta(days=days_ahead)).date()
+            today = datetime.now().date()
+            if date_str in ["today", "heute"]:
+                date = today
+            elif date_str in ["tomorrow", "morgen"]:
+                date = today + timedelta(days=1)
+            elif "next" in date_str or "nächste" in date_str:
+                # Simple handling for "next Monday", etc. - default to 7 days ahead
+                date = today + timedelta(days=7)
             else:
-                # Try to parse the date string
-                from dateutil import parser
-                date = parser.parse(date_str).date()
+                try:
+                    # Try to parse various date formats
+                    from dateutil import parser
+                    parsed_date = parser.parse(date_str, default=datetime.now())
+                    date = parsed_date.date()
+                except:
+                    # If all parsing fails, default to today
+                    logger.warning(f"Could not parse date '{date_str}', defaulting to today")
+                    date = today
             
-            # Parse time
-            time_str_lower = time_str.lower().replace(" ", "")
-            
-            # Handle common time formats
-            if time_str_lower == "noon":
-                hour, minute = 12, 0
-            elif time_str_lower == "midnight":
-                hour, minute = 0, 0
-            else:
-                # Remove am/pm for parsing
-                time_clean = time_str_lower.replace("am", "").replace("pm", "").strip()
-                
-                # Parse hour and minute
-                if ":" in time_clean:
-                    hour, minute = map(int, time_clean.split(":"))
-                else:
-                    hour = int(time_clean)
-                    minute = 0
-                
-                # Adjust for PM
-                if "pm" in time_str_lower and hour < 12:
-                    hour += 12
-                elif "am" in time_str_lower and hour == 12:
-                    hour = 0
+            # Parse time with better handling
+            hour, minute = self._parse_time(time_str)
             
             # Combine date and time
-            return datetime.combine(date, datetime.min.time().replace(hour=hour, minute=minute))
+            result = datetime.combine(date, datetime.min.time().replace(hour=hour, minute=minute))
+            logger.info(f"Successfully parsed datetime: {result}")
+            return result
             
         except Exception as e:
             logger.error(f"Error parsing datetime: {e}")
-            # Default to tomorrow at 9 AM
+            # Default to tomorrow at 9 AM if parsing fails
             tomorrow = datetime.now() + timedelta(days=1)
             return tomorrow.replace(hour=9, minute=0, second=0, microsecond=0)
     
-    def _get_recurrence_rule(self, frequency: str) -> List[str]:
+    def _parse_time(self, time_str: str) -> tuple:
+        """Parse time string and return (hour, minute) tuple."""
+        try:
+            time_str_clean = time_str.replace(" ", "").lower()
+            
+            # Handle special cases
+            if time_str_clean in ["noon", "mittag"]:
+                return (12, 0)
+            elif time_str_clean in ["midnight", "mitternacht"]:
+                return (0, 0)
+            
+            # Extract AM/PM indicator
+            is_pm = "pm" in time_str_clean or "p.m." in time_str_clean
+            is_am = "am" in time_str_clean or "a.m." in time_str_clean
+            
+            # Remove am/pm indicators
+            time_clean = time_str_clean.replace("pm", "").replace("am", "").replace("p.m.", "").replace("a.m.", "").strip()
+            
+            # Parse hour and minute
+            if ":" in time_clean:
+                parts = time_clean.split(":")
+                hour = int(parts[0])
+                minute = int(parts[1]) if len(parts) > 1 else 0
+            else:
+                hour = int(time_clean)
+                minute = 0
+            
+            # Adjust for AM/PM
+            if is_pm and hour < 12:
+                hour += 12
+            elif is_am and hour == 12:
+                hour = 0
+            
+            # Handle 24-hour format edge cases
+            if hour >= 24:
+                hour = hour % 24
+            
+            return (hour, minute)
+            
+        except Exception as e:
+            logger.error(f"Error parsing time '{time_str}': {e}")
+            # Default to 9 AM if parsing fails
+            return (9, 0)
+    
+    def _get_recurrence_rule(self, frequency: str) -> str:
         """Convert frequency description to Google Calendar recurrence rule."""
-        frequency_lower = frequency.lower()
-        
-        if "daily" in frequency_lower or "every day" in frequency_lower:
-            return ["RRULE:FREQ=DAILY"]
-        elif "weekly" in frequency_lower or "once a week" in frequency_lower:
-            return ["RRULE:FREQ=WEEKLY"]
-        elif "twice" in frequency_lower and "day" in frequency_lower:
-            # Twice a day - morning and evening
-            return ["RRULE:FREQ=DAILY", "RRULE:FREQ=DAILY;BYHOUR=21"]
-        elif "three times" in frequency_lower:
-            # Three times a day
-            return ["RRULE:FREQ=DAILY", "RRULE:FREQ=DAILY;BYHOUR=14", "RRULE:FREQ=DAILY;BYHOUR=21"]
-        elif "every" in frequency_lower and "hours" in frequency_lower:
-            # Extract hours if specified
-            try:
-                import re
-                hours = re.search(r'(\d+)\s*hours?', frequency_lower)
-                if hours:
-                    interval = int(hours.group(1))
-                    return [f"RRULE:FREQ=HOURLY;INTERVAL={interval}"]
-            except:
-                pass
-        
-        # Default to daily
-        return ["RRULE:FREQ=DAILY"]
+        try:
+            frequency_lower = frequency.lower().strip()
+            logger.info(f"Processing frequency: '{frequency_lower}'")
+            
+            if any(word in frequency_lower for word in ["daily", "every day", "täglich"]):
+                return "RRULE:FREQ=DAILY"
+            elif any(word in frequency_lower for word in ["weekly", "once a week", "wöchentlich"]):
+                return "RRULE:FREQ=WEEKLY"
+            elif "twice" in frequency_lower and "day" in frequency_lower:
+                return "RRULE:FREQ=DAILY;INTERVAL=1;BYHOUR=9,21"  # 9 AM and 9 PM
+            elif "three times" in frequency_lower and "day" in frequency_lower:
+                return "RRULE:FREQ=DAILY;INTERVAL=1;BYHOUR=8,14,20"  # 8 AM, 2 PM, 8 PM
+            elif "every" in frequency_lower and "hour" in frequency_lower:
+                # Extract hours if specified
+                try:
+                    import re
+                    hours_match = re.search(r'(\d+)\s*hour', frequency_lower)
+                    if hours_match:
+                        interval = int(hours_match.group(1))
+                        return f"RRULE:FREQ=HOURLY;INTERVAL={interval}"
+                except:
+                    pass
+            
+            # Default to daily if no specific pattern matches
+            logger.info("No specific frequency pattern matched, defaulting to daily")
+            return "RRULE:FREQ=DAILY"
+            
+        except Exception as e:
+            logger.error(f"Error processing frequency '{frequency}': {e}")
+            return "RRULE:FREQ=DAILY"

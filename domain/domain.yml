@@ -1,26 +1,26 @@
 version: "3.1"
 
 intents:
-  # Existing intents
+  # Core intents
   - greeting
   - goodbye
   - affirm
   - deny
+  - general_question
+  
+  # Email intents
   - check_email
-  - read_email
-  - reply_to_email
-  - label_email
   - select_email
   - navigate_email
   - apply_label
   - reply_type
-  - add_calendar_event
-  - inform_event_details
-  - emergency_help
-  # New intents
-  - general_question
+  
+  # Medication intents
   - set_medication_reminder
   - inform_medication_details
+  
+  # Emergency intent
+  - emergency_help
 
 slots:
   # Existing email slots
@@ -28,37 +28,37 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   email_count:
     type: float
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   current_email_index:
     type: float
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   current_email_id:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   current_email_subject:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   current_email_sender:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   current_email_content:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   selected_email:
     type: text
     influence_conversation: true
@@ -75,7 +75,7 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   reply_type:
     type: text
     influence_conversation: true
@@ -93,25 +93,25 @@ slots:
     influence_conversation: true
     mappings:
     - type: from_text
-    - type: custom
+    - type: controlled
   review_option:
     type: text
     influence_conversation: true
     mappings:
     - type: from_text
     - type: from_llm
-    - type: custom
-      action: validate_review_option
+    - type: controlled
+      run_action_every_turn: validate_review_option
   suggested_labels:
     type: list
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   existing_labels:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   label_choice:
     type: text
     influence_conversation: true
@@ -162,7 +162,7 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   name:
     type: text
     influence_conversation: true
@@ -174,7 +174,7 @@ slots:
     mappings:
     - type: from_text
   
-  # New medication reminder slots
+  # Medication reminder slots
   medication_name:
     type: text
     influence_conversation: true
@@ -208,33 +208,51 @@ slots:
     - type: from_text
     - type: from_llm
   
-  # New help tracking slot
+  # New medication flow control slots
+  another_reminder:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      intent: affirm
+      value: true
+    - type: from_intent
+      intent: deny
+      value: false
+    - type: from_llm
+  
+  retry_reminder:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      intent: affirm
+      value: true
+    - type: from_intent
+      intent: deny
+      value: false
+    - type: from_llm
+  
+  # Help tracking slot
   help_count:
     type: float
     initial_value: 0
     influence_conversation: true
     mappings:
-    - type: custom
+    - type: controlled
   
   # OpenAI response slot
   openai_response:
     type: text
     influence_conversation: false
     mappings:
-    - type: custom
+    - type: controlled
 
 entities:
   - medication_name
   - time
   - date
   - frequency
-
-forms:
-  medication_reminder_form:
-    required_slots:
-      - medication_name
-      - reminder_date
-      - reminder_time
 
 responses:
   # Updated greeting - ALWAYS starts conversations with this
@@ -323,21 +341,32 @@ responses:
   utter_emergency_help_failed:
   - text: "Ich konnte keine Nachricht an Ihre Notfallkontakte senden. Bitte rufen Sie direkt den Notdienst unter 112 an.\n\nI couldn't send a message to your emergency contacts. Please call emergency services directly at 112."
   
-  # New medication reminder responses
+  # Medication reminder responses
   utter_ask_medication_name:
-  - text: "What medication would you like me to remind you about?"
-  utter_ask_reminder_time:
-  - text: "What time should I remind you to take {medication_name}?"
-  utter_ask_reminder_date:
-  - text: "Starting from which date should I set this reminder?"
-  utter_ask_reminder_frequency:
-  - text: "How often should I remind you? (e.g., daily, weekly, twice a day)"
-  utter_confirm_medication_reminder:
-  - text: "I've set up a reminder for {medication_name} at {reminder_time} starting {reminder_date}, {reminder_frequency}. The reminder has been added to your Google Calendar."
-  utter_medication_reminder_failed:
-  - text: "I couldn't set up the medication reminder. Please check your Google Calendar connection and try again."
+  - text: "What medication would you like me to remind you about? (e.g., aspirin, insulin, vitamins)"
   
-  # New help tracking response
+  utter_ask_reminder_time:
+  - text: "What time should I remind you to take {medication_name}? You can say things like '8:00 AM', '10 PM', or 'noon'."
+  
+  utter_ask_reminder_date:
+  - text: "Starting from which date should I set this reminder? You can say 'today', 'tomorrow', or a specific date."
+  
+  utter_ask_reminder_frequency:
+  - text: "How often should I remind you? You can say 'daily', 'weekly', 'twice a day', etc."
+  
+  utter_confirm_medication_reminder:
+  - text: "✅ Perfect! I've set up a reminder for {medication_name} at {reminder_time} starting {reminder_date}, repeating {reminder_frequency}. The reminder has been added to your Google Calendar with notifications enabled."
+  
+  utter_medication_reminder_failed:
+  - text: "❌ Sorry, I couldn't set up the medication reminder. This could be due to a Google Calendar connection issue or invalid date/time format. Please check your credentials and try again."
+  
+  utter_ask_another_medication_reminder:
+  - text: "Would you like to set up another medication reminder?"
+  
+  utter_ask_retry_medication_reminder:
+  - text: "Would you like to try setting up the medication reminder again? I can help you with the correct format."
+  
+  # Help tracking response
   utter_first_help:
   - text: "Ich höre dich. Wenn du wirklich Hilfe brauchst, sage noch einmal 'Hilfe'.\n\nI hear you. If you really need help, say 'Hilfe' again."
   
@@ -372,10 +401,12 @@ actions:
   - reset_email_slots
   - emergency_twillio
   
+  # New actions
   - action_openai_fallback
   - action_increment_help_count
   - action_check_help_threshold
   - action_create_medication_reminder
+  - action_reset_medication_slots
 
 session_config:
   session_expiration_time: 60

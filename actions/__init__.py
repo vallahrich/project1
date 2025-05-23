@@ -37,6 +37,9 @@ from actions.new_actions import (
     ActionCreateMedicationReminder
 )
 
+# Import the new reset medication slots action
+from actions.reset_medication_slots import ActionResetMedicationSlots
+
 
 # For Rasa to discover the actions
 all_actions = [
@@ -77,5 +80,8 @@ all_actions = [
     ActionOpenAIFallback(),
     ActionIncrementHelpCount(),
     ActionCheckHelpThreshold(),
-    ActionCreateMedicationReminder()
+    ActionCreateMedicationReminder(),
+    
+    # Medication reminder helper action
+    ActionResetMedicationSlots()
 ]

@@ -1,36 +1,64 @@
 flows:
   medication_reminder:
-    description: "Set up medication reminders in Google Calendar"
+    description: "Set up medication reminders in Google Calendar with improved error handling"
     nlu_trigger:
       - intent: set_medication_reminder
     steps:
       - id: get_medication_name
         collect: medication_name
-        description: "Name of the medication"
+        description: "Name of the medication (e.g., aspirin, insulin, vitamins)"
         utter: utter_ask_medication_name
+        next: get_reminder_time
       
       - id: get_reminder_time
         collect: reminder_time
-        description: "Time for the reminder"
+        description: "Time for the reminder (e.g., 8:00 AM, 10 PM, noon)"
         utter: utter_ask_reminder_time
+        next: get_reminder_date
       
       - id: get_reminder_date
         collect: reminder_date
-        description: "Start date for the reminder"
+        description: "Start date for the reminder (e.g., today, tomorrow, next Monday)"
         utter: utter_ask_reminder_date
+        next: get_reminder_frequency
       
       - id: get_reminder_frequency
         collect: reminder_frequency
-        description: "How often to remind"
+        description: "How often to remind (e.g., daily, weekly, twice a day)"
         utter: utter_ask_reminder_frequency
+        next: create_reminder
       
       - id: create_reminder
         action: action_create_medication_reminder
         next:
           - if: "slots.return_value == 'success'"
-            then:
-              - action: utter_confirm_medication_reminder
-                next: END
-          - else:
-              - action: utter_medication_reminder_failed
-                next: END
+            then: confirm_success
+          - else: handle_failure
+      
+      - id: confirm_success
+        action: utter_confirm_medication_reminder
+        next: ask_another_reminder
+      
+      - id: handle_failure
+        action: utter_medication_reminder_failed
+        next: ask_retry
+      
+      - id: ask_another_reminder
+        collect: another_reminder
+        description: "Whether to set up another medication reminder"
+        utter: utter_ask_another_medication_reminder
+        next:
+          - if: "slots.another_reminder == true"
+            then: 
+              - action: action_reset_medication_slots
+                next: get_medication_name
+          - else: END
+      
+      - id: ask_retry
+        collect: retry_reminder
+        description: "Whether to retry setting up the medication reminder"
+        utter: utter_ask_retry_medication_reminder
+        next:
+          - if: "slots.retry_reminder == true"
+            then: get_medication_name
+          - else: END

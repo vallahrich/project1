@@ -15,6 +15,20 @@ nlu:
     - hello there
     - hi there
 
+# New goodbye intent
+- intent: goodbye
+  examples: |
+    - goodbye
+    - bye
+    - see you later
+    - talk to you later
+    - farewell
+    - take care
+    - catch you later
+    - see ya
+    - until next time
+    - have a good day
+
 # New general question intent
 - intent: general_question
   examples: |
@@ -60,13 +74,15 @@ nlu:
 
 - intent: select_email
   examples: |
-    - 1
-    - 2
-    - 3
-    - first
-    - second
-    - one
-    - two
+    - first email
+    - second email
+    - third email
+    - email number one
+    - email number two
+    - email number three
+    - show me email number 1
+    - read email number 2
+    - open email number 3
     - [1](selected_email)
     - [one](selected_email)
     - [first](selected_email)
@@ -93,7 +109,9 @@ nlu:
     - read [1](selected_email)
     - email [1](selected_email)
     - [first](selected_email) email
-    - [1](selected_email)
+    - the first email
+    - the second email
+    - the third email
 
 - intent: navigate_email
   examples: |
@@ -144,14 +162,6 @@ nlu:
     - [option 2](reply_type:professional)
     - [option 3](reply_type:casual)
     - [option 4](reply_type:custom)
-    - [1](reply_type:user_content)
-    - [2](reply_type:professional)
-    - [3](reply_type:casual)
-    - [4](reply_type:custom)
-    - [one](reply_type:user_content)
-    - [two](reply_type:professional)
-    - [three](reply_type:casual)
-    - [four](reply_type:custom)
     - [first option](reply_type:user_content)
     - [second option](reply_type:professional)
     - [third option](reply_type:casual)
@@ -161,6 +171,10 @@ nlu:
     - [casual email](reply_type:casual)
     - [concerned](reply_type:custom)
     - [polite but firm](reply_type:custom)
+    - reply type one
+    - reply type two
+    - reply type three
+    - reply type four
 
 # New medication reminder intents
 - intent: set_medication_reminder
