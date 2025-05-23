@@ -29,6 +29,14 @@ from actions.reset_email_slots import ActionResetEmailSlots
 # Import emergency Twilio action
 from actions.emergency_twillio import ActionEmergencyTwilio
 
+# Import new actions for OpenAI, medication reminders, and help tracking
+from actions.new_actions import (
+    ActionOpenAIFallback,
+    ActionIncrementHelpCount,
+    ActionCheckHelpThreshold,
+    ActionCreateMedicationReminder
+)
+
 
 # For Rasa to discover the actions
 all_actions = [
@@ -64,4 +72,10 @@ all_actions = [
         
     # Emergency actions
     ActionEmergencyTwilio(),
+    
+    # New actions
+    ActionOpenAIFallback(),
+    ActionIncrementHelpCount(),
+    ActionCheckHelpThreshold(),
+    ActionCreateMedicationReminder()
 ]

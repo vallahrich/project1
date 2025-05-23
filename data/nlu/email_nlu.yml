@@ -1,4 +1,62 @@
-# Add these intents to your existing nlu.yml
+version: "3.1"
+
+nlu:
+# New greeting intent
+- intent: greeting
+  examples: |
+    - hello
+    - hi
+    - hey
+    - good morning
+    - good evening
+    - what's up
+    - how are you
+    - hey there
+    - hello there
+    - hi there
+
+# New general question intent
+- intent: general_question
+  examples: |
+    - what is the weather today
+    - tell me about climate change
+    - how do I cook pasta
+    - what's the capital of France
+    - explain quantum physics
+    - who is the president
+    - what time is it
+    - tell me a joke
+    - how many days until Christmas
+    - what's the meaning of life
+    - can you help me understand taxes
+    - what's the best way to learn programming
+    - how do I fix my computer
+    - tell me about artificial intelligence
+    - what should I eat for dinner
+    - how does the internet work
+    - what's the population of China
+    - explain photosynthesis
+    - what causes earthquakes
+    - how do airplanes fly
+    - what's the speed of light
+    - tell me about black holes
+    - how do vaccines work
+    - what's cryptocurrency
+    - explain machine learning
+
+# Existing email intents
+- intent: check_email
+  examples: |
+    - check my email
+    - do I have any new emails
+    - check inbox
+    - show me my emails
+    - any new messages
+    - check for new mail
+    - what emails do I have
+    - show unread emails
+    - check my gmail
+    - do I have mail
 
 - intent: select_email
   examples: |
@@ -103,57 +161,74 @@
     - [casual email](reply_type:casual)
     - [concerned](reply_type:custom)
     - [polite but firm](reply_type:custom)
-  
-- intent: add_calendar_event
-    examples: |
-      - I want to add an event to my calendar
-      - Schedule a new event
-      - Create a calendar event
-      - Add something to my calendar
-      - New calendar entry
-      - Add a new event
-      - Create a calendar event
-      - Schedule an event
-      - Add event to calendar
-      - Create new calendar entry
-      - Schedule a meeting
-      - Add [Team Meeting](event_title) on [2024-03-28](event_date) at [14:00](event_time) for [60](event_duration) minutes
-      - Schedule [Doctor appointment](event_title) for [2024-04-15](event_date) at [10:30](event_time)
-      - Create event [Lunch](event_title) on [2024-03-29](event_date) at [12:00](event_time) for [45](event_duration) minutes
-      - Add [Project Review](event_title) at [15:00](event_time) on [2024-04-01](event_date)
-      - Create a new event
-      - I want to add an event
-      - Schedule something
-      - New calendar entry
-      - Add appointment
-      - Create meeting
 
-- intent: inform_event_details
-    examples: |
-      - [Meeting with John](event_title)
-      - [2025-04-01](event_date)
-      - [14:30](event_time)
-      - [30](event_duration) minutes
-      - The title is [Team Sync](event_title)
-      - Schedule it for [2025-05-15](event_date)
-      - Start at [09:00](event_time)
-      - It will take [60](event_duration) minutes
-      - The title is [Team Meeting](event_title)
-      - It's about [Project Review](event_title)
-      - [Lunch with Peter](event_title)
-      - On [2024-03-25](event_date)
-      - Date is [2024-04-01](event_date)
-      - At [14:30](event_time)
-      - [15:00](event_time)
-      - It will take [60](event_duration) minutes
-      - [90](event_duration) minutes
-      - [Doctor appointment](event_title) on [2024-03-26](event_date) at [09:15](event_time)
-      - [Meeting](event_title) for [45](event_duration) minutes
-      - [Client meeting](event_title) tomorrow at [10:00](event_time)
+# New medication reminder intents
+- intent: set_medication_reminder
+  examples: |
+    - I need a medication reminder
+    - set up a medication reminder
+    - remind me to take my medication
+    - I need to remember to take my pills
+    - can you remind me about my medicine
+    - medication reminder please
+    - help me remember my medication
+    - I always forget my medication
+    - set a reminder for my pills
+    - remind me to take [aspirin](medication_name)
+    - I need to take [insulin](medication_name) every day
+    - remind me about [blood pressure medication](medication_name)
+    - set reminder for [vitamins](medication_name) at [9am](time)
+    - I take [metformin](medication_name) [twice daily](frequency)
+    - medication reminder for [antibiotics](medication_name)
+    - I need to take my [heart medication](medication_name)
+    - remind me about my [diabetes pills](medication_name)
+    - set up pill reminder
+    - I forget to take my meds
+    - medicine reminder
+    - pill reminder please
 
+- intent: inform_medication_details
+  examples: |
+    - [aspirin](medication_name)
+    - [insulin](medication_name)
+    - [blood pressure pills](medication_name)
+    - [vitamins](medication_name)
+    - [metformin](medication_name)
+    - [antibiotics](medication_name)
+    - [heart medication](medication_name)
+    - [thyroid medication](medication_name)
+    - [pain killers](medication_name)
+    - [allergy medication](medication_name)
+    - [8:00 AM](time)
+    - [9:30 PM](time)
+    - [10 o'clock](time)
+    - [noon](time)
+    - [midnight](time)
+    - [6pm](time)
+    - [tomorrow](date)
+    - [next Monday](date)
+    - [today](date)
+    - [this week](date)
+    - [next week](date)
+    - [daily](frequency)
+    - [twice a day](frequency)
+    - [every morning](frequency)
+    - [every 8 hours](frequency)
+    - [weekly](frequency)
+    - [three times a day](frequency)
+    - [every evening](frequency)
+    - [once a week](frequency)
+    - it's [ibuprofen](medication_name)
+    - at [10am](time) and [10pm](time)
+    - starting [today](date)
+    - [every day](frequency)
+
+# Updated emergency help intent
 - intent: emergency_help
   examples: |
+    - hilfe
     - Hilfe
+    - HILFE
     - Notfall
     - Notruf
     - Ich brauche Hilfe
@@ -181,3 +256,37 @@
     - Dringend Hilfe nötig
     - Medizinischer Notfall
     - Medical emergency
+
+# Basic intents
+- intent: affirm
+  examples: |
+    - yes
+    - yeah
+    - yep
+    - sure
+    - ok
+    - okay
+    - correct
+    - right
+    - indeed
+    - absolutely
+    - of course
+    - that's right
+    - yes please
+    - definitely
+
+- intent: deny
+  examples: |
+    - no
+    - nope
+    - not really
+    - no way
+    - don't
+    - don't want to
+    - no thanks
+    - not interested
+    - negative
+    - never
+    - I don't think so
+    - definitely not
+    - no please

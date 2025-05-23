@@ -1,321 +1,321 @@
-version: "3.1"
+# '''version: "3.1"
 
-intents:
-  - greeting
-  - goodbye
-  - affirm
-  - deny
-  - check_email
-  - read_email
-  - reply_to_email
-  - label_email
-  - select_email
-  - navigate_email
-  - apply_label
-  - reply_type
+# intents:
+#   - greeting
+#   - goodbye
+#   - affirm
+#   - deny
+#   - check_email
+#   - read_email
+#   - reply_to_email
+#   - label_email
+#   - select_email
+#   - navigate_email
+#   - apply_label
+#   - reply_type
 
-slots:
-  # Email collection slots
-  emails:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
-  email_count:
-    type: float
-    influence_conversation: true
-    mappings:
-    - type: custom
-  current_email_index:
-    type: float
-    influence_conversation: true
-    mappings:
-    - type: custom
-  current_email_id:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
-  current_email_subject:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
-  current_email_sender:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
-  current_email_content:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
+# slots:
+#   # Email collection slots
+#   emails:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   email_count:
+#     type: float
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   current_email_index:
+#     type: float
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   current_email_id:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   current_email_subject:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   current_email_sender:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   current_email_content:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
   
-  # Email interaction slots
-  selected_email:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
-  email_action:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
+#   # Email interaction slots
+#   selected_email:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
+#   email_action:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
   
-  # Reply-related slots
-  reply_stage:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
-  reply_type:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
+#   # Reply-related slots
+#   reply_stage:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   reply_type:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
 
-  user_input:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm  
+#   user_input:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm  
 
-  email_response:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: custom
+#   email_response:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: custom
 
-  review_option:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
-    - type: custom
-      action: validate_review_option
+#   review_option:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
+#     - type: custom
+#       action: validate_review_option
 
-  # Label-related slots
-  suggested_labels:
-    type: list
-    influence_conversation: true
-    mappings:
-    - type: custom
-  existing_labels:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
+#   # Label-related slots
+#   suggested_labels:
+#     type: list
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
+#   existing_labels:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
 
-  label_choice:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
+#   label_choice:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
   
-  # Confirmation slots
-  confirm_sending:
-    type: bool
-    influence_conversation: true
-    mappings:
-    - type: from_intent
-      intent: affirm
-      value: true
-    - type: from_intent
-      intent: deny
-      value: false
-    - type: from_llm
+#   # Confirmation slots
+#   confirm_sending:
+#     type: bool
+#     influence_conversation: true
+#     mappings:
+#     - type: from_intent
+#       intent: affirm
+#       value: true
+#     - type: from_intent
+#       intent: deny
+#       value: false
+#     - type: from_llm
 
-  confirm_edited_draft:
-    type: bool
-    influence_conversation: true
-    mappings:
-    - type: from_intent
-      intent: affirm
-      value: true
-    - type: from_intent
-      intent: deny
-      value: false
-    - type: from_llm
+#   confirm_edited_draft:
+#     type: bool
+#     influence_conversation: true
+#     mappings:
+#     - type: from_intent
+#       intent: affirm
+#       value: true
+#     - type: from_intent
+#       intent: deny
+#       value: false
+#     - type: from_llm
   
-  # Other utility slots
-  custom_style:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
+#   # Other utility slots
+#   custom_style:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
 
-  navigation_direction:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
+#   navigation_direction:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
 
-  next_action:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_text
-    - type: from_llm
+#   next_action:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: from_text
+#     - type: from_llm
 
-responses:
-  # Greeting and basic responses
-  utter_greet:
-  - text: "Hello! How can I help you with your emails today?"
+# responses:
+#   # Greeting and basic responses
+#   utter_greet:
+#   - text: "Hello! How can I help you with your emails today?"
 
-  utter_goodbye:
-  - text: "Goodbye! Let me know if you need help with your emails later."
+#   utter_goodbye:
+#   - text: "Goodbye! Let me know if you need help with your emails later."
   
-  utter_capabilities:
-  - text: "I can help you with your emails in several ways:\n- Check for new emails\n- Read email content\n- Draft and send replies\n- Sort and organize your inbox\n- Label emails\n\nJust tell me what you'd like to do!"
+#   utter_capabilities:
+#   - text: "I can help you with your emails in several ways:\n- Check for new emails\n- Read email content\n- Draft and send replies\n- Sort and organize your inbox\n- Label emails\n\nJust tell me what you'd like to do!"
 
-  # Email listing/reading responses
-  utter_no_new_mail:
-  - text: "You don't have any new emails at the moment."
+#   # Email listing/reading responses
+#   utter_no_new_mail:
+#   - text: "You don't have any new emails at the moment."
   
-  utter_ask_selected_email:
-  - text: "Which email would you like to read? You can select by number (e.g., '1'), mention the sender (e.g., 'Vincent's email'), or refer to the subject."
+#   utter_ask_selected_email:
+#   - text: "Which email would you like to read? You can select by number (e.g., '1'), mention the sender (e.g., 'Vincent's email'), or refer to the subject."
   
-  # Email action responses
-  utter_ask_email_action:
-  - text: "What would you like to do with this email?\n1. Reply\n2. Mark as read\n3. Delete\n4. Apply label\n5. Next email\n6. Previous email\n7. Return to inbox"
+#   # Email action responses
+#   utter_ask_email_action:
+#   - text: "What would you like to do with this email?\n1. Reply\n2. Mark as read\n3. Delete\n4. Apply label\n5. Next email\n6. Previous email\n7. Return to inbox"
   
-  utter_no_email_selected:
-  - text: "I don't have an email selected. Let's check your inbox first."
+#   utter_no_email_selected:
+#   - text: "I don't have an email selected. Let's check your inbox first."
   
-  utter_ask_navigation_direction:
-  - text: "Would you like to see the next email or the previous one?"
+#   utter_ask_navigation_direction:
+#   - text: "Would you like to see the next email or the previous one?"
   
-  # Reply-related responses
-  utter_ask_reply_type:
-  - text: "How would you like me to draft your reply? You can say:\n1. Use my own words\n2. Draft a professional reply\n3. Create a casual reply\n4. Custom style (e.g., 'formal', 'concerned')"
+#   # Reply-related responses
+#   utter_ask_reply_type:
+#   - text: "How would you like me to draft your reply? You can say:\n1. Use my own words\n2. Draft a professional reply\n3. Create a casual reply\n4. Custom style (e.g., 'formal', 'concerned')"
   
-  utter_ask_user_input:
-  - text: "What would you like to say in your reply?"
+#   utter_ask_user_input:
+#   - text: "What would you like to say in your reply?"
   
-  utter_ask_draft_options:
-  - text: "Here's the draft I've created:\n\n{email_response}\n\nWhat would you like to do?\n1. Send as is\n2. Edit this draft\n3. Start over\n4. Cancel"
+#   utter_ask_draft_options:
+#   - text: "Here's the draft I've created:\n\n{email_response}\n\nWhat would you like to do?\n1. Send as is\n2. Edit this draft\n3. Start over\n4. Cancel"
   
-  utter_ask_for_edits:
-  - text: "Please provide your complete edited version of the email. Your changes will be incorporated into the proper email format:"
+#   utter_ask_for_edits:
+#   - text: "Please provide your complete edited version of the email. Your changes will be incorporated into the proper email format:"
   
-  utter_confirm_edited_draft:
-  - text: "I've updated the draft with your edits:\n\n{email_response}"
+#   utter_confirm_edited_draft:
+#   - text: "I've updated the draft with your edits:\n\n{email_response}"
   
-  utter_ask_send_edited:
-  - text: "Would you like to send this edited draft?"
+#   utter_ask_send_edited:
+#   - text: "Would you like to send this edited draft?"
   
-  utter_ask_final_confirmation:
-  - text: "Before I send this email, please confirm:\n\nThis reply will be sent to {current_email_sender} with the subject \"Re: {current_email_subject}\".\n\nWould you like to proceed with sending?"
+#   utter_ask_final_confirmation:
+#   - text: "Before I send this email, please confirm:\n\nThis reply will be sent to {current_email_sender} with the subject \"Re: {current_email_subject}\".\n\nWould you like to proceed with sending?"
   
-  utter_email_sent:
-  - text: "Great! Your email has been sent successfully."
+#   utter_email_sent:
+#   - text: "Great! Your email has been sent successfully."
   
-  utter_email_not_sent:
-  - text: "I've canceled sending the email."
+#   utter_email_not_sent:
+#   - text: "I've canceled sending the email."
   
-  # Label-related responses
-  utter_ask_label_choice:
-  - text: "Which label would you like to apply? You can select one of the existing labels, create a new one, or use my recommendation."
+#   # Label-related responses
+#   utter_ask_label_choice:
+#   - text: "Which label would you like to apply? You can select one of the existing labels, create a new one, or use my recommendation."
   
-  utter_labeling_complete:
-  - text: "I've labeled your email as requested."
+#   utter_labeling_complete:
+#   - text: "I've labeled your email as requested."
   
-  # Follow-up responses
-  utter_ask_next_action:
-  - text: "What would you like to do next?\n1. Return to inbox\n2. Check for new emails\n3. Go to next email\n4. Mark the original email as read"
+#   # Follow-up responses
+#   utter_ask_next_action:
+#   - text: "What would you like to do next?\n1. Return to inbox\n2. Check for new emails\n3. Go to next email\n4. Mark the original email as read"
   
-  utter_can_do_something_else:
-  - text: "What else can I help you with?"
+#   utter_can_do_something_else:
+#   - text: "What else can I help you with?"
 
-  utter_email_marked_read:
-  - text: "I've marked the email as read."
+#   utter_email_marked_read:
+#   - text: "I've marked the email as read."
   
-  # Special cases
-  utter_noreply_warning:
-  - text: "Just to let you know, I notice this is from a no-reply address. These addresses typically don't accept incoming messages.\n\nWould you still like to:\n1. Draft a reply anyway\n2. Return to inbox"
+#   # Special cases
+#   utter_noreply_warning:
+#   - text: "Just to let you know, I notice this is from a no-reply address. These addresses typically don't accept incoming messages.\n\nWould you still like to:\n1. Draft a reply anyway\n2. Return to inbox"
   
-  utter_smart_reply_suggestions:
-  - text: "Here are some quick reply options:\n\n1. \"Thanks for your email. I'll review this and get back to you.\"\n2. \"Received, thanks!\"\n3. \"Got it, appreciate the update.\"\n4. Write a custom reply\n\nWhich would you prefer?"
+#   utter_smart_reply_suggestions:
+#   - text: "Here are some quick reply options:\n\n1. \"Thanks for your email. I'll review this and get back to you.\"\n2. \"Received, thanks!\"\n3. \"Got it, appreciate the update.\"\n4. Write a custom reply\n\nWhich would you prefer?"
   
-  utter_reply_error:
-  - text: "I'm sorry, I didn't understand what kind of reply you wanted to draft. Please try again by selecting one of the options."
+#   utter_reply_error:
+#   - text: "I'm sorry, I didn't understand what kind of reply you wanted to draft. Please try again by selecting one of the options."
   
-  utter_ask_for_response:
-  - text: "What would you like to say in your reply?"
+#   utter_ask_for_response:
+#   - text: "What would you like to say in your reply?"
 
-  utter_auth_help:
-  - text: "To fix authentication issues:\n1. Make sure your Gmail API credentials are correctly set up\n2. Check that your OAuth token is valid\n3. Try deleting the token file to go through the authentication flow again\n\nIf you need more help, please contact your administrator."
+#   utter_auth_help:
+#   - text: "To fix authentication issues:\n1. Make sure your Gmail API credentials are correctly set up\n2. Check that your OAuth token is valid\n3. Try deleting the token file to go through the authentication flow again\n\nIf you need more help, please contact your administrator."
   
-  utter_error_occurred:
-  - text: "I'm sorry, but I encountered an error. Please try again later."
+#   utter_error_occurred:
+#   - text: "I'm sorry, but I encountered an error. Please try again later."
   
-  utter_ask_anything_else:
-  - text: "Is there anything else you'd like me to help you with?"
+#   utter_ask_anything_else:
+#   - text: "Is there anything else you'd like me to help you with?"
 
-  utter_confirm_reply:
-  - text: "Would you like to reply to this email from {current_email_sender} about '{current_email_subject}'?"
+#   utter_confirm_reply:
+#   - text: "Would you like to reply to this email from {current_email_sender} about '{current_email_subject}'?"
 
-  utter_sorting_complete:
-  - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
+#   utter_sorting_complete:
+#   - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
   
-  utter_ask_email_label:
-  - text: "What label would you like to apply to this email?"
+#   utter_ask_email_label:
+#   - text: "What label would you like to apply to this email?"
 
-  utter_ask_user_content_input:
-  - text: "What would you like to say in your reply?"
+#   utter_ask_user_content_input:
+#   - text: "What would you like to say in your reply?"
 
-  utter_ask_professional_input:
-  - text: "What key points or specific information would you like to include in your professional reply?"
+#   utter_ask_professional_input:
+#   - text: "What key points or specific information would you like to include in your professional reply?"
 
-  utter_ask_casual_input:
-  - text: "What main points would you like to mention in your casual reply?"
+#   utter_ask_casual_input:
+#   - text: "What main points would you like to mention in your casual reply?"
 
-  utter_ask_custom_input:
-  - text: "What would you like to convey in your {custom_style} reply?"
+#   utter_ask_custom_input:
+#   - text: "What would you like to convey in your {custom_style} reply?"
 
-  utter_ask_default_input:
-  - text: "What would you like to include in your reply?"
+#   utter_ask_default_input:
+#   - text: "What would you like to include in your reply?"
 
-actions:
-  # Basic email actions
-  - action_list_emails
-  - action_read_selected_email
-  - action_navigate_emails
+# actions:
+#   # Basic email actions
+#   - action_list_emails
+#   - action_read_selected_email
+#   - action_navigate_emails
   
-  # Reply actions
-  - action_initiate_reply
-  - action_generate_reply_draft
-  - action_send_reply
-  - action_select_input_prompt  # Add the new action here
+#   # Reply actions
+#   - action_initiate_reply
+#   - action_generate_reply_draft
+#   - action_send_reply
+#   - action_select_input_prompt  # Add the new action here
   
-  # Organization actions
-  - action_get_label_suggestions
-  - action_apply_selected_label
-  - action_delete_email
-  - action_mark_as_read
-  - action_sort_mail
-  - action_label_mail
-  - action_check_new_mail
-  - action_read_mail
-  - action_draft_reply
+#   # Organization actions
+#   - action_get_label_suggestions
+#   - action_apply_selected_label
+#   - action_delete_email
+#   - action_mark_as_read
+#   - action_sort_mail
+#   - action_label_mail
+#   - action_check_new_mail
+#   - action_read_mail
+#   - action_draft_reply
   
-  # Validation actions
-  - validate_selected_email
-  - validate_email_response
-  - validate_review_option
-  - reset_email_slots
+#   # Validation actions
+#   - validate_selected_email
+#   - validate_email_response
+#   - validate_review_option
+#   - reset_email_slots
 
-session_config:
-  session_expiration_time: 60
-  carry_over_slots_to_new_session: true
+# session_config:
+#   session_expiration_time: 60
+#   carry_over_slots_to_new_session: true

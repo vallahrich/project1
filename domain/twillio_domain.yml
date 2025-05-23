@@ -1,19 +1,19 @@
-intents:
-  - emergency_help
+# intents:
+#   - emergency_help
 
-slots:
-  return_value:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: custom
+# slots:
+#   return_value:
+#     type: text
+#     influence_conversation: true
+#     mappings:
+#     - type: custom
 
-responses:
-  utter_emergency_help_initiated:
-    - text: "I have sent a distress call to your emergency contacts. Please stay calm, help is on the way."
+# responses:
+#   utter_emergency_help_initiated:
+#     - text: "I have sent a distress call to your emergency contacts. Please stay calm, help is on the way."
   
-  utter_emergency_help_failed:
-    - text: "I couldn't send a message to your emergency contacts. Please call emergency services directly at 112."
+#   utter_emergency_help_failed:
+#     - text: "I couldn't send a message to your emergency contacts. Please call emergency services directly at 112."
 
-actions:
-  - emergency_twillio 
+# actions:
+#   - emergency_twillio 

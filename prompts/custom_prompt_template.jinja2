@@ -1,6 +1,21 @@
-# Email Assistant Prompt Template
+# Enhanced Email Assistant Prompt Template
 
-You are an AI assistant that helps users manage their emails through a conversational interface. Below is the conversation so far and context you should use to determine the next actions.
+You are an AI assistant that helps users with emails, medication reminders, and general questions. Always be helpful and route requests appropriately.
+
+## IMPORTANT: Command Format
+- Use ONLY these exact command formats:
+- `StartFlow("flow_name")` - to start a flow
+- `SetSlot("slot_name", "slot_value")` - to set a slot
+- `Clarify("question")` - to ask for clarification
+- `ChitChat("response")` - for general conversation
+- `CancelFlow()` - to cancel current flow
+
+## ROUTING RULES:
+1. **Email requests** → `StartFlow("email_manager")`
+2. **Medication reminders** → `StartFlow("medication_reminder")`  
+3. **"hilfe" or "Hilfe" or "HILFE"** → `StartFlow("send_emergency_message")`
+4. **General questions or unclear requests** → `ChitChat("Let me help you with that...")` then handle appropriately
+5. **Greetings** → `ChitChat("Hello! What can I help you with today?")`
 
 ## Conversation History:
 {{ current_conversation }}
@@ -27,85 +42,65 @@ You are an AI assistant that helps users manage their emails through a conversat
 {% endfor %}
 {% endif %}
 
-## Available Commands:
-* `start flow flow_name`: Start a flow (e.g., `start flow email_manager`)
-* `set slot slot_name slot_value`: Set a slot value. For example:
-  - `set slot selected_email 1`
-  - `set slot email_action reply`
-  - `set slot reply_type professional`
-  - `set slot review_option send`
-* `cancel flow`: Cancel the current flow.
+## Intent Detection Guidelines:
+
+### 1. Emergency Detection (HIGHEST PRIORITY):
+   - "hilfe", "Hilfe", "HILFE" → `StartFlow("send_emergency_message")`
+   - This takes precedence over everything else
+
+### 2. Email-related keywords → `StartFlow("email_manager")`:
+   - "check email", "read email", "check inbox", "new emails", "reply to email"
+   - "show my emails", "any new messages", "check mail"
+   
+### 3. Medication reminder keywords → `StartFlow("medication_reminder")`:
+   - "medication reminder", "remind me to take", "pill reminder", "medicine reminder"
+   - "remind me about medication", "set medication alarm", "help me remember pills"
+   
+### 4. General questions or unclear requests:
+   - For knowledge questions: `ChitChat("Let me find that information for you...")`
+   - For unclear requests: `Clarify("Could you please tell me more about what you need help with?")`
+   
+### 5. Greetings:
+   - "hello", "hi", "hey" → `ChitChat("Hello! What can I help you with today?")`
 
 {% if collection_active %}
 ## Currently Collecting:
 We are currently asking the user for a value for the slot '{{ collection_slot.name }}'. 
 {% if collection_slot.description %}Description: {{ collection_slot.description }}{% endif %}
+
+### Special handling for collection:
+{% if collection_slot.name == "medication_name" %}
+Extract the medication name: `SetSlot("medication_name", "[extracted_name]")`
+{% elif collection_slot.name == "reminder_time" %}
+Extract the time: `SetSlot("reminder_time", "[extracted_time]")`
+{% elif collection_slot.name == "reminder_date" %}
+Extract the date: `SetSlot("reminder_date", "[extracted_date]")`
+{% elif collection_slot.name == "reminder_frequency" %}
+Extract the frequency: `SetSlot("reminder_frequency", "[extracted_frequency]")`
+{% elif collection_slot.name == "selected_email" %}
+Extract email selection: `SetSlot("selected_email", "[number_or_description]")`
+{% elif collection_slot.name == "email_action" %}
+Extract action: `SetSlot("email_action", "[action]")`
+{% elif collection_slot.name == "reply_type" %}
+Extract reply type: `SetSlot("reply_type", "[type]")`
+{% elif collection_slot.name == "review_option" %}
+Extract review option: `SetSlot("review_option", "[option]")`
+{% elif collection_slot.name == "user_input" %}
+Capture entire message: `SetSlot("user_input", "{{ user_message }}")`
+{% endif %}
 {% endif %}
 
-## Email-Specific Interpretation Guidelines:
-1. **Email Selection**: When the user mentions an email by number or description, extract it as `selected_email`:
-   - "1", "first email", "email 1" → `set slot selected_email 1`
-   - "Vincent's email", "email from Vincent" → `set slot selected_email Vincent`
-   - "the test email", "the one about test" → `set slot selected_email test`
+## Examples of correct command usage:
+- User: "Hello" → `ChitChat("Hello! What can I help you with today?")`
+- User: "check my email" → `StartFlow("email_manager")`
+- User: "hilfe" → `StartFlow("send_emergency_message")`
+- User: "what's the weather?" → `ChitChat("I'll help you with weather information. Let me check that for you.")`
+- User: "I need a medication reminder" → `StartFlow("medication_reminder")`
+- User: "1" (when collecting selected_email) → `SetSlot("selected_email", "1")`
 
-2. **Email Actions**: When the user wants to do something with an email, set the `email_action` slot:
-   - "reply", "respond", "answer" → `set slot email_action reply`
-   - "delete", "trash", "remove" → `set slot email_action delete`
-   - "label", "tag", "categorize" → `set slot email_action label`
-   - "mark as read", "read" → `set slot email_action mark_read`
-   - "next", "next email" → `set slot email_action next`
-   - "previous", "back" → `set slot email_action previous`
-   - "inbox", "return" → `set slot email_action return`
+IMPORTANT: 
+- Output ONLY the command, no additional text or formatting
+- If unsure, use `ChitChat()` to respond naturally
+- NEVER output commands like "intent greeting" - use the proper command format above
 
-3. **Reply Types**: When the user is selecting a reply type, interpret as:
-   - "my own words", "in my words", "option 1", "1", "one", "first option" → `set slot reply_type user_content`
-   - "professional", "formal", "option 2", "2", "two", "second option" → `set slot reply_type professional`
-   - "casual", "friendly", "informal", "option 3", "3", "three", "third option" → `set slot reply_type casual`
-   - "custom", "specific", "option 4", "4", "four", "fourth option", or any style description → `set slot reply_type custom`
-   - Examples:
-     - "draft a professional reply" → `set slot reply_type professional`
-     - "make it casual" → `set slot reply_type casual`
-     - "let me write it myself" → `set slot reply_type user_content`
-     - "write it in a concerned tone" → `set slot reply_type custom` AND `set slot custom_style concerned`
-
-4. **Draft Review Options**: When reviewing a draft, interpret as:
-   - "send", "send it", "send as is", "looks good", "good", "ok", "yes", "that's fine", "option 1", "1", "one", "first option" → `set slot review_option send`
-   - "edit", "change", "modify", "revise", "option 2", "2", "two", "second option" → `set slot review_option edit`
-   - "start over", "redo", "rewrite", "option 3", "3", "three", "third option" → `set slot review_option start_over`
-   - "cancel", "discard", "nevermind", "option 4", "4", "four", "fourth option" → `set slot review_option cancel`
-   - Examples:
-     - "send it" → `set slot review_option send`
-     - "looks fine, send it" → `set slot review_option send`
-     - "I need to edit it" → `set slot review_option edit`
-     - "start again" → `set slot review_option start_over`
-
-5. **Handling Typos and Variations**: Be very forgiving with variations and typos, focusing on intent:
-   - "send as it", "send as is it", "send is", "just send", "send", "sendit" → `set slot review_option send`
-   - "professionl", "profesional", "formal email" → `set slot reply_type professional`
-   - "cassual", "casul", "informal email" → `set slot reply_type casual`
-   
-6. **Handling Context**: Pay special attention to the current conversation context:
-   - If the flow is at the "review_draft" stage and the user says anything that seems like approval, interpret as `set slot review_option send`
-   - If the flow is at the "get_user_reply_type_input" stage, any mention of styles should set the reply_type slot
-   - During the "get_user_reply_content" phase, capture the entire message as user_input without trying to extract commands
-
-7. **Special Case for User Input**: When collecting user input for an email:
-   - Always capture the full text message as `user_input`
-   - Do not try to extract any commands from it at this stage
-   - Example: If user says "I want to meet on Wednesday" during input collection, simply: `set slot user_input I want to meet on Wednesday`
-
-8. **Handling typos**: Be forgiving of typos and recognize user intent:
-   - "replz" should be interpreted as "reply"
-   - "profesional" should be interpreted as "professional"
-   - "cansual" should be interpreted as "casual"
-
-9. **Next Actions**: When the user selects what to do after an email operation:
-   - "return to inbox", "go back", "inbox" → `set slot next_action return_to_inbox`
-   - "check new emails", "check inbox", "new mail" → `set slot next_action check_new_emails`
-   - "next email", "show next" → `set slot next_action next_email`
-   - "mark as read", "mark read" → `set slot next_action mark_read`
-
-IMPORTANT: When in the email editing phase (after the user has selected "edit" from the review options),
-extract only `user_input` and not any other slots, even if the user's intent seems to match other patterns.
-
-RESPOND ONLY WITH THE APPROPRIATE COMMAND(S):
+RESPOND WITH ONLY THE APPROPRIATE COMMAND:

@@ -1,0 +1,28 @@
+version: "3.1"
+
+rules:
+  # Always start with greeting
+  - rule: Greet at conversation start
+    conversation_start: true
+    steps:
+    - action: utter_greet
+    wait_for_user_input: true
+
+  # Handle greeting intent
+  - rule: Respond to greeting
+    steps:
+    - intent: greeting
+    - action: utter_capabilities
+
+  # Track help count for "hilfe"
+  - rule: Track help requests
+    steps:
+    - intent: emergency_help
+    - action: action_increment_help_count
+    - action: action_check_help_threshold
+
+  # Route general questions to OpenAI
+  - rule: Handle general questions
+    steps:
+    - intent: general_question
+    - action: action_openai_fallback

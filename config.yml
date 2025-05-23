@@ -4,7 +4,7 @@ language: en
 # Pipeline for processing user messages
 pipeline:
 - name: NLUCommandAdapter
-  # Required for intent-based slot mappings (confirm_reply and confirm_sending)
+  # Required for intent-based slot mappings
 - name: CompactLLMCommandGenerator
   llm:
     provider: openai
@@ -14,11 +14,14 @@ pipeline:
     temperature: 0.7
   minimize_num_calls: true
   prompt_template: prompts/custom_prompt_template.jinja2
+# REMOVED FallbackClassifier - it's incompatible with IntentlessPolicy
 
 # Policies for dialogue management
 policies:
 - name: FlowPolicy    # Handle Rasa Pro flow definitions
 - name: IntentlessPolicy    # Support conversations without explicit intents
+  nlu_abstention_threshold: 0.0  # Always let IntentlessPolicy handle
+  prompt: prompts/intentless_prompt.jinja2  # Optional custom prompt
 - name: RulePolicy    # Handle simple rules
 
 # Model group for other LLM API access (in custom actions)
