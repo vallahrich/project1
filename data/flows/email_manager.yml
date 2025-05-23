@@ -216,7 +216,7 @@ flows:
       
       - id: ask_email_action
         collect: email_action
-        description: "What to do with the email (reply, label, delete, next, previous, etc.)"
+        description: "What to do with the email (reply, label, delete, etc.)"
         utter: utter_ask_email_action
         next:
           - if: "slots.email_action = 'reply'"
@@ -227,11 +227,11 @@ flows:
             then: show_next_email
           - if: "slots.email_action = 'previous'"
             then: show_previous_email
-          - if: "slots.email_action = 'return' or slots.email_action = 'back to inbox' or slots.email_action = 'inbox'"
+          - if: "slots.email_action = 'return'"
             then: clear_slots_for_return
           - if: "slots.email_action = 'delete'"
             then: delete_email
-          - if: "slots.email_action = 'mark_read' or slots.email_action = 'mark as read'"
+          - if: "slots.email_action = 'mark_read'"
             then: mark_as_read
           - else: ask_email_action  # If we didn't understand, ask again
       
@@ -247,7 +247,7 @@ flows:
         action: action_list_emails
         next: select_email 
       
-      # Reply flow (unchanged)
+      # Reply flow
       - id: initiate_reply
         action: action_initiate_reply
         next: get_reply_type
@@ -317,7 +317,7 @@ flows:
         action: utter_email_not_sent
         next: ask_next_action
       
-      # Labeling flow (unchanged)
+      # Labeling flow
       - id: get_label_suggestions
         action: action_get_label_suggestions
         next: choose_label
@@ -347,26 +347,22 @@ flows:
         action: action_navigate_emails
         next: ask_email_action  # After navigation, ask what to do with the new email
       
-      # Email actions (unchanged)
+      # Email actions
       - id: delete_email
         action: action_delete_email
         next: ask_next_action
       
       - id: ask_next_action
         collect: next_action
-        description: "What to do next after email operation"
+        description: "What to do next"
         utter: utter_ask_next_action
         next:
-          - if: "slots.next_action = 'return_to_inbox' or slots.next_action = 'inbox' or slots.next_action = 'back'"
+          - if: "slots.next_action = 'return'"
             then: clear_slots_for_return
-          - if: "slots.next_action = 'check_new_emails' or slots.next_action = 'new emails'"
-            then: reset_slots_step
-          - if: "slots.next_action = 'next_email' or slots.next_action = 'next'"
+          - if: "slots.next_action = 'next'"
             then: show_next_email
-          - if: "slots.next_action = 'mark_read' or slots.next_action = 'mark as read'"
+          - if: "slots.next_action = 'previous'"
+            then: show_previous_email
+          - if: "slots.next_action = 'mark_read'"
             then: mark_as_read
-          - else: reset_slots_step
-      
-      - id: reset_slots_step
-        action: reset_email_slots
-        next: END
+          - else: clear_slots_for_return  # Default to clearing slots and returning to inbox

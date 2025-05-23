@@ -74,44 +74,80 @@ nlu:
 
 - intent: select_email
   examples: |
-    - first email
-    - second email
-    - third email
-    - email number one
-    - email number two
-    - email number three
-    - show me email number 1
-    - read email number 2
-    - open email number 3
-    - [1](selected_email)
-    - [one](selected_email)
-    - [first](selected_email)
-    - the [first](selected_email) one
+    - read the [first](selected_email) email
+    - read the [second](selected_email) email
+    - read the [third](selected_email) email
     - read email [1](selected_email)
     - read email [2](selected_email)
     - read email [3](selected_email)
     - show me email [1](selected_email)
+    - show me email [2](selected_email)
+    - show me email [3](selected_email)
+    - open email [1](selected_email)
     - open email [2](selected_email)
-    - read the email from [Google](selected_email)
-    - read the [Amazon](selected_email) email
-    - show me the email about [Security](selected_email)
-    - read email number [1](selected_email)
-    - open the [first](selected_email) email
-    - show the [second](selected_email) email
-    - read the [third](selected_email) message
-    - I want to read [Vincent](selected_email)'s mail 
-    - read the [1](selected_email) mail
+    - open email [3](selected_email)
+    - read the email from [Vincent](selected_email)
+    - read the email by [Vincent](selected_email)
+    - read [Vincent](selected_email)'s email
     - show me the email from [Vincent](selected_email)
-    - I'd like to see email [1](selected_email)
-    - let me read the [first](selected_email) one
-    - I want to read email number [1](selected_email)
+    - show me [Vincent](selected_email)'s email
+    - open the email from [Vincent](selected_email)
     - open [Vincent](selected_email)'s email
+    - read the email about [Meeting](selected_email)
+    - read the email with subject [Meeting](selected_email)
+    - show me the email about [Meeting](selected_email)
+    - show me the email with subject [Meeting](selected_email)
+    - open the email about [Meeting](selected_email)
+    - open the email with subject [Meeting](selected_email)
+    - read the [first](selected_email) one
+    - read the [second](selected_email) one
+    - read the [third](selected_email) one
+    - show me the [first](selected_email) one
+    - show me the [second](selected_email) one
+    - show me the [third](selected_email) one
+    - open the [first](selected_email) one
+    - open the [second](selected_email) one
+    - open the [third](selected_email) one
     - read [1](selected_email)
-    - email [1](selected_email)
-    - [first](selected_email) email
-    - the first email
-    - the second email
-    - the third email
+    - read [2](selected_email)
+    - read [3](selected_email)
+    - show [1](selected_email)
+    - show [2](selected_email)
+    - show [3](selected_email)
+    - open [1](selected_email)
+    - open [2](selected_email)
+    - open [3](selected_email)
+    - read the [first](selected_email) mail
+    - read the [second](selected_email) mail
+    - read the [third](selected_email) mail
+    - show me the [first](selected_email) mail
+    - show me the [second](selected_email) mail
+    - show me the [third](selected_email) mail
+    - open the [first](selected_email) mail
+    - open the [second](selected_email) mail
+    - open the [third](selected_email) mail
+    - read mail [1](selected_email)
+    - read mail [2](selected_email)
+    - read mail [3](selected_email)
+    - show mail [1](selected_email)
+    - show mail [2](selected_email)
+    - show mail [3](selected_email)
+    - open mail [1](selected_email)
+    - open mail [2](selected_email)
+    - open mail [3](selected_email)
+    - read the email from [Vincent](selected_email) Wallerich
+    - read the email by [Vincent](selected_email) Wallerich
+    - read [Vincent](selected_email) Wallerich's email
+    - show me the email from [Vincent](selected_email) Wallerich
+    - show me [Vincent](selected_email) Wallerich's email
+    - open the email from [Vincent](selected_email) Wallerich
+    - open [Vincent](selected_email) Wallerich's email
+    - read the email about [Meeting for Rasa](selected_email)
+    - read the email with subject [Meeting for Rasa](selected_email)
+    - show me the email about [Meeting for Rasa](selected_email)
+    - show me the email with subject [Meeting for Rasa](selected_email)
+    - open the email about [Meeting for Rasa](selected_email)
+    - open the email with subject [Meeting for Rasa](selected_email)
 
 - intent: navigate_email
   examples: |
