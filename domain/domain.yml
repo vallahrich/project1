@@ -255,17 +255,12 @@ entities:
   - frequency
 
 responses:
-  # Aktualisierte Begrüßung – BEGINNT jedes Gespräch
   utter_greet:
   - text: "Hallo! Womit kann ich dir heute helfen?"
-
   utter_goodbye:
   - text: "Auf Wiedersehen! Sag mir Bescheid, wenn du später Hilfe bei deinen E‑Mails brauchst."
-  
   utter_capabilities:
   - text: "Ich kann dir helfen mit:\n- E‑Mails überprüfen und verwalten\n- Medikamentenerinnerungen einrichten\n- Allgemeine Fragen beantworten\n- Notfallunterstützung (sage zweimal 'hilfe')\n\nWomit möchtest du beginnen?"
-
-  # E‑Mail‑Antworten (bestehend)
   utter_no_new_mail:
   - text: "Du hast im Moment keine neuen E‑Mails."
   utter_ask_selected_email:

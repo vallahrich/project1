@@ -16,7 +16,7 @@ flows:
       - id: select_email
         collect: selected_email
         description: "The email to read, by number, sender, or subject"
-        # utter: utter_ask_selected_email
+        utter: utter_ask_selected_email
         next: validate_and_read_email
       
       - id: validate_and_read_email
