@@ -40,4 +40,4 @@ rules:
       - action: medication_reminder_form
       - active_loop: null
       - action: action_create_medication_reminder
-      - action: utter_medication_reminder_confirm
+      - action: utter_confirm_medication_reminder
