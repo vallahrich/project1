@@ -46,13 +46,12 @@ class ActionListEmails(Action):
 
             # Store all emails in a slot as JSON
             emails_json = json.dumps(unread_emails)
-            
             # Create a numbered list of emails
-            email_list = "Here are your unread emails:\n\n"
+            email_list = "Hier sind Ihre ungelesenen E-Mails:\n\n"
             for i, email in enumerate(unread_emails, 1):
-                email_list += f"{i}. From: {email['sender_name']} ({email['sender']})\n"
-                email_list += f"   Subject: {email['subject']}\n"
-                email_list += f"   Received: {email['date']}\n\n"
+                email_list += f"{i}. Von: {email['sender_name']} ({email['sender']})\n"
+                email_list += f"   Betreff: {email['subject']}\n"
+                email_list += f"   Erhalten: {email['date']}\n\n"
             
             dispatcher.utter_message(text=email_list)
             
@@ -103,11 +102,11 @@ class ValidateSelectedEmail(Action):
         
         # Convert numeric words to numbers
         numeric_words = {
-            "erste": "1", "one": "1", "1st": "1",
-            "zweite": "2", "two": "2", "2nd": "2",
-            "dritte": "3", "three": "3", "3rd": "3",
-            "vierte": "4", "four": "4", "4th": "4",
-            "fünfte": "5", "five": "5", "5th": "5"
+            "erste": "1", "eins": "1", "1st": "1",
+            "zweite": "2", "zwei": "2", "2nd": "2",
+            "dritte": "3", "drei": "3", "3rd": "3",
+            "vierte": "4", "vier": "4", "4th": "4",
+            "fünfte": "5", "fünf": "5", "5th": "5"
         }
         
         value_lower = value.lower().strip()

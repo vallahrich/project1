@@ -255,7 +255,6 @@ entities:
   - frequency
 
 responses:
-responses:
   # Aktualisierte Begrüßung – BEGINNT jedes Gespräch
   utter_greet:
   - text: "Hallo! Womit kann ich dir heute helfen?"
