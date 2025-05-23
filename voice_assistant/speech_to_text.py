@@ -14,7 +14,7 @@ class SpeechToText:
             model="default"
         )
 
-    def record_audio(self, seconds=30, filename="input.wav"):
+    def record_audio(self, seconds=10, filename="input.wav"):
         """Record audio from microphone"""
         CHUNK = 1024
         FORMAT = pyaudio.paInt16
