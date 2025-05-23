@@ -1,5 +1,5 @@
-"""
-Enhanced actions for organizing and labeling emails.
+﻿"""
+Erweiterte Actions zum Organisieren und Beschriften von E-Mails.
 """
 
 from typing import Any, Text, Dict, List
@@ -14,11 +14,12 @@ from rasa_sdk.executor import CollectingDispatcher
 
 from actions.improved_email_client import ImprovedEmailClient
 
-# Set up logger
+# Logger einrichten
 logger = logging.getLogger(__name__)
 
+
 class ActionGetLabelSuggestions(Action):
-    """Action to get label suggestions for the current email."""
+    """Action, um Label-Vorschläge für die aktuelle E-Mail abzurufen."""
     
     def name(self) -> Text:
         return "action_get_label_suggestions"
@@ -27,21 +28,21 @@ class ActionGetLabelSuggestions(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
-        Get suggested labels for the current email and display existing labels.
+        Ruft vorgeschlagene Labels für die aktuelle E-Mail ab und zeigt vorhandene Labels an.
         """
         try:
-            # Get email content for analysis
+            # E-Mail-Inhalt für Analyse abrufen
             content = tracker.get_slot("current_email_content")
             subject = tracker.get_slot("current_email_subject")
             email_id = tracker.get_slot("current_email_id")
             
             if not email_id or not content or not subject:
                 dispatcher.utter_message(
-                    text="I need an email selected to suggest labels. Let's check your inbox first."
+                    text="Bitte wähle zuerst eine E-Mail aus, bevor ich Labels vorschlage."
                 )
                 return []
             
-            # Initialize email client
+            # E-Mail-Client initialisieren
             credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
             token_path = os.getenv("GMAIL_TOKEN_PATH")
             
@@ -50,79 +51,73 @@ class ActionGetLabelSuggestions(Action):
                 token_path=token_path
             )
             
-            # Get existing labels
+            # Vorhandene Labels abrufen
             existing_labels = email_client.get_all_labels()
             
-            # Use LLM to determine suggested labels
+            # Vorschläge per LLM ermitteln
             suggested_labels = self.determine_labels(content, subject)
             
-            # Format the response
-            response = f"Based on the content, I'd recommend labeling this email as \"{suggested_labels[0]}\"" 
+            # Antwort formatieren
+            response = f"Basierend auf dem Inhalt empfehle ich das Label \"{suggested_labels[0]}\""
             if len(suggested_labels) > 1:
-                response += f" or \"{suggested_labels[1]}\""
+                response += f" oder \"{suggested_labels[1]}\""
             response += ".\n\n"
             
-            # Add existing labels
+            # Vorhandene Labels hinzufügen
             if existing_labels:
-                response += "Your existing labels:\n"
+                response += "Deine vorhandenen Labels:\n"
                 for i, label in enumerate(existing_labels, 1):
-                    if i <= 10:  # Limit to 10 labels to avoid too long messages
+                    if i <= 10:
                         response += f"{i}. {label['name']}\n"
-                
                 if len(existing_labels) > 10:
-                    response += f"...and {len(existing_labels) - 10} more\n"
-                
-                response += "\nYou can:\n"
-                response += "- Select a number to apply an existing label\n"
-                response += "- Type a new label name to create it\n"
-                response += "- Say \"use recommendation\" to apply my suggested label\n"
+                    response += f"...und {len(existing_labels) - 10} weitere\n"
+                response += "\nDu kannst:\n"
+                response += "- Eine Nummer auswählen, um ein vorhandenes Label anzuwenden\n"
+                response += "- Einen neuen Label-Namen eingeben, um ihn zu erstellen\n"
+                response += "- \"Empfehlung verwenden\" sagen, um mein vorgeschlagenes Label anzuwenden\n"
             else:
-                response += "\nYou don't have any custom labels yet. You can:\n"
-                response += "- Type a new label name to create it\n"
-                response += "- Say \"use recommendation\" to apply my suggested label\n"
+                response += "\nDu hast noch keine benutzerdefinierten Labels. Du kannst:\n"
+                response += "- Einen neuen Label-Namen eingeben, um ihn zu erstellen\n"
+                response += "- \"Empfehlung verwenden\" sagen, um mein vorgeschlagenes Label anzuwenden\n"
             
             dispatcher.utter_message(text=response)
             
-            # Store suggested labels in slot
+            # Vorschläge in Slots speichern
             return [
                 SlotSet("suggested_labels", suggested_labels),
                 SlotSet("existing_labels", json.dumps([label["name"] for label in existing_labels]))
             ]
             
         except Exception as e:
-            logger.error(f"Error getting label suggestions: {str(e)}")
+            logger.error(f"Fehler beim Abrufen der Label-Vorschläge: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while suggesting labels. Please try again later."
+                text="Beim Vorschlagen der Labels ist ein Fehler aufgetreten. Bitte versuche es später erneut."
             )
             return []
     
     def determine_labels(self, content: str, subject: str) -> List[str]:
         """
-        Use an external LLM service to determine appropriate labels for the email.
-        Returns multiple suggestions.
+        Verwendet einen externen LLM-Service, um passende Labels zu ermitteln.
+        Gibt mehrere Vorschläge zurück.
         """
-        # Use OpenAI API directly - best practice for external API calls in actions
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            logger.warning("OpenAI API key not found")
+            logger.warning("OpenAI API-Schlüssel nicht gefunden")
             return self._fallback_label_determination(content, subject)
         
-        # Prepare the prompt
         prompt = f"""
-        Analyze the following email and determine the most appropriate 2-3 category labels for it.
-        Choose from these common categories: Work, Personal, Finance, Travel, Social, Updates, Important, Family, Shopping, or Promotions.
-        If none of these fit well, suggest concise category names that best describe the email's purpose.
+        Analysiere die folgende E-Mail und ermittle 2-3 passende Kategorienamen.
+        Wähle aus diesen: Arbeit, Persönlich, Finanzen, Reise, Soziales, Updates, Wichtig, Familie, Einkaufen oder Werbung.
+        Falls keine davon passt, schlage prägnante Kategorienamen vor.
         
-        Email subject: {subject}
+        Betreff: {subject}
         
-        Email content:
-        {content[:500]}  # Limit content length to avoid token issues
+        Inhalt:
+        {content[:500]}
         
-        Return only a JSON array of 2-3 category names without any explanation or additional text.
+        Gib nur ein JSON-Array mit 2-3 Kategorienamen zurück, ohne Erklärung.
         """
-        
         try:
-            # Call OpenAI API
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers={
@@ -132,7 +127,7 @@ class ActionGetLabelSuggestions(Action):
                 json={
                     "model": "gpt-4o-2024-11-20",
                     "messages": [
-                        {"role": "system", "content": "You are a helpful assistant that labels emails."},
+                        {"role": "system", "content": "Du bist ein hilfreicher Assistent zum Labeln von E-Mails."},
                         {"role": "user", "content": prompt}
                     ],
                     "max_tokens": 100,
@@ -140,56 +135,43 @@ class ActionGetLabelSuggestions(Action):
                 },
                 timeout=10
             )
-            
-            # Parse response
             response_data = response.json()
             label_text = response_data["choices"][0]["message"]["content"].strip()
-            
-            # Try to parse as JSON
             try:
                 labels = json.loads(label_text)
                 if isinstance(labels, list) and all(isinstance(item, str) for item in labels):
-                    return labels[:3]  # Limit to 3 labels
+                    return labels[:3]
             except:
-                # If JSON parsing fails, try to extract manually
-                labels = [label.strip(' "\'[]') for label in label_text.split(',')]
-                return [label for label in labels if label][:3]
-            
-            # Fallback if parsing fails
+                labels = [lbl.strip(' "\'[]') for lbl in label_text.split(',')]
+                return [lbl for lbl in labels if lbl][:3]
             return self._fallback_label_determination(content, subject)
-            
         except Exception as e:
-            logger.error(f"Error determining labels with LLM: {e}")
+            logger.error(f"Fehler beim Ermitteln der Labels mit LLM: {e}")
             return self._fallback_label_determination(content, subject)
     
     def _fallback_label_determination(self, content: str, subject: str) -> List[str]:
         """
-        Fallback method for label determination using rule-based approach.
+        Fallback-Strategie zur Label-Ermittlung basierend auf Regeln.
         """
-        # Combine subject and body for analysis
         combined_text = (subject + " " + content).lower()
-        
         labels = []
-        
-        if any(word in combined_text for word in ["meeting", "project", "deadline", "report"]):
-            labels.append("Work")
-        if any(word in combined_text for word in ["invoice", "payment", "receipt", "transaction"]):
-            labels.append("Finance")
-        if any(word in combined_text for word in ["urgent", "important", "immediately", "asap"]):
-            labels.append("Important")
-        if any(word in combined_text for word in ["flight", "hotel", "booking", "reservation"]):
-            labels.append("Travel")
-        if any(word in combined_text for word in ["newsletter", "update", "news"]):
+        if any(w in combined_text for w in ["meeting", "project", "deadline", "report"]):
+            labels.append("Arbeit")
+        if any(w in combined_text for w in ["invoice", "payment", "receipt", "transaction"]):
+            labels.append("Finanzen")
+        if any(w in combined_text for w in ["urgent", "important", "immediately", "asap"]):
+            labels.append("Wichtig")
+        if any(w in combined_text for w in ["flight", "hotel", "booking", "reservation"]):
+            labels.append("Reise")
+        if any(w in combined_text for w in ["newsletter", "update", "news"]):
             labels.append("Updates")
-        
-        # Add default if no matches
         if not labels:
-            labels.append("General")
-        
+            labels.append("Allgemein")
         return labels
 
+
 class ActionApplySelectedLabel(Action):
-    """Action to apply a selected or new label to the current email."""
+    """Action, um ein ausgewähltes oder neues Label auf die aktuelle E-Mail anzuwenden."""
     
     def name(self) -> Text:
         return "action_apply_selected_label"
@@ -198,86 +180,70 @@ class ActionApplySelectedLabel(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         """
-        Apply a user-selected label or create and apply a new one.
+        Erstellt und/oder wendet ein Label auf die ausgewählte E-Mail an.
         """
         try:
-            # Get the selected label or new label name
             label_choice = tracker.get_slot("label_choice")
             email_id = tracker.get_slot("current_email_id")
             
             if not email_id:
                 dispatcher.utter_message(
-                    text="I don't have an email selected to label. Let's check your inbox first."
+                    text="Es ist keine E-Mail ausgewählt. Lass uns zuerst deinen Posteingang prüfen."
                 )
                 return []
-            
             if not label_choice:
                 dispatcher.utter_message(
-                    text="I didn't catch which label you want to apply. Please specify a label name or select from the existing ones."
+                    text="Ich habe nicht verstanden, welches Label du möchtest. Bitte gib einen Label-Namen ein oder wähle eines aus."
                 )
                 return []
             
-            # Get suggested and existing labels from slots
             suggested_labels = tracker.get_slot("suggested_labels") or []
             existing_labels_json = tracker.get_slot("existing_labels")
             existing_labels = json.loads(existing_labels_json) if existing_labels_json else []
             
-            # Determine which label to apply
             label_to_apply = None
-            
-            # Check if using recommendation
-            if label_choice.lower() in ["use recommendation", "use suggested", "use suggestion", "apply recommendation"]:
-                if suggested_labels and len(suggested_labels) > 0:
+            if label_choice.lower() in ["empfehlung verwenden", "empfehlung"]:
+                if suggested_labels:
                     label_to_apply = suggested_labels[0]
-            
-            # Check if selecting by number
             elif label_choice.isdigit() and 1 <= int(label_choice) <= len(existing_labels):
                 label_to_apply = existing_labels[int(label_choice) - 1]
-            
-            # Otherwise use as new label name
             else:
                 label_to_apply = label_choice
             
-            # Initialize email client
             credentials_path = os.getenv("GMAIL_CREDENTIALS_PATH")
             token_path = os.getenv("GMAIL_TOKEN_PATH")
-            
             email_client = ImprovedEmailClient(
                 credentials_path=credentials_path,
                 token_path=token_path
             )
             
-            # Apply the label
             success = email_client.apply_label(email_id, label_to_apply)
             
             if not success:
-                dispatcher.utter_message(text=f"There was an issue applying the label '{label_to_apply}'.")
+                dispatcher.utter_message(text=f"Fehler beim Anwenden des Labels '{label_to_apply}'.")
                 return []
             
-            # Check if this was a new label or existing
             if label_to_apply in existing_labels:
-                message = f"I've applied the existing label '{label_to_apply}' to this email."
+                message = f"Ich habe das vorhandene Label '{label_to_apply}' angewendet."
             elif label_to_apply in suggested_labels:
-                message = f"I've applied the suggested label '{label_to_apply}' to this email."
+                message = f"Ich habe das vorgeschlagene Label '{label_to_apply}' angewendet."
             else:
-                message = f"I've created and applied the new label '{label_to_apply}' to this email."
+                message = f"Ich habe das neue Label '{label_to_apply}' erstellt und angewendet."
             
             dispatcher.utter_message(text=message)
             
-            # Offer next actions
-            options = "What would you like to do next?\n"
-            options += "1. Apply another label\n"
-            options += "2. Return to email\n"
-            options += "3. Return to inbox\n"
-            options += "4. Delete this email"
+            options = "Was möchtest du als Nächstes tun?\n"
+            options += "1. Weiteres Label anwenden\n"
+            options += "2. Zurück zur E-Mail\n"
+            options += "3. Zurück zum Posteingang\n"
+            options += "4. Diese E-Mail löschen"
             
             dispatcher.utter_message(text=options)
             
             return []
-            
         except Exception as e:
-            logger.error(f"Error applying label: {str(e)}")
+            logger.error(f"Fehler beim Anwenden des Labels: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while applying the label. Please try again later."
+                text="Beim Anwenden des Labels ist ein Fehler aufgetreten. Bitte versuche es später erneut."
             )
             return []

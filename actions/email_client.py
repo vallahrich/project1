@@ -1,6 +1,6 @@
-"""
-Gmail API client wrapper for chatbot integration.
-This module provides a unified interface for interacting with Gmail.
+﻿"""
+Gmail-API-Client-Wrapper für Chatbot-Integration.
+Dieses Modul bietet eine einheitliche Schnittstelle zur Interaktion mit Gmail.
 """
 
 import os
@@ -19,9 +19,9 @@ from googleapiclient.errors import HttpError
 
 
 class EmailClient:
-    """A Gmail API client for the Rasa chatbot"""
+    """Ein Gmail-API-Client für den Rasa-Chatbot"""
     
-    # Gmail API scopes
+    # Gmail-API-Berechtigungen
     SCOPES = [
         'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/gmail.send',
@@ -31,46 +31,46 @@ class EmailClient:
     
     def __init__(self, credentials_path: Optional[str] = None, token_path: Optional[str] = None):
         """
-        Initialize the Gmail client.
+        Initialisiert den Gmail-Client.
         
         Args:
-            credentials_path: Path to the credentials.json file
-            token_path: Path to save/load the token.json file
+            credentials_path: Pfad zur credentials.json-Datei
+            token_path: Pfad zum Speichern/Laden der token.json-Datei
         """
-        # Look for credentials in multiple locations with fallbacks
+        # Suche nach Anmeldedaten an mehreren Speicherorten mit Fallbacks
         self.credentials_path = credentials_path or os.getenv("GMAIL_CREDENTIALS_PATH") or os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
             "credentials", 
             "gmail_credentials.json"
         )
         
-        # Set up token path with sensible defaults
+        # Token-Pfad mit sinnvollen Standardwerten festlegen
         self.token_path = token_path or os.getenv("GMAIL_TOKEN_PATH") or os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "credentials",
             "gmail_token.json"
         )
         
-        # Ensure the credentials directory exists
+        # Sicherstellen, dass das Verzeichnis für das Token existiert
         os.makedirs(os.path.dirname(self.token_path), exist_ok=True)
         
         self.service = None
         self.authorized = False
-        self.user_id = 'me'  # Default value for authenticated user
+        self.user_id = 'me'  # Standardwert für authentifizierten Nutzer
         
-        # Connect to Gmail API
+        # Verbindung zur Gmail-API herstellen
         self.connect()
     
     def connect(self) -> bool:
         """
-        Connect to Gmail API using OAuth 2.0.
+        Stellt eine Verbindung zur Gmail-API mittels OAuth 2.0 her.
         
         Returns:
-            bool: True if connection successful, False otherwise
+            bool: True, wenn Verbindung erfolgreich, sonst False
         """
         creds = None
         
-        # Check if token file exists
+        # Prüfen, ob die Token-Datei existiert
         if os.path.exists(self.token_path):
             try:
                 creds = Credentials.from_authorized_user_info(
@@ -78,21 +78,21 @@ class EmailClient:
                     self.SCOPES
                 )
             except Exception as e:
-                print(f"Error loading token: {e}")
+                print(f"Fehler beim Laden des Tokens: {e}")
         
-        # If credentials don't exist or are invalid, go through the OAuth flow
+        # Wenn keine gültigen Anmeldedaten vorhanden sind, OAuth-Flow starten
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 try:
                     creds.refresh(Request())
                 except Exception as e:
-                    print(f"Error refreshing token: {e}")
+                    print(f"Fehler beim Aktualisieren des Tokens: {e}")
                     creds = None
             
-            # If still no valid credentials, go through OAuth flow
+            # Falls weiterhin keine gültigen Anmeldedaten, OAuth-Flow durchführen
             if not creds:
                 if not self.credentials_path or not os.path.exists(self.credentials_path):
-                    print("Credentials file not found")
+                    print("Credentials-Datei nicht gefunden")
                     return False
                 
                 try:
@@ -100,33 +100,33 @@ class EmailClient:
                         self.credentials_path, self.SCOPES)
                     creds = flow.run_local_server(port=0)
                 except Exception as e:
-                    print(f"Error during OAuth flow: {e}")
+                    print(f"Fehler beim OAuth-Flow: {e}")
                     return False
                 
-                # Save the credentials for future use
+                # Speichern der Anmeldedaten für zukünftige Verwendung
                 with open(self.token_path, 'w') as token:
                     token.write(creds.to_json())
         
         try:
-            # Build the Gmail service
+            # Gmail-Service aufbauen
             self.service = build('gmail', 'v1', credentials=creds)
             self.authorized = True
-            print("Successfully connected to Gmail API")
+            print("Erfolgreich mit der Gmail-API verbunden")
             return True
         except Exception as e:
-            print(f"Failed to build Gmail service: {e}")
+            print(f"Fehler beim Erstellen des Gmail-Services: {e}")
             return False
     
     @staticmethod
     def rate_limit(max_per_second):
         """
-        Rate limiting decorator to prevent API throttling.
+        Decorator zur Ratenbegrenzung, um API-Drosselung zu vermeiden.
         
         Args:
-            max_per_second: Maximum number of calls allowed per second
-            
+            max_per_second: Maximale Anzahl Aufrufe pro Sekunde
+        
         Returns:
-            Decorated function with rate limiting
+            Die dekorierte Funktion mit Ratenbegrenzung
         """
         from functools import wraps
         import time
@@ -142,30 +142,30 @@ class EmailClient:
                 
                 if left_to_wait > 0:
                     time.sleep(left_to_wait)
-                    
+                
                 ret = func(*args, **kwargs)
                 last_called[0] = time.time()
                 return ret
             return wrapper
         return decorator
 
-    @rate_limit(2)  # 2 calls per second max
+    @rate_limit(2)  # Maximal 2 Aufrufe pro Sekunde
     def get_unread_emails(self, max_results: int = 5) -> List[Dict[str, Any]]:
         """
-        Get unread emails from the inbox with rate limiting.
+        Holt ungelesene E-Mails aus dem Posteingang mit Ratenbegrenzung.
         
         Args:
-            max_results: Maximum number of emails to retrieve
-                
+            max_results: Maximale Anzahl an E-Mails zum Abrufen
+        
         Returns:
-            List of email objects with id, sender, subject, snippet, body, and date
+            Liste von E-Mail-Objekten mit id, sender, subject, snippet, body und date
         """
         if not self.authorized or not self.service:
-            print("Not authorized to access Gmail")
+            print("Keine Berechtigung zum Zugriff auf Gmail")
             return []
         
         try:
-            # Query for unread messages in inbox
+            # Suche nach ungelesenen Nachrichten im Posteingang
             results = self.service.users().messages().list(
                 userId=self.user_id,
                 labelIds=['INBOX', 'UNREAD'],
@@ -182,7 +182,7 @@ class EmailClient:
             for message in messages:
                 msg_id = message['id']
                 
-                # Get the full message details
+                # Detailierte Nachricht abrufen
                 msg = self.service.users().messages().get(
                     userId=self.user_id, 
                     id=msg_id,
@@ -191,7 +191,7 @@ class EmailClient:
                 
                 headers = msg['payload']['headers']
                 
-                # Extract email details from headers
+                # E-Mail-Details aus den Headern extrahieren
                 subject = ""
                 sender = ""
                 sender_name = ""
@@ -202,7 +202,7 @@ class EmailClient:
                         subject = header['value']
                     elif header['name'] == 'From':
                         sender_full = header['value']
-                        # Extract name and email address
+                        # Name und Adresse trennen
                         if '<' in sender_full and '>' in sender_full:
                             sender_name = sender_full.split('<')[0].strip()
                             sender = sender_full.split('<')[1].split('>')[0].strip()
@@ -212,17 +212,17 @@ class EmailClient:
                     elif header['name'] == 'Date':
                         date_str = header['value']
                 
-                # Get the message body
+                # Nachrichtentext abrufen
                 body = self._get_message_body(msg)
                 
-                # Parse date
+                # Datum parsen
                 try:
                     date_obj = datetime.strptime(date_str.split('(')[0].strip(), "%a, %d %b %Y %H:%M:%S %z")
                     date_iso = date_obj.isoformat()
                 except:
                     date_iso = datetime.now().isoformat()
                 
-                # Create email object
+                # E-Mail-Objekt erstellen
                 email = {
                     "id": msg_id,
                     "sender": sender,
@@ -238,18 +238,18 @@ class EmailClient:
             return emails
         
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return []
     
     def _get_message_body(self, message: Dict[str, Any]) -> str:
         """
-        Extract the message body from the Gmail API response.
+        Extrahiert den Nachrichtentext aus der Gmail-API-Antwort.
         
         Args:
-            message: The message object from Gmail API
-            
+            message: Das Nachricht-Objekt von der Gmail-API
+        
         Returns:
-            The message body as text
+            Den Nachrichtentext als String
         """
         body = ""
         
@@ -270,40 +270,40 @@ class EmailClient:
     
     def send_email(self, to: str, subject: str, body: str, reply_to: Optional[str] = None) -> bool:
         """
-        Send an email.
+        Sendet eine E-Mail.
         
         Args:
-            to: Recipient email address
-            subject: Email subject
-            body: Email body content
-            reply_to: Message ID to reply to (if applicable)
-            
+            to: Empfänger-Adresse
+            subject: Betreff der E-Mail
+            body: Inhalt der E-Mail
+            reply_to: Nachricht-ID, auf die geantwortet wird (optional)
+        
         Returns:
-            True if email was sent successfully, False otherwise
+            True wenn die E-Mail erfolgreich gesendet wurde, sonst False
         """
         if not self.authorized or not self.service:
-            print("Not authorized to send email")
+            print("Keine Berechtigung zum Versenden von E-Mails")
             return False
         
         try:
-            # Create email message
+            # E-Mail-Nachricht erstellen
             message = MIMEMultipart()
             message['to'] = to
             message['subject'] = subject
             
-            # Add In-Reply-To header if replying to an email
+            # Antwort-Header hinzufügen, falls reply_to gesetzt ist
             if reply_to:
                 message['In-Reply-To'] = reply_to
                 message['References'] = reply_to
             
-            # Add the message body
+            # Nachrichtentext anhängen
             msg = MIMEText(body)
             message.attach(msg)
             
-            # Encode the message
+            # Kodierung der Nachricht
             raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
             
-            # Send the message
+            # Nachricht versenden
             self.service.users().messages().send(
                 userId=self.user_id,
                 body={'raw': raw_message}
@@ -312,32 +312,32 @@ class EmailClient:
             return True
         
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return False
     
     def apply_label(self, email_id: str, label: str) -> bool:
         """
-        Apply a label to an email.
+        Wendet ein Label auf eine E-Mail an.
         
         Args:
-            email_id: The ID of the email
-            label: The label to apply
-            
+            email_id: Die ID der E-Mail
+            label: Name des Labels
+        
         Returns:
-            True if label applied successfully, False otherwise
+            True wenn das Label erfolgreich angewendet wurde, sonst False
         """
         if not self.authorized or not self.service:
-            print("Not authorized to apply labels")
+            print("Keine Berechtigung zum Anwenden von Labels")
             return False
         
         try:
-            # First, check if the label exists
+            # Label-ID ermitteln oder neu erstellen
             label_id = self._get_or_create_label(label)
             
             if not label_id:
                 return False
             
-            # Apply the label to the email
+            # Label auf die E-Mail anwenden
             self.service.users().messages().modify(
                 userId=self.user_id,
                 id=email_id,
@@ -347,30 +347,30 @@ class EmailClient:
             return True
         
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return False
     
     def _get_or_create_label(self, label_name: str) -> Optional[str]:
         """
-        Get the ID of a label, creating it if it doesn't exist.
+        Ermittelt die ID eines Labels oder erstellt es, falls es nicht existiert.
         
         Args:
-            label_name: The name of the label
-            
+            label_name: Name des Labels
+        
         Returns:
-            The label ID if successful, None otherwise
+            Die Label-ID oder None bei Fehler
         """
         try:
-            # Get all labels
+            # Alle Labels abfragen
             results = self.service.users().labels().list(userId=self.user_id).execute()
             labels = results.get('labels', [])
             
-            # Check if the label already exists
+            # Prüfen, ob Label bereits existiert
             for label in labels:
                 if label['name'].lower() == label_name.lower():
                     return label['id']
             
-            # Create the label if it doesn't exist
+            # Label neu erstellen, falls nicht vorhanden
             new_label = self.service.users().labels().create(
                 userId=self.user_id,
                 body={'name': label_name}
@@ -379,72 +379,70 @@ class EmailClient:
             return new_label['id']
         
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return None
     
     def sort_emails_by_content(self) -> bool:
         """
-        Sort emails into categories based on content analysis.
-        Uses simple keyword matching for categorization.
+        Sortiert E-Mails basierend auf Inhaltsanalyse in Kategorien.
+        Nutzt einfache Schlüsselwort-Suche für die Kategorisierung.
         
         Returns:
-            True if emails were sorted successfully, False otherwise
+            True wenn die E-Mails erfolgreich sortiert wurden, sonst False
         """
         if not self.authorized or not self.service:
-            print("Not authorized to sort emails")
+            print("Keine Berechtigung zum Sortieren von E-Mails")
             return False
         
         try:
-            # Get recent emails (up to 50)
+            # Aktuelle E-Mails abrufen (bis zu 50)
             results = self.service.users().messages().list(
                 userId=self.user_id,
                 labelIds=['INBOX'],
                 maxResults=50
             ).execute()
-            
             messages = results.get('messages', [])
             
             if not messages:
-                return True  # No emails to sort
+                return True  # Keine E-Mails zum Sortieren
             
-            # Define categories and keywords
+            # Kategorien und Schlüsselwörter definieren
             categories = {
-                'Work': ['project', 'deadline', 'meeting', 'report', 'client', 'task'],
-                'Finance': ['invoice', 'payment', 'receipt', 'transaction', 'bill', 'subscription'],
-                'Travel': ['flight', 'hotel', 'booking', 'reservation', 'itinerary', 'trip'],
-                'Social': ['invitation', 'event', 'party', 'celebration', 'gathering'],
-                'Updates': ['newsletter', 'update', 'announcement', 'news'],
-                'Urgent': ['urgent', 'important', 'immediately', 'asap', 'emergency']
+                'Arbeit': ['projekt', 'frist', 'besprechung', 'bericht', 'kunde', 'aufgabe'],
+                'Finanzen': ['rechnung', 'zahlung', 'beleg', 'transaktion', 'abrechnung', 'abo'],
+                'Reise': ['flug', 'hotel', 'buchung', 'reservierung', 'reiseplan', 'trip'],
+                'Soziales': ['einladung', 'event', 'party', 'feier', 'treffen'],
+                'Updates': ['newsletter', 'update', 'ankündigung', 'nachricht'],
+                'Dringend': ['dringend', 'wichtig', 'sofort', 'asap', 'notfall']
             }
             
-            # Ensure all category labels exist
+            # Sicherstellen, dass alle Kategorien-Labels existieren
             for category in categories:
                 self._get_or_create_label(category)
             
-            # Process each email
+            # E-Mails verarbeiten
             for message in messages:
                 msg_id = message['id']
                 
-                # Get the full message
+                # Vollständige Nachricht abrufen
                 msg = self.service.users().messages().get(
                     userId=self.user_id, 
                     id=msg_id,
                     format='full'
                 ).execute()
                 
-                # Extract subject and body
+                # Betreff und Nachrichtentext extrahieren
                 subject = ""
                 for header in msg['payload']['headers']:
                     if header['name'] == 'Subject':
                         subject = header['value']
                         break
-                
                 body = self._get_message_body(msg)
                 
-                # Combine subject and body for analysis
+                # Inhalt für Analyse kombinieren
                 content = f"{subject} {body}".lower()
                 
-                # Determine categories
+                # Kategorien ermitteln
                 matched_categories = []
                 for category, keywords in categories.items():
                     for keyword in keywords:
@@ -452,7 +450,7 @@ class EmailClient:
                             matched_categories.append(category)
                             break
                 
-                # Apply labels to the email
+                # Labels auf die E-Mail anwenden
                 for category in matched_categories:
                     label_id = self._get_or_create_label(category)
                     if label_id:
@@ -465,25 +463,25 @@ class EmailClient:
             return True
         
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return False
     
     def trash_email(self, email_id: str) -> bool:
         """
-        Move an email to trash.
+        Verschiebt eine E-Mail in den Papierkorb.
         
         Args:
-            email_id: The ID of the email to trash
-            
+            email_id: ID der zu löschenden E-Mail
+        
         Returns:
-            True if successful, False otherwise
+            True wenn erfolgreich, sonst False
         """
         if not self.authorized or not self.service:
-            print("Not authorized to trash emails")
+            print("Keine Berechtigung zum Löschen von E-Mails")
             return False
             
         try:
-            # Move to trash by adding TRASH label and removing INBOX label
+            # In den Papierkorb verschieben durch Hinzufügen des TRASH-Labels und Entfernen von INBOX
             self.service.users().messages().modify(
                 userId=self.user_id,
                 id=email_id,
@@ -496,25 +494,25 @@ class EmailClient:
             return True
             
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return False
             
     def mark_as_read(self, email_id: str) -> bool:
         """
-        Mark an email as read by removing the UNREAD label.
+        Markiert eine E-Mail als gelesen, indem das UNREAD-Label entfernt wird.
         
         Args:
-            email_id: The ID of the email to mark as read
-            
+            email_id: ID der E-Mail
+        
         Returns:
-            True if successful, False otherwise
+            True wenn erfolgreich, sonst False
         """
         if not self.authorized or not self.service:
-            print("Not authorized to modify emails")
+            print("Keine Berechtigung zum Modifizieren von E-Mails")
             return False
             
         try:
-            # Remove UNREAD label
+            # UNREAD-Label entfernen
             self.service.users().messages().modify(
                 userId=self.user_id,
                 id=email_id,
@@ -526,5 +524,5 @@ class EmailClient:
             return True
             
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            print(f"Ein Fehler ist aufgetreten: {error}")
             return False

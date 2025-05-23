@@ -26,9 +26,8 @@ class ActionDeleteEmail(Action):
         try:
             # Get email ID from slot
             email_id = tracker.get_slot("current_email_id")
-            
             if not email_id:
-                dispatcher.utter_message(text="I don't have an email selected to delete.")
+                dispatcher.utter_message(text="Ich habe keine E-Mail ausgewählt, die gelöscht werden soll.")
                 return []
             
             # Initialize the email client
@@ -38,7 +37,7 @@ class ActionDeleteEmail(Action):
             success = client.trash_email(email_id)
             
             if success:
-                dispatcher.utter_message(text="The email has been moved to trash.")
+                dispatcher.utter_message(text="Die E-Mail wurde in den Papierkorb verschoben.")
                 # Clear current email slots since it's deleted
                 return [
                     SlotSet("current_email_id", None),
@@ -47,12 +46,12 @@ class ActionDeleteEmail(Action):
                     SlotSet("current_email_content", None)
                 ]
             else:
-                dispatcher.utter_message(text="I couldn't delete the email. Please try again.")
+                dispatcher.utter_message(text="Ich konnte die E-Mail nicht löschen. Bitte versuche es erneut.")
                 return []
             
         except Exception as e:
             logger.error(f"Error deleting email: {e}")
-            dispatcher.utter_message(text="I encountered an error while trying to delete the email.")
+            dispatcher.utter_message(text="Ich bin auf einen Fehler gestoßen, während ich versuchte, die E-Mail zu löschen.")
             return []
 
 class ActionMarkAsRead(Action):
@@ -70,9 +69,8 @@ class ActionMarkAsRead(Action):
         try:
             # Get email ID from slot
             email_id = tracker.get_slot("current_email_id")
-            
             if not email_id:
-                dispatcher.utter_message(text="I don't have an email selected to mark as read.")
+                dispatcher.utter_message(text="Ich habe keine E-Mail ausgewählt, die als gelesen markiert werden soll.")
                 return []
             
             # Initialize the email client
@@ -82,13 +80,13 @@ class ActionMarkAsRead(Action):
             success = client.mark_as_read(email_id)
             
             if success:
-                dispatcher.utter_message(text="The email has been marked as read.")
+                dispatcher.utter_message(text="Die E-Mail wurde als gelesen markiert.")
                 return []
             else:
-                dispatcher.utter_message(text="I couldn't mark the email as read. Please try again.")
+                dispatcher.utter_message(text="Ich konnte die E-Mail nicht als gelesen markieren. Bitte versuche es erneut.")
                 return []
             
         except Exception as e:
             logger.error(f"Error marking email as read: {e}")
-            dispatcher.utter_message(text="I encountered an error while trying to mark the email as read.")
+            dispatcher.utter_message(text="Ich bin auf einen Fehler gestoßen, während ich versuchte, die E-Mail als gelesen zu markieren.")
             return []

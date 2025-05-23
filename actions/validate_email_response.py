@@ -39,9 +39,9 @@ class ValidateEmailResponse(Action):
             
             # Create a new formatted email with the user's content
             updated_email = f"Subject: Re: {tracker.get_slot('current_email_subject')}\n\n"
-            updated_email += f"Dear {recipient_name},\n\n"
+            updated_email += f"Lieber {recipient_name},\n\n"
             updated_email += f"{user_input}\n\n"
-            updated_email += "Best regards,\nVincent Wallerich"
+            updated_email += "Schöne Grüße,\nVincent Wallerich"
             
             # Clear the user_input slot to avoid confusion in future turns
             return [

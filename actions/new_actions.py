@@ -40,15 +40,15 @@ class ActionOpenAIFallback(Action):
             # Get OpenAI API key
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
-                dispatcher.utter_message(text="I'm having trouble connecting to my knowledge base. Please try again later.")
+                dispatcher.utter_message(text="Ich habe Probleme, eine Verbindung zu meiner Wissensdatenbank herzustellen. Bitte versuche es später erneut.")
                 return []
             
             # Prepare the prompt
             prompt = f"""
-            You are a helpful assistant. Answer the following question concisely and accurately.
-            If you're not sure about something, say so.
+            Du bist ein hilfreicher Assistent. Beantworte die folgende Frage präzise und genau.
+            Wenn du dir über etwas nicht sicher bist, sag es einfach.
             
-            User question: {user_message}
+            User Frage: {user_message}
             """
             
             # Call OpenAI API
@@ -61,7 +61,7 @@ class ActionOpenAIFallback(Action):
                 json={
                     "model": "gpt-4o-2024-11-20",
                     "messages": [
-                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "system", "content": "Du bist ein hilfreicher Assistent."},
                         {"role": "user", "content": prompt}
                     ],
                     "max_tokens": 500,
@@ -80,7 +80,7 @@ class ActionOpenAIFallback(Action):
             
         except Exception as e:
             logger.error(f"Error calling OpenAI API: {e}")
-            dispatcher.utter_message(text="I'm sorry, I couldn't process your question. Please try again.")
+            dispatcher.utter_message(text="Tut mir leid, ich konnte deine Frage nicht verarbeiten. Bitte versuche es erneut.")
             return []
 
 class ActionIncrementHelpCount(Action):
@@ -153,12 +153,12 @@ class ActionCreateMedicationReminder(Action):
             # Validate required slots
             if not medication:
                 logger.error("Missing medication name")
-                dispatcher.utter_message(text="I need to know which medication to remind you about.")
+                dispatcher.utter_message(text="Ich muss wissen, welches Medikament ich dich erinnern soll.")
                 return [SlotSet("return_value", "failed")]
             
             if not time_str:
                 logger.error("Missing reminder time")
-                dispatcher.utter_message(text="I need to know what time to remind you.")
+                dispatcher.utter_message(text="Ich muss wissen, wann ich dich erinnern soll.")
                 return [SlotSet("return_value", "failed")]
             
             # Set defaults for missing optional fields
@@ -171,7 +171,7 @@ class ActionCreateMedicationReminder(Action):
             service = self._get_calendar_service()
             if not service:
                 logger.error("Failed to initialize Google Calendar service")
-                dispatcher.utter_message(text="I couldn't connect to Google Calendar. Please check your credentials.")
+                dispatcher.utter_message(text="Ich konnte keine Verbindung zu Google Kalender herstellen. Bitte überprüfe deine Anmeldeinformationen.")
                 return [SlotSet("return_value", "failed")]
             
             # Parse date and time
@@ -180,13 +180,13 @@ class ActionCreateMedicationReminder(Action):
                 logger.info(f"Parsed datetime: {reminder_datetime}")
             except Exception as e:
                 logger.error(f"Error parsing datetime: {e}")
-                dispatcher.utter_message(text="I couldn't understand the date or time format. Please try again with a clearer format.")
+                dispatcher.utter_message(text="Ich konnte das Datum oder die Uhrzeit nicht verstehen. Bitte versuche es erneut mit einem klareren Format.")
                 return [SlotSet("return_value", "failed")]
             
             # Create the event with proper structure
             event = {
-                'summary': f'💊 Take {medication}',
-                'description': f'Reminder to take your {medication}',
+                'summary': f'💊 Nimm {medication}',
+                'description': f'Erinnerung, deine {medication} zu nehmen',
                 'start': {
                     'dateTime': reminder_datetime.isoformat(),
                     'timeZone': 'Europe/Copenhagen',

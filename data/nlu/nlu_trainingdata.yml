@@ -1,279 +1,277 @@
-version: "3.1"
-
 nlu:
-# New greeting intent
+# Neuer Begrüßungs‑Intent
 - intent: greeting
   examples: |
-    - hello
+    - hallo
     - hi
     - hey
-    - good morning
-    - good evening
-    - what's up
-    - how are you
-    - hey there
-    - hello there
-    - hi there
+    - guten Morgen
+    - guten Abend
+    - was geht
+    - wie geht's
+    - hey du
+    - hallo da
+    - hi da
 
-# New goodbye intent
+# Neuer Verabschiedungs‑Intent
 - intent: goodbye
   examples: |
-    - goodbye
-    - bye
-    - see you later
-    - talk to you later
-    - farewell
-    - take care
-    - catch you later
-    - see ya
-    - until next time
-    - have a good day
+    - auf Wiedersehen
+    - tschüss
+    - bis später
+    - wir sprechen uns später
+    - leb wohl
+    - mach's gut
+    - bis dann
+    - ciao
+    - bis zum nächsten Mal
+    - hab einen schönen Tag
 
-# New general question intent
+# Neuer allgemeiner Frage‑Intent
 - intent: general_question
   examples: |
-    - what is the weather today
-    - tell me about climate change
-    - how do I cook pasta
-    - what's the capital of France
-    - explain quantum physics
-    - who is the president
-    - what time is it
-    - tell me a joke
-    - how many days until Christmas
-    - what's the meaning of life
-    - can you help me understand taxes
-    - what's the best way to learn programming
-    - how do I fix my computer
-    - tell me about artificial intelligence
-    - what should I eat for dinner
-    - how does the internet work
-    - what's the population of China
-    - explain photosynthesis
-    - what causes earthquakes
-    - how do airplanes fly
-    - what's the speed of light
-    - tell me about black holes
-    - how do vaccines work
-    - what's cryptocurrency
-    - explain machine learning
+    - Wie ist das Wetter heute
+    - Erzähl mir etwas über den Klimawandel
+    - Wie koche ich Pasta
+    - Was ist die Hauptstadt von Frankreich
+    - Erkläre Quantenphysik
+    - Wer ist der Präsident
+    - Wie spät ist es
+    - Erzähl mir einen Witz
+    - Wie viele Tage bis Weihnachten
+    - Was ist der Sinn des Lebens
+    - Kannst du mir Steuern erklären
+    - Was ist der beste Weg, Programmieren zu lernen
+    - Wie repariere ich meinen Computer
+    - Erzähl mir etwas über künstliche Intelligenz
+    - Was soll ich zum Abendessen essen
+    - Wie funktioniert das Internet
+    - Wie viele Einwohner hat China
+    - Erkläre Photosynthese
+    - Was verursacht Erdbeben
+    - Wie fliegen Flugzeuge
+    - Wie schnell ist das Licht
+    - Erzähl mir etwas über schwarze Löcher
+    - Wie funktionieren Impfstoffe
+    - Was ist Kryptowährung
+    - Erkläre maschinelles Lernen
 
-# Existing email intents
+# Bestehende E‑Mail‑Intents
 - intent: check_email
   examples: |
-    - check my email
-    - do I have any new emails
-    - check inbox
-    - show me my emails
-    - any new messages
-    - check for new mail
-    - what emails do I have
-    - show unread emails
-    - check my gmail
-    - do I have mail
+    - prüfe meine E-Mails
+    - habe ich neue E-Mails
+    - Posteingang prüfen
+    - zeige mir meine E-Mails
+    - irgendwelche neuen Nachrichten
+    - nach neuer Post suchen
+    - welche E-Mails habe ich
+    - ungelesene E-Mails anzeigen
+    - überprüfe mein Gmail
+    - habe ich Post
 
 - intent: select_email
   examples: |
-    - read the [first](selected_email) email
-    - read the [second](selected_email) email
-    - read the [third](selected_email) email
-    - read email [1](selected_email)
-    - read email [2](selected_email)
-    - read email [3](selected_email)
-    - show me email [1](selected_email)
-    - show me email [2](selected_email)
-    - show me email [3](selected_email)
-    - open email [1](selected_email)
-    - open email [2](selected_email)
-    - open email [3](selected_email)
-    - read the email from [Vincent](selected_email)
-    - read the email by [Vincent](selected_email)
-    - read [Vincent](selected_email)'s email
-    - show me the email from [Vincent](selected_email)
-    - show me [Vincent](selected_email)'s email
-    - open the email from [Vincent](selected_email)
-    - open [Vincent](selected_email)'s email
-    - read the email about [Meeting](selected_email)
-    - read the email with subject [Meeting](selected_email)
-    - show me the email about [Meeting](selected_email)
-    - show me the email with subject [Meeting](selected_email)
-    - open the email about [Meeting](selected_email)
-    - open the email with subject [Meeting](selected_email)
-    - read the [first](selected_email) one
-    - read the [second](selected_email) one
-    - read the [third](selected_email) one
-    - show me the [first](selected_email) one
-    - show me the [second](selected_email) one
-    - show me the [third](selected_email) one
-    - open the [first](selected_email) one
-    - open the [second](selected_email) one
-    - open the [third](selected_email) one
-    - read [1](selected_email)
-    - read [2](selected_email)
-    - read [3](selected_email)
-    - show [1](selected_email)
-    - show [2](selected_email)
-    - show [3](selected_email)
-    - open [1](selected_email)
-    - open [2](selected_email)
-    - open [3](selected_email)
-    - read the [first](selected_email) mail
-    - read the [second](selected_email) mail
-    - read the [third](selected_email) mail
-    - show me the [first](selected_email) mail
-    - show me the [second](selected_email) mail
-    - show me the [third](selected_email) mail
-    - open the [first](selected_email) mail
-    - open the [second](selected_email) mail
-    - open the [third](selected_email) mail
-    - read mail [1](selected_email)
-    - read mail [2](selected_email)
-    - read mail [3](selected_email)
-    - show mail [1](selected_email)
-    - show mail [2](selected_email)
-    - show mail [3](selected_email)
-    - open mail [1](selected_email)
-    - open mail [2](selected_email)
-    - open mail [3](selected_email)
-    - read the email from [Vincent](selected_email) Wallerich
-    - read the email by [Vincent](selected_email) Wallerich
-    - read [Vincent](selected_email) Wallerich's email
-    - show me the email from [Vincent](selected_email) Wallerich
-    - show me [Vincent](selected_email) Wallerich's email
-    - open the email from [Vincent](selected_email) Wallerich
-    - open [Vincent](selected_email) Wallerich's email
-    - read the email about [Meeting for Rasa](selected_email)
-    - read the email with subject [Meeting for Rasa](selected_email)
-    - show me the email about [Meeting for Rasa](selected_email)
-    - show me the email with subject [Meeting for Rasa](selected_email)
-    - open the email about [Meeting for Rasa](selected_email)
-    - open the email with subject [Meeting for Rasa](selected_email)
+    - lies die [erste](selected_email) E-Mail
+    - lies die [zweite](selected_email) E-Mail
+    - lies die [dritte](selected_email) E-Mail
+    - lies E-Mail [1](selected_email)
+    - lies E-Mail [2](selected_email)
+    - lies E-Mail [3](selected_email)
+    - zeige mir E-Mail [1](selected_email)
+    - zeige mir E-Mail [2](selected_email)
+    - zeige mir E-Mail [3](selected_email)
+    - öffne E-Mail [1](selected_email)
+    - öffne E-Mail [2](selected_email)
+    - öffne E-Mail [3](selected_email)
+    - lies die E-Mail von [Vincent](selected_email)
+    - lies die E-Mail von [Vincent](selected_email)
+    - lies [Vincent](selected_email)s E-Mail
+    - zeige mir die E-Mail von [Vincent](selected_email)
+    - zeige mir [Vincent](selected_email)s E-Mail
+    - öffne die E-Mail von [Vincent](selected_email)
+    - öffne [Vincent](selected_email)s E-Mail
+    - lies die E-Mail über [Meeting](selected_email)
+    - lies die E-Mail mit Betreff [Meeting](selected_email)
+    - zeige mir die E-Mail über [Meeting](selected_email)
+    - zeige mir die E-Mail mit Betreff [Meeting](selected_email)
+    - öffne die E-Mail über [Meeting](selected_email)
+    - öffne die E-Mail mit Betreff [Meeting](selected_email)
+    - lies die [erste](selected_email)
+    - lies die [zweite](selected_email)
+    - lies die [dritte](selected_email)
+    - zeige mir die [erste](selected_email)
+    - zeige mir die [zweite](selected_email)
+    - zeige mir die [dritte](selected_email)
+    - öffne die [erste](selected_email)
+    - öffne die [zweite](selected_email)
+    - öffne die [dritte](selected_email)
+    - lies [1](selected_email)
+    - lies [2](selected_email)
+    - lies [3](selected_email)
+    - zeige [1](selected_email)
+    - zeige [2](selected_email)
+    - zeige [3](selected_email)
+    - öffne [1](selected_email)
+    - öffne [2](selected_email)
+    - öffne [3](selected_email)
+    - lies die [erste](selected_email) Mail
+    - lies die [zweite](selected_email) Mail
+    - lies die [dritte](selected_email) Mail
+    - zeige mir die [erste](selected_email) Mail
+    - zeige mir die [zweite](selected_email) Mail
+    - zeige mir die [dritte](selected_email) Mail
+    - öffne die [erste](selected_email) Mail
+    - öffne die [zweite](selected_email) Mail
+    - öffne die [dritte](selected_email) Mail
+    - lies Mail [1](selected_email)
+    - lies Mail [2](selected_email)
+    - lies Mail [3](selected_email)
+    - zeige Mail [1](selected_email)
+    - zeige Mail [2](selected_email)
+    - zeige Mail [3](selected_email)
+    - öffne Mail [1](selected_email)
+    - öffne Mail [2](selected_email)
+    - öffne Mail [3](selected_email)
+    - lies die E-Mail von [Vincent](selected_email) Wallerich
+    - lies die E-Mail von [Vincent](selected_email) Wallerich
+    - lies [Vincent](selected_email) Wallerichs E-Mail
+    - zeige mir die E-Mail von [Vincent](selected_email) Wallerich
+    - zeige mir [Vincent](selected_email) Wallerichs E-Mail
+    - öffne die E-Mail von [Vincent](selected_email) Wallerich
+    - öffne [Vincent](selected_email) Wallerichs E-Mail
+    - lies die E-Mail über [Meeting for Rasa](selected_email)
+    - lies die E-Mail mit Betreff [Meeting for Rasa](selected_email)
+    - zeige mir die E-Mail über [Meeting for Rasa](selected_email)
+    - zeige mir die E-Mail mit Betreff [Meeting for Rasa](selected_email)
+    - öffne die E-Mail über [Meeting for Rasa](selected_email)
+    - öffne die E-Mail mit Betreff [Meeting for Rasa](selected_email)
 
 - intent: navigate_email
   examples: |
-    - show [next](navigation_direction) email
-    - go to [next](navigation_direction) email
-    - show [previous](navigation_direction) email
-    - go to [previous](navigation_direction) email
-    - [next](navigation_direction) message
-    - [previous](navigation_direction) message
-    - show me the [next](navigation_direction) one
-    - go back to the [previous](navigation_direction) one
-    - [next](navigation_direction)
-    - [previous](navigation_direction)
-    - go [next](navigation_direction)
-    - go [back](navigation_direction)
+    - zeige [nächste](navigation_direction) E-Mail
+    - gehe zur [nächsten](navigation_direction) E-Mail
+    - zeige [vorherige](navigation_direction) E-Mail
+    - gehe zur [vorherigen](navigation_direction) E-Mail
+    - [nächste](navigation_direction) Nachricht
+    - [vorherige](navigation_direction) Nachricht
+    - zeige mir die [nächste](navigation_direction)
+    - gehe zurück zur [vorherigen](navigation_direction)
+    - [nächste](navigation_direction)
+    - [vorherige](navigation_direction)
+    - gehe [weiter](navigation_direction)
+    - gehe [zurück](navigation_direction)
 
 - intent: apply_label
   examples: |
-    - apply the label [Work](label_choice)
-    - label as [Important](label_choice)
-    - use [Personal](label_choice) label
-    - apply [Family](label_choice) label
-    - create new label [To-do](label_choice)
-    - make a new label called [Follow up](label_choice)
-    - use label [Finance](label_choice)
-    - mark as [Urgent](label_choice)
-    - use [recommendation](label_choice)
-    - apply your [recommendation](label_choice)
-    - use suggested label
-    - apply label number [1](label_choice)
-    - use the [first](label_choice) label
-    - select label [2](label_choice)
+    - wende das Label [Work](label_choice) an
+    - markiere als [Important](label_choice)
+    - nutze das Label [Personal](label_choice)
+    - verwende das Label [Family](label_choice)
+    - erstelle neues Label [To-do](label_choice)
+    - erstelle ein neues Label namens [Follow up](label_choice)
+    - benutze Label [Finance](label_choice)
+    - markiere als [Urgent](label_choice)
+    - verwende [recommendation](label_choice)
+    - wende deine [recommendation](label_choice) an
+    - verwende vorgeschlagenes Label
+    - wende Label Nummer [1](label_choice) an
+    - benutze das [erste](label_choice) Label
+    - wähle Label [2](label_choice)
 
 - intent: reply_type
   examples: |
-    - [use my own words](reply_type:user_content)
-    - [professional](reply_type:professional)
-    - [casual](reply_type:casual)
-    - [formal](reply_type:professional)
-    - [friendly](reply_type:casual)
-    - [draft a professional reply](reply_type:professional)
-    - [draft a casual reply](reply_type:casual)
-    - [use my words](reply_type:user_content)
-    - I want to [write it myself](reply_type:user_content)
-    - [custom](reply_type:custom)
-    - [create a custom reply](reply_type:custom)
-    - [option 1](reply_type:user_content)
-    - [option 2](reply_type:professional)
-    - [option 3](reply_type:casual)
-    - [option 4](reply_type:custom)
-    - [first option](reply_type:user_content)
-    - [second option](reply_type:professional)
-    - [third option](reply_type:casual)
-    - [fourth option](reply_type:custom)
-    - [in my own words](reply_type:user_content)
-    - [professional email](reply_type:professional)
-    - [casual email](reply_type:casual)
-    - [concerned](reply_type:custom)
-    - [polite but firm](reply_type:custom)
-    - reply type one
-    - reply type two
-    - reply type three
-    - reply type four
+    - [mit eigenen Worten](reply_type:user_content)
+    - [professionell](reply_type:professional)
+    - [locker](reply_type:casual)
+    - [formell](reply_type:professional)
+    - [freundlich](reply_type:casual)
+    - [formuliere eine professionelle Antwort](reply_type:professional)
+    - [formuliere eine lockere Antwort](reply_type:casual)
+    - [nutze meine Worte](reply_type:user_content)
+    - Ich möchte es [selbst schreiben](reply_type:user_content)
+    - [angepasst](reply_type:custom)
+    - [erstelle eine angepasste Antwort](reply_type:custom)
+    - [Option 1](reply_type:user_content)
+    - [Option 2](reply_type:professional)
+    - [Option 3](reply_type:casual)
+    - [Option 4](reply_type:custom)
+    - [erste Option](reply_type:user_content)
+    - [zweite Option](reply_type:professional)
+    - [dritte Option](reply_type:casual)
+    - [vierte Option](reply_type:custom)
+    - [in meinen eigenen Worten](reply_type:user_content)
+    - [professionelle E-Mail](reply_type:professional)
+    - [lockere E-Mail](reply_type:casual)
+    - [besorgt](reply_type:custom)
+    - [höflich aber bestimmt](reply_type:custom)
+    - Antworttyp eins
+    - Antworttyp zwei
+    - Antworttyp drei
+    - Antworttyp vier
 
-# New medication reminder intents
+# Neue Intents für Medikamentenerinnerungen
 - intent: set_medication_reminder
   examples: |
-    - I need a medication reminder
-    - set up a medication reminder
-    - remind me to take my medication
-    - I need to remember to take my pills
-    - can you remind me about my medicine
-    - medication reminder please
-    - help me remember my medication
-    - I always forget my medication
-    - set a reminder for my pills
-    - remind me to take [aspirin](medication_name)
-    - I need to take [insulin](medication_name) every day
-    - remind me about [blood pressure medication](medication_name)
-    - set reminder for [vitamins](medication_name) at [9am](time)
-    - I take [metformin](medication_name) [twice daily](frequency)
-    - medication reminder for [antibiotics](medication_name)
-    - I need to take my [heart medication](medication_name)
-    - remind me about my [diabetes pills](medication_name)
-    - set up pill reminder
-    - I forget to take my meds
-    - medicine reminder
-    - pill reminder please
+    - Ich brauche eine Medikamentenerinnerung
+    - Richte eine Medikamentenerinnerung ein
+    - Erinnere mich daran, meine Medikamente einzunehmen
+    - Ich muss daran denken, meine Tabletten zu nehmen
+    - Kannst du mich an meine Medizin erinnern?
+    - Bitte eine Medikamentenerinnerung
+    - Hilf mir, an meine Medikamente zu denken
+    - Ich vergesse meine Medikamente immer
+    - Stell eine Erinnerung für meine Tabletten ein
+    - Erinnere mich daran, [Aspirin](medication_name) einzunehmen
+    - Ich muss jeden Tag [Insulin](medication_name) nehmen
+    - Erinnere mich an meine [Blutdruckmedikamente](medication_name)
+    - Stelle eine Erinnerung für [Vitamine](medication_name) um [9 Uhr](time) ein
+    - Ich nehme [Metformin](medication_name) [zweimal täglich](frequency)
+    - Medikamentenerinnerung für [Antibiotika](medication_name)
+    - Ich muss meine [Herzmedikamente](medication_name) nehmen
+    - Erinnere mich an meine [Diabetes-Tabletten](medication_name)
+    - Richte eine Tablettenerinnerung ein
+    - Ich vergesse, meine Medikamente zu nehmen
+    - Medizin-Erinnerung
+    - Bitte eine Tablettenerinnerung
 
 - intent: inform_medication_details
   examples: |
-    - [aspirin](medication_name)
-    - [insulin](medication_name)
-    - [blood pressure pills](medication_name)
-    - [vitamins](medication_name)
-    - [metformin](medication_name)
-    - [antibiotics](medication_name)
-    - [heart medication](medication_name)
-    - [thyroid medication](medication_name)
-    - [pain killers](medication_name)
-    - [allergy medication](medication_name)
-    - [8:00 AM](time)
-    - [9:30 PM](time)
-    - [10 o'clock](time)
-    - [noon](time)
-    - [midnight](time)
-    - [6pm](time)
-    - [tomorrow](date)
-    - [next Monday](date)
-    - [today](date)
-    - [this week](date)
-    - [next week](date)
-    - [daily](frequency)
-    - [twice a day](frequency)
-    - [every morning](frequency)
-    - [every 8 hours](frequency)
-    - [weekly](frequency)
-    - [three times a day](frequency)
-    - [every evening](frequency)
-    - [once a week](frequency)
-    - it's [ibuprofen](medication_name)
-    - at [10am](time) and [10pm](time)
-    - starting [today](date)
-    - [every day](frequency)
+    - [Aspirin](medication_name)
+    - [Insulin](medication_name)
+    - [Blutdrucktabletten](medication_name)
+    - [Vitamine](medication_name)
+    - [Metformin](medication_name)
+    - [Antibiotika](medication_name)
+    - [Herzmedikamente](medication_name)
+    - [Schilddrüsenmedikamente](medication_name)
+    - [Schmerzmittel](medication_name)
+    - [Allergiemedikamente](medication_name)
+    - [08:00 Uhr](time)
+    - [21:30 Uhr](time)
+    - [10 Uhr](time)
+    - [Mittag](time)
+    - [Mitternacht](time)
+    - [18 Uhr](time)
+    - [morgen](date)
+    - [nächsten Montag](date)
+    - [heute](date)
+    - [diese Woche](date)
+    - [nächste Woche](date)
+    - [täglich](frequency)
+    - [zweimal täglich](frequency)
+    - [jeden Morgen](frequency)
+    - [alle 8 Stunden](frequency)
+    - [wöchentlich](frequency)
+    - [dreimal täglich](frequency)
+    - [jeden Abend](frequency)
+    - [einmal pro Woche](frequency)
+    - Es ist [Ibuprofen](medication_name)
+    - um [10 Uhr](time) und [22 Uhr](time)
+    - ab [heute](date)
+    - [jeden Tag](frequency)
 
-# Updated emergency help intent
+# Aktualisierte Notfallhilfe-Intents
 - intent: emergency_help
   examples: |
     - hilfe
@@ -283,60 +281,58 @@ nlu:
     - Notruf
     - Ich brauche Hilfe
     - Bitte rufe Hilfe
-    - Emergency
-    - Emergenz
+    - Notfall!
     - Hilfe holen
     - Ruf Hilfe
     - SOS
-    - Send emergency alert
-    - This is an emergency
-    - I need urgent help
-    - Call for help
+    - Sende Notfallalarm
+    - Das ist ein Notfall
+    - Ich brauche dringend Hilfe
+    - Ruf um Hilfe
     - Hilfe anrufen
     - Notdienst benachrichtigen
     - Notarzt rufen
     - Ich bin in Gefahr
-    - Danger
     - Gefahr
     - Bitte Notdienst verständigen
     - Alarmieren Sie Hilfe
     - Bitte Notfallkontakte kontaktieren
-    - Contact emergency services
-    - Help me please urgent
+    - Kontaktiere den Notdienst
+    - Bitte hilf mir dringend
     - Dringend Hilfe nötig
     - Medizinischer Notfall
-    - Medical emergency
 
-# Basic intents
+# Grundlegende Intents
 - intent: affirm
   examples: |
-    - yes
-    - yeah
-    - yep
-    - sure
+    - ja
+    - klar
+    - jep
+    - sicher
     - ok
     - okay
-    - correct
-    - right
-    - indeed
-    - absolutely
-    - of course
-    - that's right
-    - yes please
-    - definitely
+    - korrekt
+    - richtig
+    - in der Tat
+    - absolut
+    - natürlich
+    - das stimmt
+    - ja bitte
+    - definitiv
+    - auf jeden Fall
 
 - intent: deny
   examples: |
-    - no
+    - nein
     - nope
-    - not really
-    - no way
-    - don't
-    - don't want to
-    - no thanks
-    - not interested
-    - negative
-    - never
-    - I don't think so
-    - definitely not
-    - no please
+    - nicht wirklich
+    - auf keinen Fall
+    - nicht
+    - will nicht
+    - nein danke
+    - nicht interessiert
+    - negativ
+    - niemals
+    - ich glaube nicht
+    - definitiv nicht
+    - nein bitte

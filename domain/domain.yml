@@ -255,124 +255,126 @@ entities:
   - frequency
 
 responses:
-  # Updated greeting - ALWAYS starts conversations with this
+responses:
+  # Aktualisierte Begrüßung – BEGINNT jedes Gespräch
   utter_greet:
-  - text: "Hello! What can I help you with today?"
+  - text: "Hallo! Womit kann ich dir heute helfen?"
 
   utter_goodbye:
-  - text: "Goodbye! Let me know if you need help with your emails later."
+  - text: "Auf Wiedersehen! Sag mir Bescheid, wenn du später Hilfe bei deinen E‑Mails brauchst."
   
   utter_capabilities:
-  - text: "I can help you with:\n- Checking and managing emails\n- Setting medication reminders\n- Answering general questions\n- Emergency assistance (say 'hilfe' twice)\n\nWhat would you like to do?"
+  - text: "Ich kann dir helfen mit:\n- E‑Mails überprüfen und verwalten\n- Medikamentenerinnerungen einrichten\n- Allgemeine Fragen beantworten\n- Notfallunterstützung (sage zweimal 'hilfe')\n\nWomit möchtest du beginnen?"
 
-  # Email responses (existing)
+  # E‑Mail‑Antworten (bestehend)
   utter_no_new_mail:
-  - text: "You don't have any new emails at the moment."
+  - text: "Du hast im Moment keine neuen E‑Mails."
   utter_ask_selected_email:
-  - text: "Which email would you like to read? You can select by number (e.g., '1'), mention the sender (e.g., 'Vincent's email'), or refer to the subject."
+  - text: "Welche E‑Mail möchtest du lesen? Du kannst sie per Nummer auswählen (z. B. '1'), den Absender nennen (z. B. 'Vincents E‑Mail') oder den Betreff angeben."
   utter_ask_email_action:
-  - text: "What would you like to do with this email?\n1. Reply\n2. Mark as read\n3. Delete\n4. Apply label\n5. Next email\n6. Previous email\n7. Return to inbox"
+  - text: "Was möchtest du mit dieser E‑Mail tun?\n1. Antworten\n2. Als gelesen markieren\n3. Löschen\n4. Label anwenden\n5. Nächste E‑Mail\n6. Vorherige E‑Mail\n7. Zurück zum Posteingang"
   utter_no_email_selected:
-  - text: "I don't have an email selected. Let's check your inbox first."
+  - text: "Ich habe keine E‑Mail ausgewählt. Lass uns zuerst deinen Posteingang ansehen."
   utter_ask_navigation_direction:
-  - text: "Would you like to see the next email or the previous one?"
+  - text: "Möchtest du die nächste oder die vorherige E‑Mail sehen?"
   utter_ask_reply_type:
-  - text: "How would you like me to draft your reply? You can say:\n1. Use my own words\n2. Draft a professional reply\n3. Create a casual reply\n4. Custom style (e.g., 'formal', 'concerned')"
+  - text: "Wie soll ich deine Antwort formulieren?\n1. In deinen eigenen Worten\n2. Professionelle Antwort verfassen\n3. Lockeres Antwortschreiben\n4. Eigener Stil (z. B. 'formell', 'besorgt')"
   utter_ask_user_input:
-  - text: "What would you like to say in your reply?"
+  - text: "Was möchtest du in deiner Antwort sagen?"
   utter_ask_draft_options:
-  - text: "Here's the draft I've created:\n\n{email_response}\n\nWhat would you like to do?\n1. Send as is\n2. Edit this draft\n3. Start over\n4. Cancel"
+  - text: "Hier ist mein Entwurf:\n\n{email_response}\n\nWas möchtest du tun?\n1. So senden\n2. Entwurf bearbeiten\n3. Neu anfangen\n4. Abbrechen"
   utter_ask_for_edits:
-  - text: "Please provide your complete edited version of the email. Your changes will be incorporated into the proper email format:"
+  - text: "Bitte gib deine vollständig bearbeitete Version der E‑Mail ein. Deine Änderungen werden in das richtige E‑Mail‑Format übernommen:"
   utter_confirm_edited_draft:
-  - text: "I've updated the draft with your edits:\n\n{email_response}"
+  - text: "Ich habe den Entwurf mit deinen Änderungen aktualisiert:\n\n{email_response}"
   utter_ask_send_edited:
-  - text: "Would you like to send this edited draft?"
+  - text: "Möchtest du diesen bearbeiteten Entwurf senden?"
   utter_ask_final_confirmation:
-  - text: "Before I send this email, please confirm:\n\nThis reply will be sent to {current_email_sender} with the subject \"Re: {current_email_subject}\".\n\nWould you like to proceed with sending?"
+  - text: "Bevor ich diese E‑Mail sende, bitte bestätigen:\n\nDiese Antwort wird an {current_email_sender} mit dem Betreff \"Re: {current_email_subject}\" gesendet.\n\nMöchtest du fortfahren?"
   utter_email_sent:
-  - text: "Great! Your email has been sent successfully."
+  - text: "Perfekt! Deine E‑Mail wurde erfolgreich gesendet."
   utter_email_not_sent:
-  - text: "I've canceled sending the email."
+  - text: "Ich habe das Senden der E‑Mail abgebrochen."
   utter_ask_label_choice:
-  - text: "Which label would you like to apply? You can select one of the existing labels, create a new one, or use my recommendation."
+  - text: "Welches Label möchtest du anwenden? Du kannst eines der vorhandenen Labels auswählen, ein neues erstellen oder meine Empfehlung nutzen."
   utter_labeling_complete:
-  - text: "I've labeled your email as requested."
+  - text: "Ich habe deine E‑Mail wie gewünscht gekennzeichnet."
   utter_ask_next_action:
-  - text: "What would you like to do next?\n1. Return to inbox\n2. Check for new emails\n3. Go to next email\n4. Mark the original email as read"
+  - text: "Was möchtest du als Nächstes tun?\n1. Zum Posteingang zurückkehren\n2. Nach neuen E‑Mails suchen\n3. Zur nächsten E‑Mail wechseln\n4. Die ursprüngliche E‑Mail als gelesen markieren"
   utter_can_do_something_else:
-  - text: "What else can I help you with?"
+  - text: "Wobei kann ich dir sonst noch helfen?"
   utter_email_marked_read:
-  - text: "I've marked the email as read."
+  - text: "Ich habe die E‑Mail als gelesen markiert."
   utter_noreply_warning:
-  - text: "Just to let you know, I notice this is from a no-reply address. These addresses typically don't accept incoming messages.\n\nWould you still like to:\n1. Draft a reply anyway\n2. Return to inbox"
+  - text: "Nur zur Info: Diese E‑Mail stammt von einer No‑Reply‑Adresse. Solche Adressen akzeptieren normalerweise keine eingehenden Nachrichten.\n\nMöchtest du trotzdem:\n1. Trotzdem eine Antwort verfassen\n2. Zum Posteingang zurückkehren"
   utter_smart_reply_suggestions:
-  - text: "Here are some quick reply options:\n\n1. \"Thanks for your email. I'll review this and get back to you.\"\n2. \"Received, thanks!\"\n3. \"Got it, appreciate the update.\"\n4. Write a custom reply\n\nWhich would you prefer?"
+  - text: "Hier sind einige Schnellantwort‑Optionen:\n\n1. \"Danke für deine E‑Mail. Ich schaue mir das an und melde mich.\"\n2. \"Erhalten, danke!\"\n3. \"Verstanden, danke für das Update.\"\n4. Eigene Antwort verfassen\n\nWelche Option bevorzugst du?"
   utter_reply_error:
-  - text: "I'm sorry, I didn't understand what kind of reply you wanted to draft. Please try again by selecting one of the options."
+  - text: "Entschuldigung, ich habe nicht verstanden, welche Art von Antwort du verfassen möchtest. Bitte versuche es noch einmal, indem du eine der Optionen wählst."
   utter_ask_for_response:
-  - text: "What would you like to say in your reply?"
+  - text: "Was möchtest du in deiner Antwort sagen?"
   utter_auth_help:
-  - text: "To fix authentication issues:\n1. Make sure your Gmail API credentials are correctly set up\n2. Check that your OAuth token is valid\n3. Try deleting the token file to go through the authentication flow again\n\nIf you need more help, please contact your administrator."
+  - text: "So behebst du Authentifizierungsprobleme:\n1. Stelle sicher, dass deine Gmail‑API‑Anmeldedaten korrekt eingerichtet sind\n2. Überprüfe, ob dein OAuth‑Token gültig ist\n3. Lösche ggf. die Token‑Datei, um den Authentifizierungsfluss erneut zu durchlaufen\n\nWenn du weitere Hilfe benötigst, wende dich bitte an deinen Administrator."
   utter_error_occurred:
-  - text: "I'm sorry, but I encountered an error. Please try again later."
+  - text: "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuche es später noch einmal."
   utter_ask_anything_else:
-  - text: "Is there anything else you'd like me to help you with?"
+  - text: "Gibt es noch etwas, bei dem ich dir helfen kann?"
   utter_confirm_reply:
-  - text: "Would you like to reply to this email from {current_email_sender} about '{current_email_subject}'?"
+  - text: "Möchtest du auf diese E‑Mail von {current_email_sender} zum Thema '{current_email_subject}' antworten?"
   utter_sorting_complete:
-  - text: "I've sorted your emails based on their content. You can find them organized by categories in your Gmail account."
+  - text: "Ich habe deine E‑Mails nach ihrem Inhalt sortiert. Du findest sie in deinem Gmail‑Konto nach Kategorien geordnet."
   utter_ask_email_label:
-  - text: "What label would you like to apply to this email?"
+  - text: "Welches Label möchtest du für diese E‑Mail anwenden?"
   utter_ask_user_content_input:
-  - text: "What would you like to say in your reply?"
+  - text: "Was möchtest du in deiner Antwort sagen?"
   utter_ask_professional_input:
-  - text: "What key points or specific information would you like to include in your professional reply?"
+  - text: "Welche wichtigen Punkte oder speziellen Informationen sollen in deiner professionellen Antwort enthalten sein?"
   utter_ask_casual_input:
-  - text: "What main points would you like to mention in your casual reply?"
+  - text: "Welche Hauptpunkte möchtest du in deiner lockeren Antwort erwähnen?"
   utter_ask_custom_input:
-  - text: "What would you like to convey in your {custom_style} reply?"
+  - text: "Was möchtest du in deiner {custom_style}‑Antwort vermitteln?"
   utter_ask_default_input:
-  - text: "What would you like to include in your reply?"
+  - text: "Was möchtest du in deine Antwort aufnehmen?"
 
-  # Emergency responses (existing)
+  # Notfallantworten (bestehend)
   utter_emergency_help_initiated:
-  - text: "Ich habe einen Hilferuf an Ihre Notfallkontakte gesendet. Bitte bleiben Sie ruhig, Hilfe ist unterwegs.\n\nI have sent a distress call to your emergency contacts. Please stay calm, help is on the way."
+  - text: "Ich habe einen Hilferuf an deine Notfallkontakte gesendet. Bitte bleib ruhig, Hilfe ist unterwegs."
   utter_emergency_help_failed:
-  - text: "Ich konnte keine Nachricht an Ihre Notfallkontakte senden. Bitte rufen Sie direkt den Notdienst unter 112 an.\n\nI couldn't send a message to your emergency contacts. Please call emergency services directly at 112."
+  - text: "Ich konnte keine Nachricht an deine Notfallkontakte senden. Bitte rufe direkt den Notdienst unter 112 an."
   
-  # Medication reminder responses
+  # Medikamentenerinnerungen
   utter_ask_medication_name:
-  - text: "What medication would you like me to remind you about? (e.g., aspirin, insulin, vitamins)"
+  - text: "An welches Medikament soll ich dich erinnern? (z. B. Aspirin, Insulin, Vitamine)"
   
   utter_ask_reminder_time:
-  - text: "What time should I remind you to take {medication_name}? You can say things like '8:00 AM', '10 PM', or 'noon'."
+  - text: "Um welche Uhrzeit soll ich dich an {medication_name} erinnern? Du kannst zum Beispiel '8:00 Uhr', '22 Uhr' oder 'Mittag' sagen."
   
   utter_ask_reminder_date:
-  - text: "Starting from which date should I set this reminder? You can say 'today', 'tomorrow', or a specific date."
+  - text: "Ab welchem Datum soll ich diese Erinnerung einrichten? Du kannst 'heute', 'morgen' oder ein bestimmtes Datum nennen."
   
   utter_ask_reminder_frequency:
-  - text: "How often should I remind you? You can say 'daily', 'weekly', 'twice a day', etc."
+  - text: "Wie oft soll ich dich erinnern? Du kannst zum Beispiel 'täglich', 'wöchentlich', 'zweimal täglich' sagen."
   
   utter_confirm_medication_reminder:
-  - text: "✅ Perfect! I've set up a reminder for {medication_name} at {reminder_time} starting {reminder_date}, repeating {reminder_frequency}. The reminder has been added to your Google Calendar with notifications enabled."
+  - text: "✅ Perfekt! Ich habe eine Erinnerung für {medication_name} um {reminder_time} ab {reminder_date} eingerichtet, {reminder_frequency} wiederholt. Die Erinnerung wurde deinem Google‑Kalender mit Benachrichtigungen hinzugefügt."
   
   utter_medication_reminder_failed:
-  - text: "❌ Sorry, I couldn't set up the medication reminder. This could be due to a Google Calendar connection issue or invalid date/time format. Please check your credentials and try again."
+  - text: "❌ Leider konnte ich die Medikamentenerinnerung nicht einrichten. Möglicherweise besteht ein Problem mit der Verbindung zu Google Calendar oder es wurde ein ungültiges Datum/Zeit‑Format angegeben. Bitte überprüfe deine Anmeldedaten und versuche es erneut."
   
   utter_ask_another_medication_reminder:
-  - text: "Would you like to set up another medication reminder?"
+  - text: "Möchtest du eine weitere Medikamentenerinnerung einrichten?"
   
   utter_ask_retry_medication_reminder:
-  - text: "Would you like to try setting up the medication reminder again? I can help you with the correct format."
+  - text: "Möchtest du versuchen, die Medikamentenerinnerung erneut einzurichten? Ich kann dir mit dem richtigen Format helfen."
   
-  # Help tracking response
+  # Hilfe‑Tracking
   utter_first_help:
-  - text: "Ich höre dich. Wenn du wirklich Hilfe brauchst, sage noch einmal 'Hilfe'.\n\nI hear you. If you really need help, say 'Hilfe' again."
+  - text: "Ich höre dich. Wenn du wirklich Hilfe brauchst, sage noch einmal 'Hilfe'."
   
-  # OpenAI fallback response
+  # OpenAI Fallback
   utter_thinking:
-  - text: "Let me think about that..."
+  - text: "Ich denke kurz nach…"
+
 
 actions:
   # Existing email actions

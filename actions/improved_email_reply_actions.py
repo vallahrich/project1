@@ -37,7 +37,7 @@ class ActionInitiateReply(Action):
             
             if not sender or not subject:
                 dispatcher.utter_message(
-                    text="I don't have an email selected to reply to. Let's check your inbox first."
+                    text="Ich habe keine E-Mail ausgewählt, auf die ich antworten kann. Lass uns zuerst deinen Posteingang überprüfen."
                 )
                 return []
             
@@ -46,17 +46,16 @@ class ActionInitiateReply(Action):
             
             # Check if this is a no-reply address
             is_no_reply = any(term in sender.lower() for term in ["no-reply", "noreply", "do-not-reply", "donotreply"])
-            
             if is_no_reply:
-                warning = "⚠️ This appears to be a no-reply email address which typically doesn't accept responses.\n\n"
+                warning = "⚠️ Dies scheint eine No-Reply-E-Mail-Adresse zu sein, die normalerweise keine Antworten akzeptiert.\n\n"
                 dispatcher.utter_message(text=warning)
-                        
+
             return [SlotSet("reply_stage", "initiate")]
-            
+
         except Exception as e:
             logger.error(f"Error initiating reply: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while setting up your reply. Please try again later."
+                text="Ich habe einen Fehler beim Einrichten Ihrer Antwort festgestellt. Bitte versuchen Sie es später erneut."
             )
             return []
 
@@ -145,16 +144,16 @@ class ActionGenerateReplyDraft(Action):
         
         # Prepare the prompt
         prompt = f"""
-        Format the user's content into a professional email reply:
-        
-        Original email subject: {subject}
-        Original email sender: {sender}
-        
-        User's content: {content}
-        
-        Create a well-formatted email that uses the user's content verbatim.
-        Add an appropriate greeting and professional sign-off.
-        Do not add any new content or change the user's message.
+        Formatiere den Inhalt des Benutzers in eine professionelle E-Mail-Antwort:
+
+        Original E-Mail-Betreff: {subject}
+        Original E-Mail-Absender: {sender}
+
+        Benutzerinhalt: {content}
+
+        Erstelle eine gut formatierte E-Mail, die den Inhalt des Benutzers wörtlich verwendet.
+        Füge eine angemessene Begrüßung und einen professionellen Abschluss hinzu.
+        Füge keinen neuen Inhalt hinzu und ändere nicht die Nachricht des Benutzers.
         """
         
         try:
@@ -203,20 +202,20 @@ class ActionGenerateReplyDraft(Action):
         
         # Prepare the prompt - now including user input
         prompt = f"""
-        Generate a professional email reply to the following email:
-        
-        Original email subject: {subject}
-        Original email sender: {sender}
-        Original email content: 
+        Erstelle eine professionelle E-Mail-Antwort auf die folgende E-Mail:
+
+        Original E-Mail-Betreff: {subject}
+        Original E-Mail-Absender: {sender}
+        Original E-Mail-Inhalt:
         {original_content}
-        
-        User's specific instructions or points to include:
+
+        Benutzerdefinierte Anweisungen oder Punkte, die berücksichtigt werden sollen:
         {user_input or "No specific instructions provided."}
-        
-        Create a well-formatted, professional email that is concise, clear, and maintains appropriate tone.
-        Focus on addressing the key points from the original email AND any specific points mentioned by the user.
-        Start with an appropriate greeting using the recipient's name if available.
-        End with a professional sign-off.
+
+        Erstelle eine gut formatierte, professionelle E-Mail, die prägnant, klar und im angemessenen Ton gehalten ist.
+        Gehe auf die Hauptpunkte der ursprünglichen E-Mail und alle spezifischen Punkte ein, die vom Benutzer erwähnt wurden.
+        Beginne mit einer angemessenen Begrüßung unter Verwendung des Namens des Empfängers, wenn verfügbar.
+        Beende die E-Mail mit einem professionellen Abschluss.
         """
         
         try:
@@ -265,20 +264,20 @@ class ActionGenerateReplyDraft(Action):
         
         # Prepare the prompt - now including user input
         prompt = f"""
-        Generate a casual, friendly email reply to the following email:
-        
-        Original email subject: {subject}
-        Original email sender: {sender}
-        Original email content: 
+        Erstelle eine informelle, freundliche E-Mail-Antwort auf die folgende E-Mail:
+
+        Original E-Mail-Betreff: {subject}
+        Original E-Mail-Absender: {sender}
+        Original E-Mail-Inhalt:
         {original_content}
-        
-        User's specific instructions or points to include:
+
+        Benutzerdefinierte Anweisungen oder Punkte, die berücksichtigt werden sollen:
         {user_input or "No specific instructions provided."}
-        
-        Create a warm, conversational email that feels personal and informal while still being respectful.
-        Address the main points from the original email AND any specific points mentioned by the user.
-        Use a friendly greeting with the recipient's first name if available.
-        End with a casual sign-off.
+
+        Erstelle eine warme, gesprächige E-Mail, die persönlich und informell wirkt und dennoch respektvoll bleibt.
+        Gehe auf die Hauptpunkte der ursprünglichen E-Mail und alle spezifischen Punkte ein, die vom Benutzer erwähnt wurden.
+        Verwende eine freundliche Begrüßung mit dem Vornamen des Empfängers, wenn verfügbar.
+        Beende die E-Mail mit einem informellen Abschluss.
         """
         
         try:
@@ -327,15 +326,15 @@ class ActionGenerateReplyDraft(Action):
         
         # Prepare the prompt
         prompt = f"""
-        Generate an email reply in a {style} style to the following email:
-        
-        Original email subject: {subject}
-        Original email sender: {sender}
-        Original email content: 
+        Erstelle eine E-Mail-Antwort im {style} Stil auf die folgende E-Mail:
+
+        Original E-Mail-Betreff: {subject}
+        Original E-Mail-Absender: {sender}
+        Original E-Mail-Inhalt:
         {original_content}
-        
-        Create a well-formatted email that embodies the {style} style requested by the user.
-        Use an appropriate greeting and sign-off that fits the requested style.
+
+        Erstelle eine gut formatierte E-Mail, die den vom Benutzer angeforderten {style} Stil verkörpert.
+        Verwende eine angemessene Begrüßung und einen passenden Abschluss, der zum angeforderten Stil passt.
         """
         
         try:
@@ -349,7 +348,7 @@ class ActionGenerateReplyDraft(Action):
                 json={
                     "model": "gpt-4o-2024-11-20", 
                     "messages": [
-                        {"role": "system", "content": f"You are a helpful assistant that drafts emails in a {style} style."},
+                        {"role": "system", "content": f"Du bist ein hilfreicher Assistent, der E-Mails im {style} Stil entwirft."},
                         {"role": "user", "content": prompt}
                     ],
                     "max_tokens": 500,
@@ -377,9 +376,9 @@ class ActionGenerateReplyDraft(Action):
             recipient_name = full_name.split()[0] if full_name else "there"
         
         # Basic template
-        greeting = f"Hello {recipient_name},"
-        signature = "\n\nBest regards,\n[Your Name]"
-        
+        greeting = f"Hallo {recipient_name},"
+        signature = "\n\nMit freundlichen Grüßen,\n[Your Name]"
+
         # Simple formatting as fallback
         formatted_content = f"{greeting}\n\n{content}\n{signature}"
         return formatted_content
@@ -413,7 +412,7 @@ class ActionSendReply(Action):
             
             if not sender_full or not subject or not response:
                 dispatcher.utter_message(
-                    text="I don't have enough information to send a reply. Let's draft a response first."
+                    text="Ich habe nicht genügend Informationen, um eine Antwort zu senden. Lass uns zuerst eine Antwort entwerfen."
                 )
                 return [
                     SlotSet("reply_stage", None),
@@ -451,7 +450,7 @@ class ActionSendReply(Action):
             # Let utter_email_sent handle the success message
             if not success:
                 dispatcher.utter_message(
-                    text="There was an issue sending your reply. Please check your internet connection and try again."
+                    text="Es gab ein Problem beim Senden deiner Antwort. Bitte überprüfe deine Internetverbindung und versuche es erneut."
                 )
             
                 return [
@@ -459,11 +458,11 @@ class ActionSendReply(Action):
                     SlotSet("review_option", None),
                     SlotSet("email_response", None),
                     SlotSet("confirm_edited_draft", None)]
-            
+            logger.info("Email reply sent successfully.")
         except Exception as e:
             logger.error(f"Error sending email reply: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while sending your reply. Please try again later."
+                text="Ich habe ein Problem beim Senden deiner Antwort festgestellt. Bitte versuche es später erneut."
             )
             return [
                 SlotSet("reply_stage", None),
@@ -492,13 +491,13 @@ class ActionEditReplyDraft(Action):
             
             if not current_draft:
                 dispatcher.utter_message(
-                    text="I don't have a draft to edit. Let's create one first."
+                    text="Ich habe keinen Entwurf zum Bearbeiten. Lass uns zuerst einen erstellen."
                 )
                 return []
             
             if not edit_instruction:
                 dispatcher.utter_message(
-                    text="Please tell me what changes you'd like to make to the draft."
+                    text="Bitte sag mir, welche Änderungen du am Entwurf vornehmen möchtest."
                 )
                 return [SlotSet("reply_stage", "editing")]
             
@@ -506,13 +505,13 @@ class ActionEditReplyDraft(Action):
             updated_draft = self.apply_edits_to_draft(current_draft, edit_instruction, dispatcher)
             
             # Display the updated draft
-            draft_message = f"I've updated the draft with your edits:\n\n{updated_draft}\n\n"
-            draft_message += "Would you like to:\n"
-            draft_message += "1. Send this draft\n"
-            draft_message += "2. Make more edits\n"
-            draft_message += "3. Start over\n"
-            draft_message += "4. Cancel"
-            
+            draft_message = f"Ich habe den Entwurf mit deinen Änderungen aktualisiert:\n\n{updated_draft}\n\n"
+            draft_message += "Möchtest du:\n"
+            draft_message += "1. Diesen Entwurf senden\n"
+            draft_message += "2. Weitere Änderungen vornehmen\n"
+            draft_message += "3. Von vorne beginnen\n"
+            draft_message += "4. Abbrechen"
+
             dispatcher.utter_message(text=draft_message)
             
             # Update the email_response slot with the edited draft
@@ -526,7 +525,7 @@ class ActionEditReplyDraft(Action):
         except Exception as e:
             logger.error(f"Error editing reply draft: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while editing your draft. Please try again with clearer instructions."
+                text="Ich habe ein Problem beim Bearbeiten deines Entwurfs festgestellt. Bitte versuche es erneut mit klareren Anweisungen."
             )
             return []
     
@@ -548,22 +547,22 @@ class ActionEditReplyDraft(Action):
             try:
                 # Prepare a more detailed prompt for the LLM
                 prompt = f"""
-                You are helping edit an email draft according to specific user instructions.
-                
-                Original email draft:
+                Du hilfst dabei, einen E-Mail-Entwurf gemäß spezifischer Benutzeranweisungen zu bearbeiten.
+
+                Original E-Mail-Entwurf:
                 ```
                 {current_draft}
                 ```
-                
-                User's edit instruction:
+
+                Users Änderungsanweisung:
                 ```
                 {edit_instruction}
                 ```
-                
-                Please make ONLY the changes specified in the edit instruction.
-                Preserve the email format with greeting, body paragraphs, and signature.
-                Maintain the original tone and style unless explicitly asked to change it.
-                Return the complete edited email without explanations or markdown formatting.
+
+                Bitte nimm NUR die in der Änderungsanweisung angegebenen Änderungen vor.
+                Bewahre das E-Mail-Format mit Begrüßung, Textabschnitten und Signatur bei.
+                Behalte den ursprünglichen Ton und Stil bei, es sei denn, es wird ausdrücklich um eine Änderung gebeten.
+                Gib die vollständige bearbeitete E-Mail ohne Erklärungen oder Markdown-Formatierung zurück.
                 """
                 
                 response = requests.post(
@@ -575,7 +574,7 @@ class ActionEditReplyDraft(Action):
                     json={
                         "model": "gpt-4o-2024-11-20",
                         "messages": [
-                            {"role": "system", "content": "You are a helpful assistant that edits email drafts."},
+                            {"role": "system", "content": "DDu bist ein hilfreicher Assistent, der E-Mail-Entwürfe bearbeitet."},
                             {"role": "user", "content": prompt}
                         ],
                         "max_tokens": 1000,

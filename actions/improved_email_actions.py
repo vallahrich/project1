@@ -40,11 +40,10 @@ class ActionListEmails(Action):
             
             # Get unread emails - increased max to 10
             unread_emails = email_client.get_unread_emails(max_results=10)
-            
             if not unread_emails:
-                dispatcher.utter_message(text="You don't have any new emails at the moment.")
+                dispatcher.utter_message(text="Sie haben im Moment keine neuen E-Mails.")
                 return [SlotSet("emails", None), SlotSet("email_count", 0)]
-            
+
             # Store all emails in a slot as JSON
             emails_json = json.dumps(unread_emails)
             
@@ -67,12 +66,11 @@ class ActionListEmails(Action):
         except Exception as e:
             logger.error(f"Error listing emails: {str(e)}")
             dispatcher.utter_message(
-                text="I'm having trouble accessing your emails right now. Please check your internet connection and email authentication."
+                text="Ich habe Probleme beim Zugriff auf Ihre E-Mails. Bitte überprüfen Sie Ihre Internetverbindung und die E-Mail-Authentifizierung."
             )
             return []
 
 class ValidateSelectedEmail(Action):
-    """FIXED validator for selected_email slot."""
     
     def name(self) -> str:
         return "validate_selected_email"
@@ -93,7 +91,7 @@ class ValidateSelectedEmail(Action):
         
         # Check if we have emails to match against
         if not emails_json:
-            dispatcher.utter_message(text="I don't have any emails loaded. Let me check your inbox first.")
+            dispatcher.utter_message(text="Ich habe keine E-Mails geladen. Lass mich zuerst deinen Posteingang überprüfen.")
             return [SlotSet("selected_email", None)]
         
         try:
@@ -105,11 +103,11 @@ class ValidateSelectedEmail(Action):
         
         # Convert numeric words to numbers
         numeric_words = {
-            "first": "1", "one": "1", "1st": "1",
-            "second": "2", "two": "2", "2nd": "2", 
-            "third": "3", "three": "3", "3rd": "3",
-            "fourth": "4", "four": "4", "4th": "4",
-            "fifth": "5", "five": "5", "5th": "5"
+            "erste": "1", "one": "1", "1st": "1",
+            "zweite": "2", "two": "2", "2nd": "2",
+            "dritte": "3", "three": "3", "3rd": "3",
+            "vierte": "4", "four": "4", "4th": "4",
+            "fünfte": "5", "five": "5", "5th": "5"
         }
         
         value_lower = value.lower().strip()
@@ -128,7 +126,7 @@ class ValidateSelectedEmail(Action):
                 logger.info(f"Successfully matched email number: {email_number}")
                 return [SlotSet("selected_email", str(email_number))]
             else:
-                dispatcher.utter_message(text=f"I only have {len(emails)} emails. Please choose a number between 1 and {len(emails)}.")
+                dispatcher.utter_message(text=f"Ich habe nur {len(emails)} E-Mails. Bitte wählen Sie eine Zahl zwischen 1 und {len(emails)}.")
                 return [SlotSet("selected_email", None)]
         
         # If it's just a digit, validate it
@@ -156,7 +154,7 @@ class ValidateSelectedEmail(Action):
                         return [SlotSet("selected_email", str(i))]
         
         # If no match found, provide helpful message
-        dispatcher.utter_message(text=f"I couldn't find an email matching '{value}'. Please try:\n- A number (1, 2, 3...)\n- The sender's name\n- Part of the subject line")
+        dispatcher.utter_message(text=f"Ich konnte keine E-Mail finden, die '{value}' entspricht. Bitte versuchen Sie:\n- Eine Zahl (1, 2, 3...)\n- Den Namen des Absenders\n- Einen Teil der Betreffzeile")
         return [SlotSet("selected_email", None)]
 
 class ActionReadSelectedEmail(Action):
@@ -175,13 +173,11 @@ class ActionReadSelectedEmail(Action):
             # Get the selected email index
             selected = tracker.get_slot("selected_email")
             emails_json = tracker.get_slot("emails")
-            
             if not emails_json:
-                dispatcher.utter_message(text="I don't have any emails to show. Let me check your inbox first.")
+                dispatcher.utter_message(text="Ich habe keine E-Mails zu zeigen. Lass mich zuerst deinen Posteingang überprüfen.")
                 return []
-            
             if not selected:
-                dispatcher.utter_message(text="Please tell me which email you'd like to read.")
+                dispatcher.utter_message(text="Bitte sagen Sie mir, welche E-Mail Sie lesen möchten.")
                 return []
             
             # Parse emails from JSON
@@ -195,7 +191,7 @@ class ActionReadSelectedEmail(Action):
                 email_index = 0
             
             if email_index < 0 or email_index >= len(emails):
-                dispatcher.utter_message(text=f"Email number {selected} is not available. Please choose between 1 and {len(emails)}.")
+                dispatcher.utter_message(text=f"Email nummer {selected} ist nicht verfügbar. Bitte wählen Sie eine Zahl zwischen 1 und {len(emails)}.")
                 return []
             
             # Get the email
@@ -203,39 +199,36 @@ class ActionReadSelectedEmail(Action):
             
             # Format the email for detailed display
             email_text = f"**EMAIL #{email_index + 1}**\n"
-            email_text += f"═══════════════════════════════════\n\n"
             
             # Header information
-            email_text += f"**From:** {email['sender_name']}\n"
-            email_text += f"**Email:** {email['sender']}\n"
-            email_text += f"**Subject:** {email['subject']}\n"
-            email_text += f"**Date:** {email['date']}\n"
-            email_text += f"**Status:** {'Unread' if not email.get('read', False) else 'Read'}\n\n"
-            
+            email_text += f"**Von:** {email['sender_name']}\n"
+            email_text += f"**-Mail:** {email['sender']}\n"
+            email_text += f"**Betreff:** {email['subject']}\n"
+            email_text += f"**Datum:** {email['date']}\n"
+            email_text += f"**Status:** {'Ungelesen' if not email.get('read', False) else 'Gelesen'}\n\n"
+
             # Email content
-            email_text += f"**MESSAGE:**\n"
-            email_text += f"─────────────────────────────────────\n"
-            
+            email_text += f"**NACHRICHT:**\n"
+
             # Get email body and clean it up
-            body = email.get('body', email.get('snippet', 'No content available'))
+            body = email.get('body', email.get('snippet', 'Kein Inhalt verfügbar'))
             if body:
                 # Clean up common email formatting issues
                 cleaned_body = self._clean_email_body(body)
                 email_text += f"{cleaned_body}\n"
             else:
-                email_text += "No message content available.\n"
-            
-            email_text += f"─────────────────────────────────────\n\n"
-            
+                email_text += "Kein Nachrichteninhalt verfügbar.\n"
+            email_text += "\n"
+
             # Add options
-            email_text += "**What would you like to do with this email?**\n"
-            email_text += "• Say 'reply' to respond\n"
-            email_text += "• Say 'mark as read' to mark it as read\n"
-            email_text += "• Say 'delete' to delete it\n"
-            email_text += "• Say 'label' to add a label\n"
-            email_text += "• Say 'next' or 'previous' to navigate\n"
-            email_text += "• Say 'back to inbox' to return to the email list"
-            
+            email_text += "**Was möchten Sie mit dieser E-Mail tun?**\n"
+            email_text += "• Sagen Sie 'antworten', um zu antworten\n"
+            email_text += "• Sagen Sie 'als gelesen markieren', um sie als gelesen zu markieren\n"
+            email_text += "• Sagen Sie 'löschen', um sie zu löschen\n"
+            email_text += "• Sagen Sie 'labeln', um ein Label hinzuzufügen\n"
+            email_text += "• Sagen Sie 'nächste' oder 'vorherige', um zu navigieren\n"
+            email_text += "• Sagen Sie 'zurück zum Posteingang', um zur E-Mail-Liste zurückzukehren"
+
             # Display the formatted email
             dispatcher.utter_message(text=email_text)
             
@@ -251,14 +244,14 @@ class ActionReadSelectedEmail(Action):
         except Exception as e:
             logger.error(f"Error reading selected email: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while reading your email. Please try again or select a different email."
+                text="Ich bin auf einen Fehler gestoßen, während ich versuchte, Ihre E-Mail zu lesen. Bitte versuchen Sie es erneut oder wählen Sie eine andere E-Mail aus."
             )
             return []
     
     def _clean_email_body(self, body: str) -> str:
         """Clean up email body for better display."""
         if not body:
-            return "No content available"
+            return "Kein Inhalt verfügbar"
         
         # Remove excessive line breaks
         cleaned = re.sub(r'\n\s*\n\s*\n', '\n\n', body)
@@ -276,7 +269,6 @@ class ActionReadSelectedEmail(Action):
         return cleaned.strip()
 
 class ActionNavigateEmails(Action):
-    """IMPROVED action to navigate to next or previous email."""
     
     def name(self) -> Text:
         return "action_navigate_emails"
@@ -292,9 +284,8 @@ class ActionNavigateEmails(Action):
             direction = tracker.get_slot("navigation_direction")
             current_index = tracker.get_slot("current_email_index")
             emails_json = tracker.get_slot("emails")
-            
             if not emails_json or current_index is None:
-                dispatcher.utter_message(text="I don't have email details to navigate. Let me check your inbox first.")
+                dispatcher.utter_message(text="Ich habe keine E-Mail-Details, um zu navigieren. Lass mich zuerst deinen Posteingang überprüfen.")
                 return []
             
             # Parse emails from JSON
@@ -309,35 +300,33 @@ class ActionNavigateEmails(Action):
             else:
                 # Handle edge cases
                 if direction == "next":
-                    dispatcher.utter_message(text="You're already at the last email. There are no more emails to display.")
+                    dispatcher.utter_message(text="Du bist bereits bei der letzten E-Mail. Es gibt keine weiteren E-Mails anzuzeigen.")
                 elif direction == "previous":
-                    dispatcher.utter_message(text="You're already at the first email. There are no previous emails to display.")
+                    dispatcher.utter_message(text="Du bist bereits bei der ersten E-Mail. Es gibt keine vorherigen E-Mails anzuzeigen.")
                 else:
-                    dispatcher.utter_message(text=f"I didn't understand the navigation direction: {direction}. Please say 'next' or 'previous'.")
-                
+                    dispatcher.utter_message(text=f"Ich habe die Navigationsrichtung nicht verstanden: {direction}. Bitte sage 'next' oder 'previous'.")
+
                 return []
             
             # Get the email and display it using the same logic as ActionReadSelectedEmail
             email = emails[new_index]
             
             # Create the same detailed format
-            email_text = f"📧 **EMAIL #{new_index + 1}**\n"
-            email_text += f"═══════════════════════════════════\n\n"
+            email_text = f" **EMAIL #{new_index + 1}**\n"
             
-            email_text += f"**From:** {email['sender_name']}\n"
-            email_text += f"**Email:** {email['sender']}\n"
-            email_text += f"**Subject:** {email['subject']}\n"
-            email_text += f"**Date:** {email['date']}\n\n"
+            email_text += f"**Von:** {email['sender_name']}\n"
+            email_text += f"**-Mail:** {email['sender']}\n"
+            email_text += f"**Betreff:** {email['subject']}\n"
+            email_text += f"**Datum:** {email['date']}\n\n"
             
-            email_text += f"**MESSAGE:**\n"
-            email_text += f"─────────────────────────────────────\n"
+            email_text += f"**Nachricht:**\n"
             
-            body = email.get('body', email.get('snippet', 'No content available'))
+            body = email.get('body', email.get('snippet', 'Kein Inhalt verfügbar'))
             if body:
                 cleaned_body = self._clean_email_body(body)
                 email_text += f"{cleaned_body}\n"
             else:
-                email_text += "No message content available.\n"
+                email_text += "Kein Nachrichteninhalt verfügbar.\n"
             
             email_text += f"─────────────────────────────────────\n\n"
             
@@ -345,14 +334,14 @@ class ActionNavigateEmails(Action):
             email_text += f"**Email {new_index + 1} of {len(emails)}**\n\n"
             
             # Add action options
-            email_text += "**What would you like to do?**\n"
-            email_text += "• Reply • Mark as read • Delete • Label\n"
+            email_text += "**Was möchten Sie tun?**\n"
+            email_text += "• Antworten • Als gelesen markieren • Löschen • Labeln\n"
             if new_index < len(emails) - 1:
-                email_text += "• Next email\n"
+                email_text += "• Nächste E-Mail\n"
             if new_index > 0:
-                email_text += "• Previous email\n"
-            email_text += "• Back to inbox"
-            
+                email_text += "• Vorherige E-Mail\n"
+            email_text += "• Zurück zum Posteingang\n"
+
             dispatcher.utter_message(text=email_text)
             
             # Set current email slots
@@ -367,7 +356,7 @@ class ActionNavigateEmails(Action):
         except Exception as e:
             logger.error(f"Error navigating emails: {str(e)}")
             dispatcher.utter_message(
-                text="I encountered an error while navigating your emails. Please try again or check your inbox."
+                text="Ich bin auf einen Fehler gestoßen, während ich versuchte, Ihre E-Mails zu navigieren. Bitte versuchen Sie es erneut oder überprüfen Sie Ihren Posteingang."
             )
             return []
     

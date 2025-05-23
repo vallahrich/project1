@@ -1,5 +1,5 @@
 recipe: default.v1
-language: en
+language: de
 
 # Pipeline for processing user messages
 pipeline:
