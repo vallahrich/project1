@@ -54,7 +54,7 @@ class VoiceAssistant:
             frames_per_buffer=self.CHUNK
         )
 
-        print("Listening... Speak now!")
+        print("Ich höre zu... Sprechen Sie jetzt!")  # German: Listening... Speak now!
 
         while self.is_listening:
             data = stream.read(self.CHUNK, exception_on_overflow=False)
@@ -72,8 +72,8 @@ class VoiceAssistant:
         config = speech_v1.RecognitionConfig(
             encoding=speech_v1.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=self.RATE,
-            language_code="en-US",  # Default to English
-            alternative_language_codes=["de-DE"]  # Add German as alternative
+            language_code="de-DE",  # Changed to German as primary
+            alternative_language_codes=["en-US"]  # Keep English as alternative
         )
 
         streaming_config = speech_v1.StreamingRecognitionConfig(
@@ -108,15 +108,16 @@ class VoiceAssistant:
             await self.load_agent()
         
         response = await self.agent.handle_text(text_input)
-        return response[0]["text"] if response else "I'm sorry, I didn't understand that."
+        return response[0]["text"] if response else "Entschuldigung, das habe ich nicht verstanden."  # German: Sorry, I didn't understand
 
-    def text_to_speech(self, text, language_code="en-US"):
+    def text_to_speech(self, text, language_code="de-DE"):
         """Convert text to speech using Google Text-to-Speech"""
         synthesis_input = texttospeech_v1.SynthesisInput(text=text)
 
         voice = texttospeech_v1.VoiceSelectionParams(
             language_code=language_code,
-            ssml_gender=texttospeech_v1.SsmlVoiceGender.NEUTRAL
+            name="de-DE-Neural2-F",  # German female voice
+            ssml_gender=texttospeech_v1.SsmlVoiceGender.FEMALE
         )
 
         audio_config = texttospeech_v1.AudioConfig(
@@ -151,25 +152,23 @@ class VoiceAssistant:
                 # Get transcription
                 transcript = self.transcribe_audio()
                 if transcript:
-                    print(f"You said: {transcript}")
+                    print(f"Sie sagten: {transcript}")  # German: You said
 
                     # Process with Rasa
                     response = await self.process_with_rasa(transcript)
-                    print(f"Assistant: {response}")
+                    print(f"Assistent: {response}")  # German: Assistant
 
-                    # Convert response to speech
-                    # Detect language (simplified - you might want to use a language detection library)
-                    language_code = "de-DE" if any(word in transcript.lower() for word in ["hilfe", "danke", "bitte"]) else "en-US"
-                    self.text_to_speech(response, language_code)
+                    # Convert response to speech (always use German)
+                    self.text_to_speech(response, "de-DE")
 
                 time.sleep(0.1)  # Small delay to prevent CPU overuse
 
         except KeyboardInterrupt:
-            print("\nStopping voice assistant...")
+            print("\nSprachassistent wird beendet...")  # German: Stopping voice assistant
             self.stop_listening()
             listen_thread.join()
             self.audio.terminate()
 
 if __name__ == "__main__":
     assistant = VoiceAssistant()
-    asyncio.run(assistant.run()) 
+    asyncio.run(assistant.run())

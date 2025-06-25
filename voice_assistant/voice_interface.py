@@ -22,10 +22,10 @@ class VoiceInterface:
         """Process voice input and get Rasa response"""
         # Convert speech to text
         user_input = self.stt.listen_and_transcribe(duration=30)
-        print(f"You said: {user_input}")
+        print(f"Sie sagten: {user_input}")  # German: You said
 
         if not user_input.strip():
-            self.tts.speak("I didn't catch that. Could you please repeat?")
+            self.tts.speak("Das habe ich nicht verstanden. Könnten Sie das bitte wiederholen?")  # German: I didn't catch that. Could you please repeat?
             return True
 
         # Get response from Rasa
@@ -34,16 +34,16 @@ class VoiceInterface:
         # Convert Rasa's response to speech
         for response in responses:
             if response.get("text"):
-                print(f"Assistant: {response['text']}")
+                print(f"Assistent: {response['text']}")  # German: Assistant
                 self.tts.speak(response["text"])
 
         return True
 
     async def run(self):
         """Run the voice interface"""
-        # Welcome message
-        welcome_text = "Hello! I'm your Rasa voice assistant. How can I help you today?"
-        print("Assistant:", welcome_text)
+        # Welcome message in German
+        welcome_text = "Hallo! Ich bin Ihr Rasa-Sprachassistent. Wie kann ich Ihnen heute helfen?"
+        print("Assistent:", welcome_text)  # German: Assistant
         self.tts.speak(welcome_text)
 
         while True:
@@ -52,7 +52,7 @@ class VoiceInterface:
                 if not should_continue:
                     break
             except Exception as e:
-                print(f"Error: {str(e)}")
+                print(f"Fehler: {str(e)}")  # German: Error
                 break
 
 if __name__ == "__main__":

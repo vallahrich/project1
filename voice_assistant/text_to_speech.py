@@ -6,8 +6,8 @@ class TextToSpeech:
     def __init__(self):
         self.client = texttospeech.TextToSpeechClient()
         self.voice = texttospeech.VoiceSelectionParams(
-            language_code="en-US",
-            name="en-US-Neural2-F",  # Female voice
+            language_code="de-DE",  # Changed to German
+            name="de-DE-Neural2-F",  # German female voice
             ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
         )
         self.audio_config = texttospeech.AudioConfig(
@@ -48,11 +48,11 @@ class TextToSpeech:
             self.play_audio(audio_content)
             return True
         except Exception as e:
-            print(f"Error during text-to-speech: {str(e)}")
+            print(f"Fehler bei der Sprachsynthese: {str(e)}")  # German: Error during text-to-speech
             return False
 
 if __name__ == "__main__":
     # Test the text-to-speech functionality
     tts = TextToSpeech()
-    test_text = "Hello! I am your Rasa voice assistant. How can I help you today?"
-    tts.speak(test_text) 
+    test_text = "Hallo! Ich bin Ihr Rasa-Sprachassistent. Wie kann ich Ihnen heute helfen?"  # German greeting
+    tts.speak(test_text)

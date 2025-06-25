@@ -10,7 +10,7 @@ class SpeechToText:
         self.audio_config = RecognitionConfig(
             encoding=RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=16000,
-            language_code="en-US",
+            language_code="de-DE",  # Changed to German
             model="default"
         )
 
@@ -28,14 +28,14 @@ class SpeechToText:
                        input=True,
                        frames_per_buffer=CHUNK)
 
-        print("* Recording audio...")
+        print("* Audio wird aufgenommen...")  # German: Recording audio
         frames = []
 
         for i in range(0, int(RATE / CHUNK * seconds)):
             data = stream.read(CHUNK)
             frames.append(data)
 
-        print("* Done recording")
+        print("* Aufnahme beendet")  # German: Done recording
 
         stream.stop_stream()
         stream.close()
@@ -78,6 +78,6 @@ if __name__ == "__main__":
     stt = SpeechToText()
     try:
         text = stt.listen_and_transcribe(duration=30)
-        print(f"Transcribed text: {text}")
+        print(f"Transkribierter Text: {text}")  # German: Transcribed text
     except Exception as e:
-        print(f"Error during speech-to-text: {str(e)}") 
+        print(f"Fehler bei der Spracherkennung: {str(e)}")  # German: Error during speech-to-text        cd C:\Users\vince\OneDrive\Desktop\project1\voice_assistant
